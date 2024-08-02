@@ -1,0 +1,18 @@
+[
+  {
+    "modid": "aimer",
+    "name": "Aimer",
+    "description": "less mouse dpi skill issues",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "",
+    "updateUrl": "",
+    "authorList": [
+      "calclb"
+    ],
+    "credits": "",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]
