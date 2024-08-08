@@ -8,29 +8,42 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.lwjgl.opengl.GL11;
 
-import java.io.*;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 public class AntiBot {
-    private static final long BOT_THRESHOLD_TICKS = 200; // 10 seconds (20 ticks per second)
+    private static final long PLAYER_EXISTENCE_TICKS_THRESHOLD = 200;
+    private static final double COMBAT_RADIUS = AimAssist.RANGE * 1.25;
+    private static final int COMBAT_COOLDOWN_TICKS = 50;
+
     private static final Map<UUID, Long> playerFirstSeenTick = Maps.newHashMap();
-    private static long currentTick = 0;
-
     private static final Set<UUID> whitelist = Sets.newHashSet();
-    private final File whitelistFile;
+    private static final Set<UUID> blacklist = Sets.newHashSet();
 
-    public AntiBot() {
-        File configDir = new File(Minecraft.getMinecraft().mcDataDir, "config");
-        this.whitelistFile = new File(configDir, "antibot_whitelist.txt");
-        loadWhitelist();
+    private static long currentTick = COMBAT_COOLDOWN_TICKS;
+    private static long lastCombatTick = 0;
+
+    @SubscribeEvent
+    public void onSpawn(EntityJoinWorldEvent e) {
+        EntityPlayer me = Minecraft.getMinecraft().thePlayer;
+        if(e.entity == me) return;
+        if (!(e.entity instanceof EntityPlayer)) return;
+        EntityPlayer player = (EntityPlayer) e.entity;
+
+        if(isPlayerInCombat() && player.getDistanceSqToEntity(me) <= COMBAT_RADIUS*COMBAT_RADIUS) {
+            blacklist.add(player.getUniqueID());
+            me.addChatMessage(new ChatComponentText(player.getName() + " spawned on you in combat!"));
+        }
     }
 
     @SubscribeEvent
@@ -41,13 +54,25 @@ public class AntiBot {
 
         Minecraft mc = Minecraft.getMinecraft();
         if (mc.thePlayer == null || mc.theWorld == null) return;
+        if(isPlayerInCombat()) lastCombatTick = currentTick;
 
         // Update the player list
         for (NetworkPlayerInfo playerInfo : mc.getNetHandler().getPlayerInfoMap()) {
             UUID uuid = playerInfo.getGameProfile().getId();
+            if(Minecraft.getMinecraft().thePlayer.getUniqueID() == uuid) continue;
             if (!playerFirstSeenTick.containsKey(uuid)) {
                 playerFirstSeenTick.put(uuid, currentTick);
-            } else if (currentTick - playerFirstSeenTick.get(uuid) >= BOT_THRESHOLD_TICKS) {
+
+                // Check if player spawned during combat
+//                if (isPlayerInCombat()) {
+//                    EntityPlayer player = mc.theWorld.getPlayerEntityByUUID(uuid);
+//                    if (player != null && !whitelist.contains(uuid) && mc.thePlayer.getDistanceSqToEntity(player) <= COMBAT_RADIUS*COMBAT_RADIUS) {
+//                        blacklist.add(uuid);
+//                        Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText(player.getName() + " spawned on you in combat!"));
+//                    }
+//                }
+            } else if (!blacklist.contains(uuid) && currentTick - playerFirstSeenTick.get(uuid) >= PLAYER_EXISTENCE_TICKS_THRESHOLD) {
+                playerFirstSeenTick.remove(uuid);
                 whitelist.add(uuid);
             }
         }
@@ -58,59 +83,41 @@ public class AntiBot {
             Map.Entry<UUID, Long> entry = iterator.next();
             if (mc.getNetHandler().getPlayerInfo(entry.getKey()) == null) {
                 iterator.remove();
+                blacklist.remove(entry.getKey());
             }
         }
+    }
 
-        // Save whitelist periodically (e.g., every 5 minutes)
-        if (currentTick % (20 * 60 * 5) == 0) {
-            saveWhitelist();
+    private boolean isPlayerInCombat() {
+        return currentTick - lastCombatTick < COMBAT_COOLDOWN_TICKS;
+    }
+
+    @SubscribeEvent
+    public void onLivingAttack(LivingAttackEvent event) {
+        Minecraft mc = Minecraft.getMinecraft();
+        if (mc.thePlayer == null) return;
+
+        // Check if the player is attacking or being attacked
+        if (event.entity == mc.thePlayer || event.source.getEntity() == mc.thePlayer) {
+            lastCombatTick = currentTick;
+            System.out.println("Attack interaction: " + mc.thePlayer.getName() + " and " + event.entity.getName());
         }
     }
 
     public static boolean isPlayerBot(UUID uuid) {
+        if(Minecraft.getMinecraft().thePlayer.getUniqueID() == uuid) return false;
         if (whitelist.contains(uuid)) return false;
+        if (blacklist.contains(uuid)) return true;
         Long firstSeenTick = playerFirstSeenTick.get(uuid);
-        if (firstSeenTick == null) return true; // Consider unknown players as bots
-        return (currentTick - firstSeenTick) < BOT_THRESHOLD_TICKS;
+        if (firstSeenTick == null) return true; // consider unknown players as bots
+        return (currentTick - firstSeenTick) < PLAYER_EXISTENCE_TICKS_THRESHOLD;
     }
 
     public boolean isPlayerBot(String username) {
         NetworkPlayerInfo playerInfo = Minecraft.getMinecraft().getNetHandler().getPlayerInfo(username);
-        if (playerInfo == null) return true; // Consider unknown players as bots
+        if (playerInfo == null) return true; // unknown players are considered bots
         return isPlayerBot(playerInfo.getGameProfile().getId());
     }
-
-    private void saveWhitelist() {
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(whitelistFile));
-            for (UUID uuid : whitelist) {
-                writer.write(uuid.toString());
-                writer.newLine();
-            }
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void loadWhitelist() {
-        if (!whitelistFile.exists()) return;
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(whitelistFile));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                try {
-                    whitelist.add(UUID.fromString(line.trim()));
-                } catch (IllegalArgumentException e) {
-                    // Invalid UUID, skip this line
-                }
-            }
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
 
     @SubscribeEvent
     public void onRenderWorldLast(RenderWorldLastEvent event) {
@@ -143,7 +150,7 @@ public class AntiBot {
             AxisAlignedBB bbox = player.getEntityBoundingBox().expand(0.1, 0.1, 0.1)
                     .offset(x - player.posX, y - player.posY, z - player.posZ);
 
-            drawBoundingBox(bbox, 1.0F, 0.0F, 0.0F, 0.5F);
+            drawBoundingBox(bbox, 0.0F, 0.0F, 0.0F, 0.5F);
         }
 
         GlStateManager.enableDepth();

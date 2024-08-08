@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.potion.Potion;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -15,12 +16,21 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.lwjgl.opengl.GL11;
 
+import java.util.Random;
+
 public class AimAssist {
 
-    private static final double RANGE = 5.0; // Range of aim assist
-    private static final double STRENGTH = 0.05; // Strength of aim assist (0.0 - 1.0)
-    private static final float FOV = 90;
+    public static final double RANGE = 5.0; // Range of aim assist
     private static EntityLivingBase target = null;
+    private static final Random random = new Random();
+    private static float FOV = 110;
+    private static float MAX_SPEED = 1f; // Maximum rotation speed in degrees per frame
+    private static float ACCELERATION = 0.025f; // How quickly to reach max speed
+    private static float DECELERATION_DISTANCE = 15f; // Degrees from target to start slowing down
+    private static float BASE_RANDOMNESS = 0.2f; // Base value for random adjustments
+    private double currentSpeedYaw = 0;
+    private double currentSpeedPitch = 0;
+
 
     @SubscribeEvent
     public void onRenderTick(TickEvent.RenderTickEvent event) {
@@ -43,6 +53,7 @@ public class AimAssist {
         for (Entity entity : mc.theWorld.loadedEntityList) {
             if(!(entity instanceof EntityPlayer)) continue;
             EntityPlayer player = (EntityPlayer)entity;
+            if (player.isPotionActive(Potion.invisibility)) continue;
             if (player == mc.thePlayer || !isValidTarget(player)) continue;
             double distance = mc.thePlayer.getDistanceSqToEntity(player);
             if (distance < closestDistance) {
@@ -82,21 +93,52 @@ public class AimAssist {
     private void aimAtTarget(EntityLivingBase target) {
         Minecraft mc = Minecraft.getMinecraft();
 
-        // Get the optimal aiming point using the helper method
+        // Get the optimal aiming point
         Vec3 aimPoint = Pointer.getNearestPointOnEntityHitbox(target, mc.thePlayer.getPositionEyes(1.0f));
 
-        // Calculate the yaw and pitch needed to aim at the point
+        // Calculate the desired yaw and pitch
         double d0 = aimPoint.xCoord - mc.thePlayer.posX;
         double d1 = aimPoint.zCoord - mc.thePlayer.posZ;
         double d2 = aimPoint.yCoord - (mc.thePlayer.posY + mc.thePlayer.getEyeHeight());
 
         double d3 = MathHelper.sqrt_double(d0 * d0 + d1 * d1);
-        float yaw = (float) (MathHelper.atan2(d1, d0) * 180.0D / Math.PI) - 90.0F;
-        float pitch = (float) (-(MathHelper.atan2(d2, d3) * 180.0D / Math.PI));
+        float targetYaw = (float) (MathHelper.atan2(d1, d0) * 180.0D / Math.PI) - 90.0F;
+        float targetPitch = (float) (-(MathHelper.atan2(d2, d3) * 180.0D / Math.PI));
 
-        // Smoothly adjust the player's view angles
-        mc.thePlayer.rotationYaw = smoothAngle(mc.thePlayer.rotationYaw, yaw, STRENGTH);
-        mc.thePlayer.rotationPitch = smoothAngle(mc.thePlayer.rotationPitch, pitch, STRENGTH);
+        // Add slight randomness to target angles
+        targetYaw += (random.nextFloat() - 0.5f) * BASE_RANDOMNESS;
+        targetPitch += (random.nextFloat() - 0.5f) * BASE_RANDOMNESS;
+
+        float deltaYaw = MathHelper.wrapAngleTo180_float(targetYaw - mc.thePlayer.rotationYaw);
+        float deltaPitch = MathHelper.wrapAngleTo180_float(targetPitch - mc.thePlayer.rotationPitch);
+
+        // Apply acceleration and deceleration for yaw
+        if (Math.abs(deltaYaw) > DECELERATION_DISTANCE) {
+            currentSpeedYaw = Math.min(currentSpeedYaw + ACCELERATION, MAX_SPEED);
+        } else {
+            currentSpeedYaw = Math.max(currentSpeedYaw - ACCELERATION, 0);
+        }
+
+        // Apply acceleration and deceleration for pitch
+        if (Math.abs(deltaPitch) > DECELERATION_DISTANCE) {
+            currentSpeedPitch = Math.min(currentSpeedPitch + ACCELERATION, MAX_SPEED);
+        } else {
+            currentSpeedPitch = Math.max(currentSpeedPitch - ACCELERATION, 0);
+        }
+
+        // Apply movement
+        double moveYaw = Math.min(Math.abs(deltaYaw), currentSpeedYaw) * Math.signum(deltaYaw);
+        double movePitch = Math.min(Math.abs(deltaPitch), currentSpeedPitch) * Math.signum(deltaPitch);
+
+        // Add slight randomness to movement
+        moveYaw += (random.nextFloat() - 0.5f) * BASE_RANDOMNESS;
+        movePitch += (random.nextFloat() - 0.5f) * BASE_RANDOMNESS;
+
+        mc.thePlayer.rotationYaw += (float) moveYaw;
+        mc.thePlayer.rotationPitch += (float) movePitch;
+
+        // Ensure pitch stays within valid range
+        mc.thePlayer.rotationPitch = MathHelper.clamp_float(mc.thePlayer.rotationPitch, -90.0F, 90.0F);
     }
 
     private float smoothAngle(float currentAngle, float targetAngle, double strength) {
@@ -153,4 +195,45 @@ public class AimAssist {
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         GlStateManager.popMatrix();
     }
+
+    public static void setAimFov(float fov) {
+        FOV = Math.min(360, Math.max(1, fov));
+    }
+
+    public static void setMaxSpeed(float speed) {
+        MAX_SPEED = Math.min(5, Math.max(0, speed));
+    }
+
+    public static void setAcceleration(float accel) {
+        ACCELERATION = Math.min(1, Math.max(0, accel));
+    }
+
+    public static void setDecelerationDistance(float distance) {
+        DECELERATION_DISTANCE = Math.min(360, Math.max(0, distance));
+    }
+
+    public static void setBaseRandomness(float randomness) {
+        BASE_RANDOMNESS = Math.min(1, Math.max(0, randomness));
+    }
+
+    public static float getFov() {
+        return FOV;
+    }
+
+    public static float getMaxSpeed() {
+        return MAX_SPEED;
+    }
+
+    public static float getAcceleration() {
+        return ACCELERATION;
+    }
+
+    public static float getDecelerationDistance() {
+        return DECELERATION_DISTANCE;
+    }
+
+    public static float getBaseRandomness() {
+        return BASE_RANDOMNESS;
+    }
+
 }
