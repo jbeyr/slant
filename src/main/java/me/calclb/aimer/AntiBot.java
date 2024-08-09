@@ -24,7 +24,7 @@ import java.util.UUID;
 public class AntiBot {
     private static final long PLAYER_EXISTENCE_TICKS_THRESHOLD = 200;
     private static final double COMBAT_RADIUS = AimAssist.RANGE * 1.25;
-    private static final int COMBAT_COOLDOWN_TICKS = 50;
+    private static final int COMBAT_COOLDOWN_TICKS = 30;
 
     private static final Map<UUID, Long> playerFirstSeenTick = Maps.newHashMap();
     private static final Set<UUID> whitelist = Sets.newHashSet();
@@ -64,13 +64,13 @@ public class AntiBot {
                 playerFirstSeenTick.put(uuid, currentTick);
 
                 // Check if player spawned during combat
-//                if (isPlayerInCombat()) {
-//                    EntityPlayer player = mc.theWorld.getPlayerEntityByUUID(uuid);
-//                    if (player != null && !whitelist.contains(uuid) && mc.thePlayer.getDistanceSqToEntity(player) <= COMBAT_RADIUS*COMBAT_RADIUS) {
-//                        blacklist.add(uuid);
-//                        Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText(player.getName() + " spawned on you in combat!"));
-//                    }
-//                }
+                if (isPlayerInCombat()) {
+                    EntityPlayer player = mc.theWorld.getPlayerEntityByUUID(uuid);
+                    if (player != null && !whitelist.contains(uuid) && mc.thePlayer.getDistanceSqToEntity(player) <= COMBAT_RADIUS*COMBAT_RADIUS) {
+                        blacklist.add(uuid);
+                        Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText(player.getName() + " spawned on you in combat!"));
+                    }
+                }
             } else if (!blacklist.contains(uuid) && currentTick - playerFirstSeenTick.get(uuid) >= PLAYER_EXISTENCE_TICKS_THRESHOLD) {
                 playerFirstSeenTick.remove(uuid);
                 whitelist.add(uuid);

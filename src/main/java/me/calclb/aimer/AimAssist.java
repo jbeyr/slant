@@ -23,11 +23,11 @@ public class AimAssist {
     public static final double RANGE = 5.0; // Range of aim assist
     private static EntityLivingBase target = null;
     private static final Random random = new Random();
-    private static float FOV = 110;
-    private static float MAX_SPEED = 1f; // Maximum rotation speed in degrees per frame
-    private static float ACCELERATION = 0.025f; // How quickly to reach max speed
+    private static float FOV = 60;
+    private static float MAX_SPEED = .4f; // Maximum rotation speed in degrees per frame
+    private static float ACCELERATION = 0.015f; // How quickly to reach max speed
     private static float DECELERATION_DISTANCE = 15f; // Degrees from target to start slowing down
-    private static float BASE_RANDOMNESS = 0.2f; // Base value for random adjustments
+    private static float BASE_RANDOMNESS = 0f; // Base value for random adjustments
     private double currentSpeedYaw = 0;
     private double currentSpeedPitch = 0;
 
@@ -94,7 +94,7 @@ public class AimAssist {
         Minecraft mc = Minecraft.getMinecraft();
 
         // Get the optimal aiming point
-        Vec3 aimPoint = Pointer.getNearestPointOnEntityHitbox(target, mc.thePlayer.getPositionEyes(1.0f));
+        Vec3 aimPoint = Pointer.getNearestPointOnBox(mc.thePlayer.getPositionEyes(1f), target.getEntityBoundingBox());
 
         // Calculate the desired yaw and pitch
         double d0 = aimPoint.xCoord - mc.thePlayer.posX;

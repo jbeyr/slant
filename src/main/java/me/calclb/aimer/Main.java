@@ -21,6 +21,7 @@ public class Main {
         MinecraftForge.EVENT_BUS.register(new AimAssist());
         MinecraftForge.EVENT_BUS.register(new AntiBot());
         MinecraftForge.EVENT_BUS.register(new Sensitivity());
+        MinecraftForge.EVENT_BUS.register(new Pointer());
 
         aimAssistKey = new KeyBinding("Aimassist", Keyboard.KEY_NONE, "key.categories.gameplay");
         senseKey = new KeyBinding("Sense", Keyboard.KEY_NONE, "key.categories.gameplay");
