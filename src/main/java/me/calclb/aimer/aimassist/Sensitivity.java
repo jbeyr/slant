@@ -1,8 +1,10 @@
-package me.calclb.aimer;
+package me.calclb.aimer.aimassist;
 
+import me.calclb.aimer.Main;
+import me.calclb.aimer.Pointer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -14,24 +16,35 @@ public class Sensitivity {
 
     private double originalSensitivity;
     private boolean isSensitivityModified = false;
+    private boolean isToggled = false;
+    private final Minecraft mc = Minecraft.getMinecraft();
 
     public Sensitivity() {
-        Minecraft mc = Minecraft.getMinecraft();
         this.originalSensitivity = mc.gameSettings.mouseSensitivity;
         this.isSensitivityModified = false;
     }
 
     @SubscribeEvent
     public void onRenderGameOverlay(RenderWorldLastEvent event) {
-        Minecraft mc = Minecraft.getMinecraft();
         EntityPlayer me = mc.thePlayer;
         if (me == null || mc.theWorld == null) return;
 
-        boolean keyPressed = Main.getSenseKey().isKeyDown();
-        EntityPlayer target = keyPressed ? Pointer.findClosestPlayerInRange(me, maxDistanceSq, maxAngle) : null;
-        if (target != null) {
-            setSensitivity(getTargetSensitivity(me, target));
-            isSensitivityModified = true;
+        if (Main.getSenseKey().isPressed()) {
+            isToggled = !isToggled;
+            sendToggleMessage();
+        }
+
+        if (isToggled) {
+            EntityPlayer target = Pointer.findClosestAttackablePlayerInRange(me, maxDistanceSq, maxAngle, event.partialTicks);
+            if (target != null) {
+                setSensitivity(getTargetSensitivity(me, target, event.partialTicks));
+                isSensitivityModified = true;
+            } else {
+                if (isSensitivityModified) {
+                    setSensitivity((float) originalSensitivity);
+                    isSensitivityModified = false;
+                }
+            }
         } else {
             if (isSensitivityModified) {
                 setSensitivity((float) originalSensitivity);
@@ -41,18 +54,17 @@ public class Sensitivity {
     }
 
     private void setSensitivity(float val) {
-        if (!isSensitivityModified && Math.abs(Minecraft.getMinecraft().gameSettings.mouseSensitivity - originalSensitivity) > 0.001f) {
-            originalSensitivity = Minecraft.getMinecraft().gameSettings.mouseSensitivity;
+        if (!isSensitivityModified && Math.abs(mc.gameSettings.mouseSensitivity - originalSensitivity) > 0.001f) {
+            originalSensitivity = mc.gameSettings.mouseSensitivity;
         }
-        Minecraft.getMinecraft().gameSettings.mouseSensitivity = val;
+        mc.gameSettings.mouseSensitivity = val;
     }
 
-    private float getTargetSensitivity(EntityPlayer me, EntityPlayer target) {
+    private float getTargetSensitivity(EntityPlayer me, EntityPlayer target, double partialTicks) {
         Vec3 lookVec = me.getLook(1.0F);
-        AxisAlignedBB targetBox = target.getEntityBoundingBox();
 
         Vec3 eyePos = new Vec3(me.posX, me.posY + me.getEyeHeight(), me.posZ);
-        Vec3 targetVec = Pointer.getNearestPointOnBox(eyePos, targetBox);
+        Vec3 targetVec = Pointer.getNearestPointOnBox(eyePos, target, partialTicks);
 
         double dx = targetVec.xCoord - eyePos.xCoord;
         double dy = targetVec.yCoord - eyePos.yCoord;
@@ -70,5 +82,10 @@ public class Sensitivity {
         double combinedFactor = Math.max(angleFactor, distanceFactor);
 
         return (float) (originalSensitivity * (reductionFactor + (1 - reductionFactor) * combinedFactor));
+    }
+
+    private void sendToggleMessage() {
+        String message = isToggled ? String.format("Sensitivity toggled ON (x%s, %s rad, %sm)", reductionFactor, maxAngle, Math.sqrt(maxDistanceSq)) : "Sensitivity toggled OFF";
+        mc.thePlayer.addChatMessage(new ChatComponentText(message));
     }
 }

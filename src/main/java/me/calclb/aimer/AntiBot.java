@@ -2,10 +2,12 @@ package me.calclb.aimer;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import me.calclb.aimer.aimassist.AimAssist;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ChatComponentText;
@@ -36,11 +38,11 @@ public class AntiBot {
     @SubscribeEvent
     public void onSpawn(EntityJoinWorldEvent e) {
         EntityPlayer me = Minecraft.getMinecraft().thePlayer;
-        if(e.entity == me) return;
+        if(e.entity == me) lastCombatTick = 0;
         if (!(e.entity instanceof EntityPlayer)) return;
         EntityPlayer player = (EntityPlayer) e.entity;
 
-        if(isPlayerInCombat() && player.getDistanceSqToEntity(me) <= COMBAT_RADIUS*COMBAT_RADIUS) {
+        if(amIInCombat() && player.getDistanceSqToEntity(me) <= COMBAT_RADIUS*COMBAT_RADIUS) {
             blacklist.add(player.getUniqueID());
             me.addChatMessage(new ChatComponentText(player.getName() + " spawned on you in combat!"));
         }
@@ -54,7 +56,7 @@ public class AntiBot {
 
         Minecraft mc = Minecraft.getMinecraft();
         if (mc.thePlayer == null || mc.theWorld == null) return;
-        if(isPlayerInCombat()) lastCombatTick = currentTick;
+        if(amIInCombat()) lastCombatTick = currentTick;
 
         // Update the player list
         for (NetworkPlayerInfo playerInfo : mc.getNetHandler().getPlayerInfoMap()) {
@@ -62,9 +64,8 @@ public class AntiBot {
             if(Minecraft.getMinecraft().thePlayer.getUniqueID() == uuid) continue;
             if (!playerFirstSeenTick.containsKey(uuid)) {
                 playerFirstSeenTick.put(uuid, currentTick);
-
-                // Check if player spawned during combat
-                if (isPlayerInCombat()) {
+                if(!isValidMinecraftName(playerInfo.getGameProfile().getName())) blacklist.add(uuid);
+                if (amIInCombat()) { // ac bots tend to spawn on the player mid combat, so check that
                     EntityPlayer player = mc.theWorld.getPlayerEntityByUUID(uuid);
                     if (player != null && !whitelist.contains(uuid) && mc.thePlayer.getDistanceSqToEntity(player) <= COMBAT_RADIUS*COMBAT_RADIUS) {
                         blacklist.add(uuid);
@@ -88,8 +89,20 @@ public class AntiBot {
         }
     }
 
-    private boolean isPlayerInCombat() {
+    private boolean amIInCombat() {
         return currentTick - lastCombatTick < COMBAT_COOLDOWN_TICKS;
+    }
+
+    public static boolean isValidTarget(EntityLivingBase other, double rangeSqr) {
+        if (other == null) return false;
+        EntityPlayer me = Minecraft.getMinecraft().thePlayer;
+        if (other.isOnSameTeam(me) && !other.getTeam().getAllowFriendlyFire()) return false;
+        if (!other.worldObj.getWorldInfo().getGameType().isSurvivalOrAdventure()) return false;
+        return other.isEntityAlive()
+                && me.getDistanceSqToEntity(other) < rangeSqr
+                && other instanceof EntityPlayer
+                && !AntiBot.isPlayerBot(other.getUniqueID())
+                && Pointer.getVisiblePart(me, (EntityPlayer)other) != null;
     }
 
     @SubscribeEvent
@@ -97,10 +110,9 @@ public class AntiBot {
         Minecraft mc = Minecraft.getMinecraft();
         if (mc.thePlayer == null) return;
 
-        // Check if the player is attacking or being attacked
-        if (event.entity == mc.thePlayer || event.source.getEntity() == mc.thePlayer) {
+        if (event.source.getEntity() == mc.thePlayer) {
             lastCombatTick = currentTick;
-            System.out.println("Attack interaction: " + mc.thePlayer.getName() + " and " + event.entity.getName());
+            System.out.println("Hit: " + event.entityLiving.getName());
         }
     }
 
@@ -111,6 +123,23 @@ public class AntiBot {
         Long firstSeenTick = playerFirstSeenTick.get(uuid);
         if (firstSeenTick == null) return true; // consider unknown players as bots
         return (currentTick - firstSeenTick) < PLAYER_EXISTENCE_TICKS_THRESHOLD;
+    }
+
+    public static boolean isValidMinecraftName(String name) {
+        boolean ret = true;
+        if (name == null || name.isEmpty()) {
+            ret = false;
+            return ret;
+        }
+
+        if (name.length() < 3 || name.length() > 16) ret = false;
+
+        for (char c : name.toCharArray()) {
+            if (!Character.isLetterOrDigit(c) && c != '_') ret = false;
+        }
+
+//        System.out.println("valid mc name? '" + name + "': " + ret);
+        return ret;
     }
 
     public boolean isPlayerBot(String username) {
@@ -165,5 +194,6 @@ public class AntiBot {
     private void drawBoundingBox(AxisAlignedBB bbox, float red, float green, float blue, float alpha) {
         GlStateManager.color(red, green, blue, alpha);
         RenderGlobal.drawSelectionBoundingBox(bbox);
+        RenderGlobal.drawOutlinedBoundingBox(bbox, (int)red, (int)green, (int)blue, (int)alpha);
     }
 }

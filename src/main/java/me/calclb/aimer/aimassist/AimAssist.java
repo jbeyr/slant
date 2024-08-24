@@ -1,5 +1,8 @@
-package me.calclb.aimer;
+package me.calclb.aimer.aimassist;
 
+import me.calclb.aimer.AntiBot;
+import me.calclb.aimer.Main;
+import me.calclb.aimer.Pointer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -13,7 +16,6 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Random;
@@ -33,14 +35,14 @@ public class AimAssist {
 
 
     @SubscribeEvent
-    public void onRenderTick(TickEvent.RenderTickEvent event) {
+    public void onRenderTick(RenderWorldLastEvent event) {
         if (Minecraft.getMinecraft().thePlayer == null) return;
 
         if (Main.getAimAssistKey().isKeyDown() || Main.getAimAssistKey().isPressed()) {
-            if (isValidTarget(target)) aimAtTarget(target);
+            if (isValidTarget(target)) aimAtTarget(target, event.partialTicks);
             else { // find new target
                 target = findTarget();
-                if (target != null) aimAtTarget(target);
+                if (target != null) aimAtTarget(target, event.partialTicks);
             }
         } else target = null; // reset target if key not pressed
     }
@@ -73,7 +75,6 @@ public class AimAssist {
         return distance < RANGE*RANGE && entity.isEntityAlive() && entity instanceof EntityPlayer && !AntiBot.isPlayerBot(entity.getUniqueID()) && me.canEntityBeSeen(entity) && isInFOV(entity, FOV);
     }
 
-
     private boolean isInFOV(Entity entity, float fov) {
         Minecraft mc = Minecraft.getMinecraft();
         double d0 = entity.posX - mc.thePlayer.posX;
@@ -90,11 +91,11 @@ public class AimAssist {
         return yawDiff >= -fov / 2 && yawDiff <= fov / 2 && pitchDiff >= -fov / 2 && pitchDiff <= fov / 2;
     }
 
-    private void aimAtTarget(EntityLivingBase target) {
+    private void aimAtTarget(EntityLivingBase target, double partialTicks) {
         Minecraft mc = Minecraft.getMinecraft();
 
         // Get the optimal aiming point
-        Vec3 aimPoint = Pointer.getNearestPointOnBox(mc.thePlayer.getPositionEyes(1f), target.getEntityBoundingBox());
+        Vec3 aimPoint = Pointer.getNearestPointOnBox(mc.thePlayer.getPositionEyes(1f), target, partialTicks);
 
         // Calculate the desired yaw and pitch
         double d0 = aimPoint.xCoord - mc.thePlayer.posX;

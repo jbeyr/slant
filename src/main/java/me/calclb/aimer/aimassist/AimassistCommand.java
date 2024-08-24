@@ -1,4 +1,4 @@
-package me.calclb.aimer;
+package me.calclb.aimer.aimassist;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
