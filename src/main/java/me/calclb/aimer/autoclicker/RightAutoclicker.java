@@ -1,18 +1,22 @@
 package me.calclb.aimer.autoclicker;
 
 import me.calclb.aimer.Main;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockContainer;
+import net.minecraft.block.BlockWorkbench;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
+import org.lwjgl.input.Mouse;
 
 public class RightAutoclicker {
     private boolean isRightMouseDown = false;
@@ -49,11 +53,14 @@ public class RightAutoclicker {
         wasKeybindJustPressed = isPressed;
 
         if (!isToggled) return;
-        if (!isRightMouseDown) return;
         if (mc.thePlayer == null || !mc.thePlayer.isEntityAlive()) return;
         if (mc.currentScreen != null) return;
         if (mc.thePlayer.isUsingItem()) return;
         if (!isHoldingPlaceableBlock()) return;
+        if (isHoldingInteractableBlock()) return;
+
+        // Check the actual state of the right mouse button each tick
+        if (!Mouse.isButtonDown(1)) return;  // 1 is the right mouse button
 
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastClickTime >= clickDelay) {
@@ -65,6 +72,15 @@ public class RightAutoclicker {
     private boolean isHoldingPlaceableBlock() {
         ItemStack heldItem = mc.thePlayer.getHeldItem();
         return heldItem != null && heldItem.getItem() instanceof ItemBlock;
+    }
+
+    private boolean isHoldingInteractableBlock() {
+        ItemStack heldItem = mc.thePlayer.getHeldItem();
+        if (heldItem != null && heldItem.getItem() instanceof ItemBlock) {
+            Block block = ((ItemBlock) heldItem.getItem()).getBlock();
+            return block instanceof BlockContainer || block instanceof BlockWorkbench;
+        }
+        return false;
     }
 
     private void simulateRightClick() {
@@ -89,8 +105,8 @@ public class RightAutoclicker {
     }
 
     private long getRandomClickDelay() {
-        long minDelay = (long)(1000 / (maxCPS*1.15f));
-        long maxDelay = (long)(1000 / (minCPS*1.15f));
+        long minDelay = (long)(1000 / (maxCPS * 1.15f));
+        long maxDelay = (long)(1000 / (minCPS * 1.15f));
         return minDelay + (long) (Math.random() * (maxDelay - minDelay + 1));
     }
 

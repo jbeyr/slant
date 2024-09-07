@@ -1,17 +1,15 @@
-package me.calclb.aimer.sharkesp;
+package me.calclb.aimer.esp;
 
+import me.calclb.aimer.util.PosTracker;
+import me.calclb.aimer.util.Renderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
-@Mod(modid = "sharkesp", version = "1.0")
 public class SharkEsp {
 
     private static final float MAX_OPACITY = 0.9F;
@@ -19,13 +17,6 @@ public class SharkEsp {
     private static final float HEALTH_THRESHOLD = 0.7f;
     private static final float CRITICAL_HEALTH = 0.15f; // 15% health
     private static final double MAX_DISTANCE = 50.0;
-
-    private final Map<EntityPlayer, PosTracker<EntityPlayer>> posTrackers = new HashMap<EntityPlayer, PosTracker<EntityPlayer>>();
-
-    @EventHandler
-    public void preInit(FMLPreInitializationEvent event) {
-        MinecraftForge.EVENT_BUS.register(this);
-    }
 
     @SubscribeEvent
     public void onRenderOverlay(RenderWorldLastEvent event) {
@@ -42,11 +33,7 @@ public class SharkEsp {
             if (distance > MAX_DISTANCE) continue;
             nearbyPlayers.add(player);
 
-            PosTracker<EntityPlayer> pt = posTrackers.get(player);
-            if(pt == null) {
-                pt = new PosTracker<EntityPlayer>(player);
-                posTrackers.put(player, pt);
-            }
+            PosTracker<EntityPlayer> pt = PosTracker.getTracker(player);
             pt.updatePosTo(player);
         }
 
@@ -55,16 +42,15 @@ public class SharkEsp {
         Renderer.setupRendering();
 
         for (EntityPlayer player : nearbyPlayers) {
-            PosTracker<EntityPlayer> pTracker = posTrackers.get(player);
-            if (pTracker == null) continue;
+            if (!player.isEntityAlive()) continue;
+            PosTracker<EntityPlayer> pt = PosTracker.getTracker(player);
 
             float healthRatio = player.getHealth() / player.getMaxHealth();
             if (healthRatio > HEALTH_THRESHOLD) continue;
 
             float[] color = calculateColor(healthRatio);
             float opacity = calculateOpacity(healthRatio);
-            System.out.println("calling render hbox method..");
-            Renderer.drawEntityESP(mc.getRenderManager(), player, pTracker, partialTicks, color[0], color[1], color[2], opacity);
+            Renderer.drawEntityESP(mc.getRenderManager(), player, pt, partialTicks, color[0], color[1], color[2], opacity);
         }
 
         Renderer.resetRendering();

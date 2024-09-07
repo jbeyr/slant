@@ -72,7 +72,7 @@ public class AimAssist {
         EntityPlayer me = Minecraft.getMinecraft().thePlayer;
         if(me.getTeam() != null && me.getTeam().isSameTeam(entity.getTeam())) return false;
         double distance = me.getDistanceSqToEntity(entity);
-        return distance < RANGE*RANGE && entity.isEntityAlive() && entity instanceof EntityPlayer && !AntiBot.isPlayerBot(entity.getUniqueID()) && me.canEntityBeSeen(entity) && isInFOV(entity, FOV);
+        return distance < RANGE*RANGE && entity.isEntityAlive() && entity instanceof EntityPlayer && !AntiBot.isBotUuid(entity.getUniqueID()) && me.canEntityBeSeen(entity) && isInFOV(entity, FOV);
     }
 
     private boolean isInFOV(Entity entity, float fov) {

@@ -100,8 +100,7 @@ public class AntiBot {
         if (!other.worldObj.getWorldInfo().getGameType().isSurvivalOrAdventure()) return false;
         return other.isEntityAlive()
                 && me.getDistanceSqToEntity(other) < rangeSqr
-                && other instanceof EntityPlayer
-                && !AntiBot.isPlayerBot(other.getUniqueID())
+                && !AntiBot.isBotUuid(other.getUniqueID())
                 && Pointer.getVisiblePart(me, (EntityPlayer)other) != null;
     }
 
@@ -116,7 +115,7 @@ public class AntiBot {
         }
     }
 
-    public static boolean isPlayerBot(UUID uuid) {
+    public static boolean isBotUuid(UUID uuid) {
         if(Minecraft.getMinecraft().thePlayer.getUniqueID() == uuid) return false;
         if (whitelist.contains(uuid)) return false;
         if (blacklist.contains(uuid)) return true;
@@ -133,19 +132,14 @@ public class AntiBot {
         }
 
         if (name.length() < 3 || name.length() > 16) ret = false;
-
-        for (char c : name.toCharArray()) {
-            if (!Character.isLetterOrDigit(c) && c != '_') ret = false;
-        }
-
-//        System.out.println("valid mc name? '" + name + "': " + ret);
+        for (char c : name.toCharArray()) if (!Character.isLetterOrDigit(c) && c != '_') ret = false;
         return ret;
     }
 
-    public boolean isPlayerBot(String username) {
+    public boolean isBotUuid(String username) {
         NetworkPlayerInfo playerInfo = Minecraft.getMinecraft().getNetHandler().getPlayerInfo(username);
         if (playerInfo == null) return true; // unknown players are considered bots
-        return isPlayerBot(playerInfo.getGameProfile().getId());
+        return isBotUuid(playerInfo.getGameProfile().getId());
     }
 
     @SubscribeEvent
@@ -171,7 +165,7 @@ public class AntiBot {
         for (Object obj : mc.theWorld.loadedEntityList) {
             if (!(obj instanceof EntityPlayer)) continue;
             EntityPlayer player = (EntityPlayer) obj;
-            if (!(isPlayerBot(player.getUniqueID()))) continue;
+            if (!(isBotUuid(player.getUniqueID()))) continue;
             double x = player.lastTickPosX + (player.posX - player.lastTickPosX) * event.partialTicks;
             double y = player.lastTickPosY + (player.posY - player.lastTickPosY) * event.partialTicks;
             double z = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * event.partialTicks;
