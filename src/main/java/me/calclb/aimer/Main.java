@@ -1,13 +1,15 @@
 package me.calclb.aimer;
 
-import me.calclb.aimer.aimassist.AimAssist;
-import me.calclb.aimer.aimassist.AimassistCommand;
-import me.calclb.aimer.aimassist.Sensitivity;
-import me.calclb.aimer.autoclicker.LeftAutoclicker;
-import me.calclb.aimer.autoclicker.RightAutoclicker;
-import me.calclb.aimer.esp.BedEsp;
-import me.calclb.aimer.esp.InvisEsp;
-import me.calclb.aimer.esp.SharkEsp;
+import me.calclb.aimer.combat.AimAssist;
+import me.calclb.aimer.combat.LeftAutoclicker;
+import me.calclb.aimer.combat.RightAutoclicker;
+import me.calclb.aimer.combat.Sensitivity;
+import me.calclb.aimer.commands.AimassistCommand;
+import me.calclb.aimer.commands.AutoJumpResetCommand;
+import me.calclb.aimer.commands.NoJumpDelayCommand;
+import me.calclb.aimer.render.BedEsp;
+import me.calclb.aimer.render.InvisEsp;
+import me.calclb.aimer.render.SharkEsp;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
@@ -51,16 +53,19 @@ public class Main {
         MinecraftForge.EVENT_BUS.register(new RightAutoclicker());
         MinecraftForge.EVENT_BUS.register(new SharkEsp());
         MinecraftForge.EVENT_BUS.register(new InvisEsp());
-        MinecraftForge.EVENT_BUS.register(new AimAssist());
-        MinecraftForge.EVENT_BUS.register(new Sensitivity());
         MinecraftForge.EVENT_BUS.register(new BedEsp());
+        MinecraftForge.EVENT_BUS.register(new Sensitivity());
+        MinecraftForge.EVENT_BUS.register(new AimAssist());
+        MinecraftForge.EVENT_BUS.register(new Pointer());
+
+        ClientCommandHandler.instance.registerCommand(new AimassistCommand());
+        ClientCommandHandler.instance.registerCommand(new NoJumpDelayCommand());
+        ClientCommandHandler.instance.registerCommand(new AutoJumpResetCommand());
 
         aimAssistKey = new KeyBinding("Aimassist", Keyboard.KEY_NONE, "key.categories.gameplay");
         senseKey = new KeyBinding("Sense", Keyboard.KEY_NONE, "key.categories.gameplay");
         lmbAutoclickKey = new KeyBinding("LMB Autoclicker", Keyboard.KEY_NONE, "key.categories.gameplay");
         rmbAutoclickKey = new KeyBinding("RMB Autoclicker", Keyboard.KEY_NONE, "key.categories.gameplay");
-
-        ClientCommandHandler.instance.registerCommand(new AimassistCommand());
 
         ClientRegistry.registerKeyBinding(aimAssistKey);
         ClientRegistry.registerKeyBinding(senseKey);

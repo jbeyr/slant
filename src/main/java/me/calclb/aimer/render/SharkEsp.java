@@ -1,6 +1,5 @@
-package me.calclb.aimer.esp;
+package me.calclb.aimer.render;
 
-import me.calclb.aimer.util.PosTracker;
 import me.calclb.aimer.util.Renderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
@@ -32,9 +31,6 @@ public class SharkEsp {
             double distance = me.getDistanceToEntity(player);
             if (distance > MAX_DISTANCE) continue;
             nearbyPlayers.add(player);
-
-            PosTracker<EntityPlayer> pt = PosTracker.getTracker(player);
-            pt.updatePosTo(player);
         }
 
         if (nearbyPlayers.isEmpty()) return;
@@ -43,14 +39,13 @@ public class SharkEsp {
 
         for (EntityPlayer player : nearbyPlayers) {
             if (!player.isEntityAlive()) continue;
-            PosTracker<EntityPlayer> pt = PosTracker.getTracker(player);
 
             float healthRatio = player.getHealth() / player.getMaxHealth();
             if (healthRatio > HEALTH_THRESHOLD) continue;
 
             float[] color = calculateColor(healthRatio);
             float opacity = calculateOpacity(healthRatio);
-            Renderer.drawEntityESP(mc.getRenderManager(), player, pt, partialTicks, color[0], color[1], color[2], opacity);
+            Renderer.drawEntityESP(player, partialTicks, color[0], color[1], color[2], opacity);
         }
 
         Renderer.resetRendering();

@@ -1,4 +1,4 @@
-package me.calclb.aimer.autoclicker;
+package me.calclb.aimer.combat;
 
 import me.calclb.aimer.AntiBot;
 import me.calclb.aimer.Main;
@@ -25,16 +25,9 @@ public class LeftAutoclicker {
     private boolean wasKeybindJustPressed = false;
     private long lastClickTime = 0;
     private long clickDelay = 0;
-    private float rangeSqr = 25f;
-    private int minCPS = 14;
-    private int maxCPS = 16;
-
-    private boolean isInAValidStateToClick() {
-        if (mc.thePlayer == null || !mc.thePlayer.isEntityAlive()) return false;
-        if (mc.currentScreen != null) return false;
-        if (mc.thePlayer.isUsingItem()) return false;
-        return isToggled && isLeftMouseDown;
-    }
+    private float rangeSqr = (float) Math.pow(4.5, 2);
+    private int minCPS = 12;
+    private int maxCPS = 14;
 
     @SubscribeEvent
     public void onMouseEvent(MouseEvent event) {
@@ -59,7 +52,7 @@ public class LeftAutoclicker {
         double closestDistanceSqr = rangeSqr;
 
         for (Entity entity : mc.theWorld.loadedEntityList) {
-            if (entity instanceof EntityLivingBase && entity != me && AntiBot.isValidTarget((EntityLivingBase) entity, rangeSqr)) {
+            if (entity instanceof EntityLivingBase && entity != me) {
                 Vec3 toEntity = entity.getPositionVector().addVector(0, entity.getEyeHeight() / 2, 0).subtract(eyePos);
                 double distanceSqr = toEntity.lengthVector();
 
@@ -80,7 +73,7 @@ public class LeftAutoclicker {
             MovingObjectPosition objectMouseOver = mc.objectMouseOver;
             if (objectMouseOver != null && objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY) {
                 Entity entity = objectMouseOver.entityHit;
-                if ((entity instanceof EntityPlayer && AntiBot.isValidTarget((EntityPlayer) entity, rangeSqr)) || entity instanceof EntityFireball || (entity instanceof EntityLiving && entity.isEntityAlive())) {
+                if (entity instanceof EntityPlayer && AntiBot.isRecommendedTarget((EntityPlayer) entity, rangeSqr) || entity instanceof EntityFireball || (entity instanceof EntityLiving && entity.isEntityAlive())) {
                     foundValidTarget = true;
                     closestDistanceSqr = me.getDistanceSqToEntity(entity);
                 }
@@ -101,12 +94,7 @@ public class LeftAutoclicker {
         }
         wasKeybindJustPressed = isPressed;
 
-        if (!isToggled) return;
-        if (!isLeftMouseDown) return;
-        if (mc.thePlayer == null || !mc.thePlayer.isEntityAlive()) return;
-        if (mc.currentScreen != null) return;
-        if (mc.thePlayer.isUsingItem()) return;
-
+        if(!isInAValidStateToClick()) return;
         if (!Mouse.isButtonDown(0)) return;  // 0 is the left mouse button
 
         long currentTime = System.currentTimeMillis();
@@ -114,6 +102,13 @@ public class LeftAutoclicker {
             simulateMouseClick();
             resetClickDelay();
         }
+    }
+
+    private boolean isInAValidStateToClick() {
+        if (mc.thePlayer == null || !mc.thePlayer.isEntityAlive()) return false;
+        if (mc.currentScreen != null) return false;
+        if (mc.thePlayer.isUsingItem()) return false;
+        return isToggled && isLeftMouseDown;
     }
 
     private void simulateMouseClick() {

@@ -1,4 +1,4 @@
-package me.calclb.aimer.esp;
+package me.calclb.aimer.render;
 
 import me.calclb.aimer.util.Renderer;
 import net.minecraft.block.Block;

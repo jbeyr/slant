@@ -1,0 +1,10 @@
+{
+  "required": true,
+  "package": "me.calclb.aimer.mixins",
+  "refmap": "mixins.aimer.refmap.json",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "MixinEntityLivingBase",
+    "MixinNetHandlerPlayClient"
+  ]
+}

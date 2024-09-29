@@ -2,7 +2,7 @@ package me.calclb.aimer;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import me.calclb.aimer.aimassist.AimAssist;
+import me.calclb.aimer.combat.AimAssist;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.renderer.GlStateManager;
@@ -89,21 +89,6 @@ public class AntiBot {
         }
     }
 
-    private boolean amIInCombat() {
-        return currentTick - lastCombatTick < COMBAT_COOLDOWN_TICKS;
-    }
-
-    public static boolean isValidTarget(EntityLivingBase other, double rangeSqr) {
-        if (other == null) return false;
-        EntityPlayer me = Minecraft.getMinecraft().thePlayer;
-        if (other.isOnSameTeam(me) && !other.getTeam().getAllowFriendlyFire()) return false;
-        if (!other.worldObj.getWorldInfo().getGameType().isSurvivalOrAdventure()) return false;
-        return other.isEntityAlive()
-                && me.getDistanceSqToEntity(other) < rangeSqr
-                && !AntiBot.isBotUuid(other.getUniqueID())
-                && Pointer.getVisiblePart(me, (EntityPlayer)other) != null;
-    }
-
     @SubscribeEvent
     public void onLivingAttack(LivingAttackEvent event) {
         Minecraft mc = Minecraft.getMinecraft();
@@ -111,35 +96,7 @@ public class AntiBot {
 
         if (event.source.getEntity() == mc.thePlayer) {
             lastCombatTick = currentTick;
-            System.out.println("Hit: " + event.entityLiving.getName());
         }
-    }
-
-    public static boolean isBotUuid(UUID uuid) {
-        if(Minecraft.getMinecraft().thePlayer.getUniqueID() == uuid) return false;
-        if (whitelist.contains(uuid)) return false;
-        if (blacklist.contains(uuid)) return true;
-        Long firstSeenTick = playerFirstSeenTick.get(uuid);
-        if (firstSeenTick == null) return true; // consider unknown players as bots
-        return (currentTick - firstSeenTick) < PLAYER_EXISTENCE_TICKS_THRESHOLD;
-    }
-
-    public static boolean isValidMinecraftName(String name) {
-        boolean ret = true;
-        if (name == null || name.isEmpty()) {
-            ret = false;
-            return ret;
-        }
-
-        if (name.length() < 3 || name.length() > 16) ret = false;
-        for (char c : name.toCharArray()) if (!Character.isLetterOrDigit(c) && c != '_') ret = false;
-        return ret;
-    }
-
-    public boolean isBotUuid(String username) {
-        NetworkPlayerInfo playerInfo = Minecraft.getMinecraft().getNetHandler().getPlayerInfo(username);
-        if (playerInfo == null) return true; // unknown players are considered bots
-        return isBotUuid(playerInfo.getGameProfile().getId());
     }
 
     @SubscribeEvent
@@ -183,6 +140,40 @@ public class AntiBot {
         GlStateManager.enableTexture2D();
 
         GlStateManager.popMatrix();
+    }
+
+    private boolean amIInCombat() {
+        return currentTick - lastCombatTick < COMBAT_COOLDOWN_TICKS;
+    }
+
+    public static boolean isRecommendedTarget(EntityLivingBase other, double rangeSqr) {
+        EntityPlayer me = Minecraft.getMinecraft().thePlayer;
+        if (other == null || me == other) return false;
+        return other.isEntityAlive()
+                && me.getDistanceSqToEntity(other) < rangeSqr
+                && !AntiBot.isBotUuid(other.getUniqueID())
+                && Pointer.getVisiblePart(me, other) != null;
+    }
+
+    public static boolean isBotUuid(UUID uuid) {
+        if(Minecraft.getMinecraft().thePlayer.getUniqueID() == uuid) return false;
+        if (whitelist.contains(uuid)) return false;
+        if (blacklist.contains(uuid)) return true;
+        Long firstSeenTick = playerFirstSeenTick.get(uuid);
+        if (firstSeenTick == null) return true; // consider unknown players as bots
+        return (currentTick - firstSeenTick) < PLAYER_EXISTENCE_TICKS_THRESHOLD;
+    }
+
+    public static boolean isValidMinecraftName(String name) {
+        boolean ret = true;
+        if (name == null || name.isEmpty()) {
+            ret = false;
+            return ret;
+        }
+
+        if (name.length() < 3 || name.length() > 16) ret = false;
+        for (char c : name.toCharArray()) if (!Character.isLetterOrDigit(c) && c != '_') ret = false;
+        return ret;
     }
 
     private void drawBoundingBox(AxisAlignedBB bbox, float red, float green, float blue, float alpha) {

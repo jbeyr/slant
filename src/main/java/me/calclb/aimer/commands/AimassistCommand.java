@@ -1,5 +1,6 @@
-package me.calclb.aimer.aimassist;
+package me.calclb.aimer.commands;
 
+import me.calclb.aimer.combat.AimAssist;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;

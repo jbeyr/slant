@@ -1,4 +1,4 @@
-package me.calclb.aimer.aimassist;
+package me.calclb.aimer.combat;
 
 import me.calclb.aimer.AntiBot;
 import me.calclb.aimer.Main;
@@ -95,7 +95,7 @@ public class AimAssist {
         Minecraft mc = Minecraft.getMinecraft();
 
         // Get the optimal aiming point
-        Vec3 aimPoint = Pointer.getNearestPointOnBox(mc.thePlayer.getPositionEyes(1f), target, partialTicks);
+        Vec3 aimPoint = Pointer.getNearestPointOnBoxFromMyEyes(target, partialTicks);
 
         // Calculate the desired yaw and pitch
         double d0 = aimPoint.xCoord - mc.thePlayer.posX;

@@ -1,4 +1,4 @@
-package me.calclb.aimer.autoclicker;
+package me.calclb.aimer.combat;
 
 import me.calclb.aimer.Main;
 import net.minecraft.block.Block;

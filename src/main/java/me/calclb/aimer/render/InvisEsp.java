@@ -1,6 +1,5 @@
-package me.calclb.aimer.esp;
+package me.calclb.aimer.render;
 
-import me.calclb.aimer.util.PosTracker;
 import me.calclb.aimer.util.Renderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
@@ -31,8 +30,6 @@ public class InvisEsp {
             double distance = me.getDistanceToEntity(player);
             if (distance > MAX_DISTANCE) continue;
             invisiblePlayers.add(player);
-
-            PosTracker.getTracker(player).updatePosTo(player);
         }
 
         if (invisiblePlayers.isEmpty()) return;
@@ -40,8 +37,7 @@ public class InvisEsp {
         Renderer.setupRendering();
 
         for (EntityPlayer player : invisiblePlayers) {
-            PosTracker<EntityPlayer> pTracker = PosTracker.getTracker(player);
-            Renderer.drawEntityESP(mc.getRenderManager(), player, pTracker, partialTicks, 1.0f, 1.0f, 1.0f, OPACITY);
+            Renderer.drawEntityESP(player, partialTicks, 1.0f, 1.0f, 1.0f, OPACITY);
         }
 
         Renderer.resetRendering();

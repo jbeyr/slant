@@ -1,12 +1,14 @@
 package me.calclb.aimer.util;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.Vec3;
 import org.lwjgl.opengl.GL11;
 
 public class Renderer {
@@ -30,15 +32,30 @@ public class Renderer {
         GlStateManager.disableBlend();
     }
 
-    public static <T extends Entity> void drawEntityESP(RenderManager rm, T en, PosTracker<T> tracker, float partialTicks, float red, float green, float blue, float opacity) {
+    public static Vec3 interpolatedPos(Entity en, double partialTicks) {
+        double ix = en.lastTickPosX + (en.posX - en.lastTickPosX) * partialTicks;
+        double iy = en.lastTickPosY + (en.posY - en.lastTickPosY) * partialTicks;
+        double iz = en.lastTickPosZ + (en.posZ - en.lastTickPosZ) * partialTicks;
+        return new Vec3(ix, iy, iz);
+    }
+
+    public static Vec3 interpolatedDifferenceFromEntities(Entity src, Entity dst, double partialTicks) {
+        Vec3 sv = interpolatedPos(src, partialTicks);
+        Vec3 ov = interpolatedPos(dst, partialTicks);
+        return ov.subtract(sv);
+    }
+
+    public static Vec3 interpolatedDifferenceFromMe(Entity dst, double partialTicks) {
+        EntityPlayer me = Minecraft.getMinecraft().thePlayer;
+        return interpolatedDifferenceFromEntities(me, dst, partialTicks);
+    }
+
+    public static <T extends Entity> void drawEntityESP(T en, float partialTicks, float red, float green, float blue, float opacity) {
+
+        Vec3 dv = interpolatedDifferenceFromMe(en, partialTicks);
+
         GlStateManager.pushMatrix();
-
-        // Simplify the translation to just move to the render position
-        double x = tracker.getInterpolatedX(en, partialTicks) - rm.viewerPosX;
-        double y = tracker.getInterpolatedY(en, partialTicks) - rm.viewerPosY;
-        double z = tracker.getInterpolatedZ(en, partialTicks) - rm.viewerPosZ;
-
-        GlStateManager.translate(x, y, z);
+        GlStateManager.translate(dv.xCoord, dv.yCoord, dv.zCoord);
 
         double halfWidth = .4;
         double height = 1.9;
@@ -114,36 +131,5 @@ public class Renderer {
         GL11.glVertex3d(minX, minY, maxZ);
         GL11.glVertex3d(minX, maxY, maxZ);
         GL11.glEnd();
-    }
-
-    public static void drawBoundingBox(AxisAlignedBB bbox, int red, int green, int blue, int alpha) {
-        GlStateManager.color(red, green, blue, alpha);
-
-        Tessellator tessellator = Tessellator.getInstance();
-        WorldRenderer worldrenderer = tessellator.getWorldRenderer();
-        worldrenderer.begin(3, DefaultVertexFormats.POSITION_COLOR);
-        worldrenderer.pos(bbox.minX, bbox.minY, bbox.minZ).color(red, green, blue, alpha).endVertex();
-        worldrenderer.pos(bbox.maxX, bbox.minY, bbox.minZ).color(red, green, blue, alpha).endVertex();
-        worldrenderer.pos(bbox.maxX, bbox.minY, bbox.maxZ).color(red, green, blue, alpha).endVertex();
-        worldrenderer.pos(bbox.minX, bbox.minY, bbox.maxZ).color(red, green, blue, alpha).endVertex();
-        worldrenderer.pos(bbox.minX, bbox.minY, bbox.minZ).color(red, green, blue, alpha).endVertex();
-        tessellator.draw();
-        worldrenderer.begin(3, DefaultVertexFormats.POSITION_COLOR);
-        worldrenderer.pos(bbox.minX, bbox.maxY, bbox.minZ).color(red, green, blue, alpha).endVertex();
-        worldrenderer.pos(bbox.maxX, bbox.maxY, bbox.minZ).color(red, green, blue, alpha).endVertex();
-        worldrenderer.pos(bbox.maxX, bbox.maxY, bbox.maxZ).color(red, green, blue, alpha).endVertex();
-        worldrenderer.pos(bbox.minX, bbox.maxY, bbox.maxZ).color(red, green, blue, alpha).endVertex();
-        worldrenderer.pos(bbox.minX, bbox.maxY, bbox.minZ).color(red, green, blue, alpha).endVertex();
-        tessellator.draw();
-        worldrenderer.begin(1, DefaultVertexFormats.POSITION_COLOR);
-        worldrenderer.pos(bbox.minX, bbox.minY, bbox.minZ).color(red, green, blue, alpha).endVertex();
-        worldrenderer.pos(bbox.minX, bbox.maxY, bbox.minZ).color(red, green, blue, alpha).endVertex();
-        worldrenderer.pos(bbox.maxX, bbox.minY, bbox.minZ).color(red, green, blue, alpha).endVertex();
-        worldrenderer.pos(bbox.maxX, bbox.maxY, bbox.minZ).color(red, green, blue, alpha).endVertex();
-        worldrenderer.pos(bbox.maxX, bbox.minY, bbox.maxZ).color(red, green, blue, alpha).endVertex();
-        worldrenderer.pos(bbox.maxX, bbox.maxY, bbox.maxZ).color(red, green, blue, alpha).endVertex();
-        worldrenderer.pos(bbox.minX, bbox.minY, bbox.maxZ).color(red, green, blue, alpha).endVertex();
-        worldrenderer.pos(bbox.minX, bbox.maxY, bbox.maxZ).color(red, green, blue, alpha).endVertex();
-        tessellator.draw();
     }
 }
