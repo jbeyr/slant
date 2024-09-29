@@ -4,7 +4,10 @@
   "refmap": "mixins.aimer.refmap.json",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "MixinEntityLivingBase",
     "MixinNetHandlerPlayClient"
+  ],
+  "client": [
+    "EntityPlayerSPMixin",
+    "MixinEntityLivingBase"
   ]
 }

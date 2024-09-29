@@ -2,7 +2,6 @@ package me.calclb.aimer;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import me.calclb.aimer.combat.AimAssist;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.renderer.GlStateManager;
@@ -25,7 +24,7 @@ import java.util.UUID;
 
 public class AntiBot {
     private static final long PLAYER_EXISTENCE_TICKS_THRESHOLD = 200;
-    private static final double COMBAT_RADIUS = AimAssist.RANGE * 1.25;
+    private static final double COMBAT_RADIUS = 5f * 1.25;
     private static final int COMBAT_COOLDOWN_TICKS = 30;
 
     private static final Map<UUID, Long> playerFirstSeenTick = Maps.newHashMap();
