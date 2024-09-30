@@ -1,6 +1,7 @@
 package me.calclb.aimer.combat;
 
 import me.calclb.aimer.Main;
+import me.calclb.aimer.Reporter;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.BlockWorkbench;
@@ -19,17 +20,43 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import org.lwjgl.input.Mouse;
 
 public class RightAutoclicker {
+    private final Minecraft mc = Minecraft.getMinecraft();
     private boolean isRightMouseDown = false;
-    private boolean isToggled = false;
-    private boolean wasKeybindJustPressed = false;
-
     private long lastClickTime = 0;
     private long clickDelay = 0;
 
-    private int minCPS = 18;  // Minimum clicks per second
-    private int maxCPS = 21; // Maximum clicks per second
+    private static boolean enabled;
+    private static int minCPS = 19;  // Minimum clicks per second
+    private static int maxCPS = 22; // Maximum clicks per second
 
-    private final Minecraft mc = Minecraft.getMinecraft();
+    public static void setEnabled(boolean b) {
+        enabled = b;
+        Reporter.reportToggled("RMB Autoclicker", b);
+    }
+
+    public static void setMinCPS(int cps) {
+        RightAutoclicker.minCPS = cps;
+        Reporter.reportSet("RMB Autoclicker", "Min CPS", cps);
+
+    }
+
+    public static void setMaxCPS(int cps) {
+        RightAutoclicker.maxCPS = cps;
+        Reporter.reportSet("RMB Autoclicker", "Max CPS", cps);
+
+    }
+
+    public static int getMinCPS() {
+        return minCPS;
+    }
+
+    public static int getMaxCPS() {
+        return maxCPS;
+    }
+
+    public static boolean isEnabled() {
+        return enabled;
+    }
 
     @SubscribeEvent
     public void onMouseEvent(MouseEvent event) {
@@ -43,21 +70,10 @@ public class RightAutoclicker {
 
     @SubscribeEvent
     public void onClientTick(ClientTickEvent event) {
-        if(event.phase != TickEvent.Phase.START) return;
-        boolean isPressed = Main.getRightAutoclickKey().isPressed();
-
-        if (isPressed && !wasKeybindJustPressed) {
-            isToggled = !isToggled;
-            sendToggleMessage();
-        }
-        wasKeybindJustPressed = isPressed;
-
-        if (!isToggled) return;
-        if (mc.thePlayer == null || !mc.thePlayer.isEntityAlive()) return;
-        if (mc.currentScreen != null) return;
-        if (mc.thePlayer.isUsingItem()) return;
-        if (!isHoldingPlaceableBlock()) return;
-        if (isHoldingInteractableBlock()) return;
+        if (event.phase != TickEvent.Phase.START) return;
+        if (Main.getRightAutoclickKey().isPressed()) setEnabled(!enabled);
+        if (!enabled) return;
+        if (!isInAValidStateToClick()) return;
 
         // Check the actual state of the right mouse button each tick
         if (!Mouse.isButtonDown(1)) return;  // 1 is the right mouse button
@@ -67,6 +83,15 @@ public class RightAutoclicker {
             simulateRightClick();
             resetClickDelay();
         }
+    }
+
+    private boolean isInAValidStateToClick() {
+        if (mc.thePlayer == null || !mc.thePlayer.isEntityAlive()) return false;
+        if (mc.currentScreen != null) return false;
+        if (mc.thePlayer.isUsingItem()) return false;
+        if (!isHoldingPlaceableBlock()) return false;
+        if (isHoldingInteractableBlock()) return false;
+        return isRightMouseDown;
     }
 
     private boolean isHoldingPlaceableBlock() {
@@ -105,13 +130,8 @@ public class RightAutoclicker {
     }
 
     private long getRandomClickDelay() {
-        long minDelay = (long)(1000 / (maxCPS * 1.15f));
-        long maxDelay = (long)(1000 / (minCPS * 1.15f));
+        long minDelay = (1000 / maxCPS);
+        long maxDelay = (1000 / minCPS);
         return minDelay + (long) (Math.random() * (maxDelay - minDelay + 1));
-    }
-
-    private void sendToggleMessage() {
-        String message = isToggled ? String.format("Right autoclicker toggled ON (%s..%s cps)", minCPS, maxCPS) : "Right autoclicker toggled OFF";
-        mc.thePlayer.addChatMessage(new ChatComponentText(message));
     }
 }

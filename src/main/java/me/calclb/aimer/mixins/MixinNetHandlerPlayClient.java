@@ -21,13 +21,12 @@ public class MixinNetHandlerPlayClient {
     @Inject(method = "handleEntityVelocity", at = {@At("HEAD")})
     public void handleEntityVelocity(S12PacketEntityVelocity velocityPacket, CallbackInfo ci) {
 
+        if(!AutoJumpReset.isEnabled()) return;
         Minecraft mc = AutoJumpReset.getMc();
-        if (velocityPacket.getEntityID() == mc.thePlayer.getEntityId() && AutoJumpReset.isEnabled()) {
+        if (velocityPacket.getEntityID() == mc.thePlayer.getEntityId()) {
             if (mc.thePlayer == null || !mc.thePlayer.isEntityAlive()) return;
             if (mc.currentScreen != null) return;
             if (!AutoJumpReset.shouldActivate()) return;
-
-            System.out.println("MixinNetHandlerPlayClient - jump resetting!");
 
             AutoJumpReset.legitJump();
 

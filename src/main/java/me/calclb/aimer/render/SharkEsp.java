@@ -1,5 +1,6 @@
 package me.calclb.aimer.render;
 
+import me.calclb.aimer.Reporter;
 import me.calclb.aimer.util.Renderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
@@ -13,12 +14,42 @@ public class SharkEsp {
 
     private static final float MAX_OPACITY = 0.9F;
     private static final float MIN_OPACITY = 0.1F;
-    private static final float HEALTH_THRESHOLD = 0.7f;
     private static final float CRITICAL_HEALTH = 0.15f; // 15% health
-    private static final double MAX_DISTANCE = 50.0;
+    private static float lowHealthThreshold = 0.7f;
+    private static float activationRadiusSqr = 50 * 50;
+    private static boolean enabled;
+
+    public static void setActivationRadius(float radius) {
+        activationRadiusSqr = radius * radius;
+        Reporter.reportSet("Shark ESP", "Activation Radius", radius);
+    }
+
+    public static float getLowHealthThreshold() {
+        return lowHealthThreshold;
+    }
+
+    public static void setLowHealthThreshold(float ratio) {
+        lowHealthThreshold = ratio;
+        Reporter.reportSet("Shark ESP", "Low Health Threshold", ratio);
+    }
+
+    public static float getActivationRadiusSqr() {
+        return activationRadiusSqr;
+    }
+
+    public static boolean isEnabled() {
+        return enabled;
+    }
+
+    public static void setEnabled(boolean b) {
+        enabled = b;
+        Reporter.reportToggled("Shark ESP", b);
+    }
 
     @SubscribeEvent
     public void onRenderOverlay(RenderWorldLastEvent event) {
+        if (!enabled) return;
+
         Minecraft mc = Minecraft.getMinecraft();
         EntityPlayer me = mc.thePlayer;
         float partialTicks = event.partialTicks;
@@ -28,8 +59,8 @@ public class SharkEsp {
         for (EntityPlayer player : mc.theWorld.playerEntities) {
             if (player == me) continue;
 
-            double distance = me.getDistanceToEntity(player);
-            if (distance > MAX_DISTANCE) continue;
+            double distanceSqr = me.getDistanceSqToEntity(player);
+            if (distanceSqr > activationRadiusSqr) continue;
             nearbyPlayers.add(player);
         }
 
@@ -41,7 +72,7 @@ public class SharkEsp {
             if (!player.isEntityAlive()) continue;
 
             float healthRatio = player.getHealth() / player.getMaxHealth();
-            if (healthRatio > HEALTH_THRESHOLD) continue;
+            if (healthRatio > lowHealthThreshold) continue;
 
             float[] color = calculateColor(healthRatio);
             float opacity = calculateOpacity(healthRatio);
@@ -61,7 +92,7 @@ public class SharkEsp {
             blue = 0.0f;
         } else {
             // Interpolate between yellow and red for health above critical
-            float normalizedHealth = (healthRatio - CRITICAL_HEALTH) / (HEALTH_THRESHOLD - CRITICAL_HEALTH);
+            float normalizedHealth = (healthRatio - CRITICAL_HEALTH) / (lowHealthThreshold - CRITICAL_HEALTH);
             green = normalizedHealth * normalizedHealth; // Quadratic falloff for smoother transition
             blue = 0.0f;
         }
@@ -74,7 +105,7 @@ public class SharkEsp {
         if (healthRatio <= CRITICAL_HEALTH) {
             normalizedHealth = 0; // Full opacity for critical health
         } else {
-            normalizedHealth = (healthRatio - CRITICAL_HEALTH) / (HEALTH_THRESHOLD - CRITICAL_HEALTH);
+            normalizedHealth = (healthRatio - CRITICAL_HEALTH) / (lowHealthThreshold - CRITICAL_HEALTH);
         }
         float opacityFactor = 1 - (float) Math.pow(normalizedHealth, 2); // Quadratic function for steeper curve
         return MIN_OPACITY + (MAX_OPACITY - MIN_OPACITY) * opacityFactor;

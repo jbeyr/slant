@@ -12,11 +12,13 @@ buildscript {
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
         classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
     }
 }
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'org.spongepowered.mixin'
+apply plugin: 'com.github.johnrengelman.shadow'
 
 compileJava {
     sourceCompatibility = '1.8'
@@ -41,10 +43,10 @@ mixin {
 }
 
 configurations {
-    // Adds a reference so that we extend/add on to it with depends so we can grab them and compile them into the jar.
     embed
-    // Grabs what's extended/added on from/to embed and compiles it into the jar when being built.
     compile.extendsFrom embed
+    shade
+    compile.extendsFrom shade
 }
 
 repositories {
@@ -53,36 +55,37 @@ repositories {
         name = 'sponge'
         url = 'https://repo.spongepowered.org/maven/'
     }
+    maven {
+        name = 'essential'
+        url = "https://repo.essential.gg/repository/maven-public"
+    }
 }
 
 dependencies {
-    compile 'org.spongepowered:mixin:0.6-SNAPSHOT'
-    compile 'org.jetbrains:annotations:24.0.1'
+    embed('org.spongepowered:mixin:0.6-SNAPSHOT')
+    implementation('org.jetbrains:annotations:24.0.1')
+    shade("gg.essential:vigilance:$vigilanceVersion")
+    shade("gg.essential:universalcraft-$mcVersion-$mcPlatform:$universalCraftVersion")
 }
 
 processResources {
-    // this will ensure that this task is redone when the versions change.
     inputs.property "version", project.version
     inputs.property "mcversion", project.minecraft.version
 
-    // replace stuff in mcmod.info, nothing else
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
-
-        // replace version and mcversion
         expand 'version': project.version, 'mcversion': project.minecraft.version
     }
 
-    // copy everything else, thats not the mcmod.info
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
     }
 }
 
-
 jar {
     dependsOn configurations.embed
     from(configurations.embed.collect { it.isDirectory() ? it : zipTree(it) })
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     manifest {
         attributes(
@@ -92,4 +95,36 @@ jar {
                 'FMLCorePluginContainsFMLMod': true,
         )
     }
+}
+
+shadowJar {
+    configurations = [project.configurations.shade, project.configurations.embed]
+    classifier = ''
+
+    relocate 'gg.essential.vigilance', 'me.calclb.aimer.vigilance'
+    relocate 'gg.essential.elementa', 'me.calclb.aimer.elementa'
+    relocate 'gg.essential.universalcraft', 'me.calclb.aimer.universalcraft'
+
+    // Exclude problematic files
+    exclude 'module-info.class'
+    exclude 'META-INF/*.SF'
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/*.RSA'
+    exclude 'META-INF/LICENSE*'
+    exclude 'META-INF/NOTICE*'
+    exclude 'META-INF/maven/**'
+    exclude 'META-INF/versions/**'
+    exclude 'META-INF/com.android.tools/**'
+}
+
+reobf {
+    shadowJar {
+    }
+
+}
+
+tasks.build.dependsOn shadowJar
+
+artifacts {
+    archives shadowJar
 }

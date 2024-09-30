@@ -1,5 +1,7 @@
-package me.calclb.aimer;
+package me.calclb.aimer.render;
 
+import me.calclb.aimer.Reporter;
+import me.calclb.aimer.util.AntiBot;
 import me.calclb.aimer.util.Renderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -7,6 +9,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -19,17 +22,39 @@ public class Pointer {
     private static boolean isFadingIn = false;
     private static final long FADE_IN_DURATION = 200; // 200ms fade in
     private static final long FADE_OUT_DURATION = 100; // 100ms fade out
-    private static final double MAXDISTSQ = 25f;
+    private static float activationRadiusSqr = 25f;
     private static final double ANGLE_RAD = Math.toRadians(90f);
+    private static boolean enabled;
+
+    public static void setEnabled(boolean b) {
+        enabled = b;
+        Reporter.reportToggled("Pointer", b);
+    }
+
+    public static void setActivationRadius(float radius) {
+        activationRadiusSqr = radius*radius;
+        Reporter.reportSet("Pointer", "Activation Radius", radius);
+
+    }
+
+    public static boolean isEnabled() {
+        return enabled;
+    }
+
+    public static float getActivationRadiusSqr() {
+        return activationRadiusSqr;
+    }
 
     @SubscribeEvent
     public void onRenderWorldLast(RenderWorldLastEvent event) {
+        if(!enabled) return;
+
         Minecraft mc = Minecraft.getMinecraft();
         EntityPlayer me = mc.thePlayer;
 
         if (me == null || mc.theWorld == null) return;
 
-        EntityPlayer target = findClosestAttackablePlayerInRange(me, MAXDISTSQ, ANGLE_RAD, event.partialTicks);
+        EntityPlayer target = findClosestAttackablePlayerInRange(me, activationRadiusSqr, ANGLE_RAD, event.partialTicks);
         if (target != null) pointAtTarget(target, event.partialTicks);
         else startFadeOut();
 

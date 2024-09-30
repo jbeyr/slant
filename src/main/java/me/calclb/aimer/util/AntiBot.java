@@ -1,7 +1,9 @@
-package me.calclb.aimer;
+package me.calclb.aimer.util;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import me.calclb.aimer.Reporter;
+import me.calclb.aimer.render.Pointer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.renderer.GlStateManager;
@@ -33,9 +35,21 @@ public class AntiBot {
 
     private static long currentTick = COMBAT_COOLDOWN_TICKS;
     private static long lastCombatTick = 0;
+    private static boolean enabled;
+
+    public static void setEnabled(boolean b) {
+        enabled = b;
+        Reporter.reportToggled("Anti Bot", b);
+    }
+
+    public static boolean isEnabled() {
+        return enabled;
+    }
 
     @SubscribeEvent
     public void onSpawn(EntityJoinWorldEvent e) {
+        if(!enabled) return;
+
         EntityPlayer me = Minecraft.getMinecraft().thePlayer;
         if(e.entity == me) lastCombatTick = 0;
         if (!(e.entity instanceof EntityPlayer)) return;
@@ -49,6 +63,8 @@ public class AntiBot {
 
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent event) {
+        if(!enabled) return;
+
         if (event.phase != TickEvent.Phase.END) return;
 
         currentTick++;
@@ -90,6 +106,8 @@ public class AntiBot {
 
     @SubscribeEvent
     public void onLivingAttack(LivingAttackEvent event) {
+        if(!enabled) return;
+
         Minecraft mc = Minecraft.getMinecraft();
         if (mc.thePlayer == null) return;
 
@@ -100,6 +118,8 @@ public class AntiBot {
 
     @SubscribeEvent
     public void onRenderWorldLast(RenderWorldLastEvent event) {
+        if(!enabled) return;
+
         Minecraft mc = Minecraft.getMinecraft();
         if (mc.theWorld == null || mc.thePlayer == null) return;
 
@@ -150,7 +170,7 @@ public class AntiBot {
         if (other == null || me == other) return false;
         return other.isEntityAlive()
                 && me.getDistanceSqToEntity(other) < rangeSqr
-                && !AntiBot.isBotUuid(other.getUniqueID())
+                && (!enabled || !AntiBot.isBotUuid(other.getUniqueID())) // if disabled, allow blacklisted entities
                 && Pointer.getVisiblePart(me, other) != null;
     }
 

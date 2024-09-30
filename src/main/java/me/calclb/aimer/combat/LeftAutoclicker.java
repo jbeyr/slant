@@ -1,6 +1,9 @@
 package me.calclb.aimer.combat;
 
-import me.calclb.aimer.AntiBot;
+import gg.essential.universal.ChatColor;
+import me.calclb.aimer.ModConfig;
+import me.calclb.aimer.Reporter;
+import me.calclb.aimer.util.AntiBot;
 import me.calclb.aimer.Main;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
@@ -9,6 +12,7 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityFireball;
+import net.minecraft.util.ChatComponentStyle;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
@@ -18,16 +22,57 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import org.lwjgl.input.Mouse;
 
+import java.awt.*;
+
 public class LeftAutoclicker {
-    private final Minecraft mc = Minecraft.getMinecraft();
-    private boolean isLeftMouseDown = false;
-    private boolean isToggled = false;
-    private boolean wasKeybindJustPressed = false;
-    private long lastClickTime = 0;
-    private long clickDelay = 0;
-    private float rangeSqr = (float) Math.pow(4.5, 2);
-    private int minCPS = 12;
-    private int maxCPS = 14;
+    private static final Minecraft mc = Minecraft.getMinecraft();
+    private static boolean isLeftMouseDown = false;
+    private static long lastClickTime = 0;
+    private static long clickDelay = 0;
+
+    private static float rangeSqr = (float) Math.pow(4.5, 2);
+    private static int minCPS = 12;
+    private static int maxCPS = 14;
+
+    private static boolean enabled;
+
+    public static void setEnabled(boolean b) {
+        enabled = b;
+        Reporter.reportToggled("LMB Autoclicker", b);
+    }
+
+    public static void setActivationRadius(float range) {
+        LeftAutoclicker.rangeSqr = range*range;
+        Reporter.reportSet("LMB Autoclicker", "Activation Radius", range);
+
+    }
+
+    public static void setMinCPS(int cps) {
+        LeftAutoclicker.minCPS = cps;
+        ModConfig.leftAutoClickerMinCps = cps;
+        Reporter.reportSet("LMB Autoclicker", "Min CPS", cps);
+    }
+
+    public static void setMaxCPS(int cps) {
+        LeftAutoclicker.maxCPS = cps;
+        ModConfig.leftAutoClickerMaxCps = cps;
+        Reporter.reportSet("LMB Autoclicker", "Max CPS", cps);
+    }
+
+    public static boolean isEnabled() {
+        return enabled;
+    }
+
+    public static float getActivationRangeSqr() {
+        return rangeSqr;
+    }
+
+    public static int getMaxCPS() {
+        return maxCPS;
+    }
+    public static int getMinCPS() {
+        return minCPS;
+    }
 
     @SubscribeEvent
     public void onMouseEvent(MouseEvent event) {
@@ -86,14 +131,12 @@ public class LeftAutoclicker {
     @SubscribeEvent
     public void onClientTick(ClientTickEvent event) {
         if (event.phase != TickEvent.Phase.START) return;
-        boolean isPressed = Main.getLeftAutoclickKey().isPressed();
 
-        if (isPressed && !wasKeybindJustPressed) {
-            isToggled = !isToggled;
-            sendToggleMessage();
+        if (Main.getLeftAutoclickKey().isPressed()) {
+            setEnabled(!enabled);
         }
-        wasKeybindJustPressed = isPressed;
 
+        if(!enabled) return;
         if(!isInAValidStateToClick()) return;
         if (!Mouse.isButtonDown(0)) return;  // 0 is the left mouse button
 
@@ -108,7 +151,7 @@ public class LeftAutoclicker {
         if (mc.thePlayer == null || !mc.thePlayer.isEntityAlive()) return false;
         if (mc.currentScreen != null) return false;
         if (mc.thePlayer.isUsingItem()) return false;
-        return isToggled && isLeftMouseDown;
+        return isLeftMouseDown;
     }
 
     private void simulateMouseClick() {
@@ -141,10 +184,5 @@ public class LeftAutoclicker {
         long minDelay = 1000 / maxCPS;
         long maxDelay = 1000 / minCPS;
         return minDelay + (long) (Math.random() * (maxDelay - minDelay + 1));
-    }
-
-    private void sendToggleMessage() {
-        String message = isToggled ? String.format("Left autoclicker toggled ON (%s..%s cps)", minCPS, maxCPS) : "Left autoclicker toggled OFF";
-        mc.thePlayer.addChatMessage(new ChatComponentText(message));
     }
 }

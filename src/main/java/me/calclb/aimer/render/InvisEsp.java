@@ -1,8 +1,10 @@
 package me.calclb.aimer.render;
 
+import me.calclb.aimer.Reporter;
 import me.calclb.aimer.util.Renderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -12,10 +14,31 @@ import java.util.List;
 public class InvisEsp {
 
     private static final float OPACITY = 0.3F;
-    private static final double MAX_DISTANCE = 50.0;
+    private static float activationRadiusSqr = 50 * 50;
+    private static boolean enabled;
+
+    public static void setActivationRadius(float radius) {
+        activationRadiusSqr = radius * radius;
+        Reporter.reportSet("Invis ESP", "Activation Radius", radius);
+    }
+
+    public static void setEnabled(boolean b) {
+        enabled = b;
+        Reporter.reportToggled("Invis ESP", b);
+    }
+
+    public static boolean isEnabled() {
+        return enabled;
+    }
+
+    public static float getActivationRadiusSqr() {
+        return activationRadiusSqr;
+    }
 
     @SubscribeEvent
     public void onRenderOverlay(RenderWorldLastEvent event) {
+        if(!enabled) return;
+
         Minecraft mc = Minecraft.getMinecraft();
         EntityPlayer me = mc.thePlayer;
         float partialTicks = event.partialTicks;
@@ -27,8 +50,8 @@ public class InvisEsp {
             if (player == me) continue;
             if (!player.isInvisible()) continue;
 
-            double distance = me.getDistanceToEntity(player);
-            if (distance > MAX_DISTANCE) continue;
+            double distanceSqr = me.getDistanceSqToEntity(player);
+            if (distanceSqr > activationRadiusSqr) continue;
             invisiblePlayers.add(player);
         }
 

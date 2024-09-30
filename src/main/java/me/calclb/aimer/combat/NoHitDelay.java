@@ -1,15 +1,14 @@
-package me.calclb.aimer.movement;
+package me.calclb.aimer.combat;
 
 import me.calclb.aimer.Reporter;
-import net.minecraft.client.Minecraft;
-import net.minecraft.util.ChatComponentText;
 
-public class NoJumpDelay {
+public class NoHitDelay {
+    // TODO implement
     private static boolean enabled;
 
     public static void setEnabled(boolean b) {
         enabled = b;
-        Reporter.reportToggled("No Jump Delay", b);
+        Reporter.reportToggled("No Hit Delay", b);
     }
 
     public static boolean isEnabled() {

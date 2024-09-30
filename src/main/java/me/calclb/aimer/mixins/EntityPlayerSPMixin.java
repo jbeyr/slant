@@ -6,7 +6,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -14,18 +13,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(EntityPlayerSP.class)
 public class EntityPlayerSPMixin {
 
-    @Unique
-    private static final float ROTATION_SPEED = 0.15f;
-
-    @Unique
-    private static final float MAX_YAW_TICK_ROTATION = 40f;
-
     @Inject(method = "onUpdateWalkingPlayer", at = @At("HEAD"))
     private void onUpdateWalkingPlayer(CallbackInfo ci) {
         EntityPlayerSP player = (EntityPlayerSP) (Object) this;
         Minecraft mc = Minecraft.getMinecraft();
 
-        if (Aimlock.isToggled() && Aimlock.isInAValidStateToAim() && Aimlock.getTargetEntity() != null && mc.gameSettings.thirdPersonView != 2) {
+        if(!Aimlock.isEnabled()) return;
+
+        if (Aimlock.isInAValidStateToAim() && Aimlock.getTargetEntity() != null && mc.gameSettings.thirdPersonView != 2) {
             Entity target = Aimlock.getTargetEntity();
 
             double[] hitboxBounds = Aimlock.calculateHitboxBounds(player, target);
@@ -45,13 +40,15 @@ public class EntityPlayerSPMixin {
             if (yawDiff < -180) yawDiff += 360;
 
             // Limit the yaw rotation to prevent sudden turns
-            yawDiff = (float) Aimlock.clamp(yawDiff, -MAX_YAW_TICK_ROTATION, MAX_YAW_TICK_ROTATION);
+            float maxYawTickRotation = Aimlock.getMaxYawTickRotation();
+            yawDiff = (float) Aimlock.clamp(yawDiff, -maxYawTickRotation, maxYawTickRotation);
 
             float targetPitch = (float) Aimlock.clamp((minPitch + maxPitch) / 2, -90, 90);
             float pitchDiff = targetPitch - player.rotationPitch;
 
-            player.rotationYaw += yawDiff * ROTATION_SPEED;
-            player.rotationPitch += pitchDiff * ROTATION_SPEED;
+            float rotationSpeed = Aimlock.getRotationSpeed();
+            player.rotationYaw += yawDiff * rotationSpeed;
+            player.rotationPitch += pitchDiff * rotationSpeed;
         }
     }
 }

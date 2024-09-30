@@ -1,5 +1,6 @@
 package me.calclb.aimer.render;
 
+import me.calclb.aimer.Reporter;
 import me.calclb.aimer.util.Renderer;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBed;
@@ -9,6 +10,7 @@ import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
@@ -16,10 +18,31 @@ import org.lwjgl.opengl.GL11;
 public class BedEsp {
 
     private final Minecraft mc = Minecraft.getMinecraft();
-    private final int RANGE = 20;
+    private static int activationRadiusBlocks = 20;
+    private static boolean enabled;
+
+    public static void setActivationRadiusBlocks(int radius) {
+        activationRadiusBlocks = radius;
+        Reporter.reportSet("Bed ESP", "Activation Radius", radius);
+    }
+
+    public static void setEnabled(boolean b) {
+        enabled = b;
+        Reporter.reportToggled("Bed ESP", b);
+    }
+
+    public static boolean isEnabled() {
+        return enabled;
+    }
+
+    public static int getActivationRadiusBlocks() {
+        return activationRadiusBlocks;
+    }
 
     @SubscribeEvent
     public void onRenderWorldLast(RenderWorldLastEvent event) {
+        if(!enabled) return;
+
         EntityPlayer player = mc.thePlayer;
         double x = player.lastTickPosX + (player.posX - player.lastTickPosX) * event.partialTicks;
         double y = player.lastTickPosY + (player.posY - player.lastTickPosY) * event.partialTicks;
@@ -30,9 +53,10 @@ public class BedEsp {
 
         BlockPos playerPos = player.getPosition();
 
-        for (int dx = -RANGE; dx <= RANGE; dx++) {
-            for (int dy = -RANGE; dy <= RANGE; dy++) {
-                for (int dz = -RANGE; dz <= RANGE; dz++) {
+        int range = activationRadiusBlocks;
+        for (int dx = -range; dx <= range; dx++) {
+            for (int dy = -range; dy <= range; dy++) {
+                for (int dz = -range; dz <= range; dz++) {
                     BlockPos pos = playerPos.add(dx, dy, dz);
                     Block block = mc.theWorld.getBlockState(pos).getBlock();
 

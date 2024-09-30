@@ -1,6 +1,8 @@
 package me.calclb.aimer.combat;
 
-import me.calclb.aimer.AntiBot;
+import me.calclb.aimer.ModConfig;
+import me.calclb.aimer.Reporter;
+import me.calclb.aimer.util.AntiBot;
 import me.calclb.aimer.Main;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -12,23 +14,52 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class Aimlock {
-    private static boolean toggled;
     private static EntityLivingBase targetEntity;
-    private static double rangeSqr = Math.pow(4.25f, 2);
+    private static float rangeSqr = (float) Math.pow(4.25f, 2);
+    private static float maxYawTickRotation = 40f;
+    private static float rotationSpeed = 0.15f;
+    private static boolean enabled;
 
-    // Getter methods
-    public static boolean isToggled() {
-        return toggled;
+    public static float getActivationRadiusSqr() {
+        return rangeSqr;
+    }
+
+    public static void setActivationRadius(float range) {
+        rangeSqr = range*range;
+        Reporter.reportSet("Aimlock", "Activation Radius", range);
     }
 
     public static EntityLivingBase getTargetEntity() {
         return targetEntity;
     }
 
-    // Toggle method
-    public static void toggle() {
-        toggled = !toggled;
-        Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("Aimlock toggled: " + toggled));
+    public static void setEnabled(boolean b) {
+        enabled = b;
+        ModConfig.aimlockEnabled = b;
+        Reporter.reportToggled("Aimlock", b);
+    }
+
+    public static void setMaxYawTickRotation(float maxtickrot) {
+        Aimlock.maxYawTickRotation = maxtickrot;
+        Reporter.reportSet("Aimlock", "Max Yaw Tick Rotation", maxtickrot);
+    }
+
+    public static void setRotationSpeed(float rotationSpeed) {
+        Aimlock.rotationSpeed = rotationSpeed;
+        Reporter.reportSet("Aimlock", "Rotation Speed", rotationSpeed);
+
+    }
+
+    public static boolean isEnabled() {
+        return enabled;
+    }
+
+    public static float getMaxYawTickRotation() {
+        return maxYawTickRotation;
+    }
+
+    public static float getRotationSpeed() {
+        return rotationSpeed;
     }
 
     @SubscribeEvent
@@ -38,10 +69,10 @@ public class Aimlock {
         // Toggle aimlock and reset target when key is pressed
         if (Main.getAimlockKey().isPressed()) {
             targetEntity = null;
-            toggle();
+            setEnabled(!enabled);
         }
 
-        if (!toggled) return;
+        if (!enabled) return;
         if (event.phase != TickEvent.Phase.END) return;
         if (mc.thePlayer == null) return;
 
@@ -70,7 +101,7 @@ public class Aimlock {
         Minecraft mc = Minecraft.getMinecraft();
         if (mc.thePlayer == null || !mc.thePlayer.isEntityAlive()) return false;
         if (mc.currentScreen != null) return false;
-        return toggled;
+        return enabled;
     }
 
     public static double[] calculateHitboxBounds(EntityPlayerSP player, Entity target) {
