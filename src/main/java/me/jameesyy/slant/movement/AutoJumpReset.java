@@ -11,7 +11,6 @@ import java.util.Random;
 
 public class AutoJumpReset {
 
-    private static final Minecraft mc = Minecraft.getMinecraft();
     private static final Random rng = new Random();
     private static boolean enabled;
     private static float chance = 0.75f;
@@ -39,18 +38,16 @@ public class AutoJumpReset {
         return rng.nextDouble() < chance;
     }
 
-    public static Minecraft getMc() {
-        return mc;
-    }
 
     public static void toggle() {
         enabled = !enabled;
     }
 
     public static void legitJump() {
-        int key = mc.gameSettings.keyBindJump.getKeyCode();
+        int key = Minecraft.getMinecraft().gameSettings.keyBindJump.getKeyCode();
         KeyBinding.setKeyBindState(key, true);
         KeyBinding.onTick(key);
+        KeyBinding.setKeyBindState(key, false);
     }
 
     @SubscribeEvent

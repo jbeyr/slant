@@ -1,5 +1,6 @@
 package me.jameesyy.slant.mixins;
 
+import me.jameesyy.slant.Main;
 import me.jameesyy.slant.movement.AutoJumpReset;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetHandlerPlayClient;
@@ -22,17 +23,18 @@ public class MixinNetHandlerPlayClient {
     public void handleEntityVelocity(S12PacketEntityVelocity velocityPacket, CallbackInfo ci) {
 
         if(!AutoJumpReset.isEnabled()) return;
-        Minecraft mc = AutoJumpReset.getMc();
+        Minecraft mc = Main.getMc();
         if (velocityPacket.getEntityID() == mc.thePlayer.getEntityId()) {
             if (mc.thePlayer == null || !mc.thePlayer.isEntityAlive()) return;
             if (mc.currentScreen != null) return;
             if (!AutoJumpReset.shouldActivate()) return;
 
+            boolean isheld = Minecraft.getMinecraft().gameSettings.keyBindJump.isKeyDown();
             AutoJumpReset.legitJump();
 
             // release the jump key
             Timer timer = new Timer(20, (actionevent) -> {
-                KeyBinding.setKeyBindState(AutoJumpReset.getMc().gameSettings.keyBindJump.getKeyCode(), false);
+                KeyBinding.setKeyBindState(Main.getMc().gameSettings.keyBindJump.getKeyCode(), isheld);
             });
             timer.setRepeats(false);
             timer.start();

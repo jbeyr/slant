@@ -19,8 +19,8 @@ import java.util.LinkedList;
 public class Reporter {
 
     private static final int MOD_CHAT_LINE_IDENTIFIER = 0xA5000000;
-    private static final int MAX_QUEUED_MESSAGES = 20;
-    private static Queue<QueuedMessage> messageQueue = new LinkedList<QueuedMessage>();
+    private static final int MAX_QUEUED_MESSAGES = 50;
+    private static final Queue<QueuedMessage> messageQueue = new LinkedList<QueuedMessage>();
     private static boolean isInitialized = false;
 
     private static class QueuedMessage {

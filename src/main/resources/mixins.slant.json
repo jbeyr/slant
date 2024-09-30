@@ -7,7 +7,9 @@
     "MixinNetHandlerPlayClient"
   ],
   "client": [
-    "EntityPlayerSPMixin",
-    "MixinEntityLivingBase"
+    "MixinEntityLivingBase",
+    "MixinEntityPlayerSP",
+    "MixinMinecraft",
+    "MixinWorldClient"
   ]
 }

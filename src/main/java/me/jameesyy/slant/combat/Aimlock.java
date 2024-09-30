@@ -14,9 +14,10 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class Aimlock {
     private static EntityLivingBase targetEntity;
-    private static float rangeSqr = (float) Math.pow(4.25f, 2);
-    private static float maxYawTickRotation = 40f;
-    private static float rotationSpeed = 0.15f;
+    private static float rangeSqr;
+    private static float maxYawTickRotation;
+    private static float rotationSpeed;
+    private static boolean doVerticalRotations;
     private static boolean enabled;
 
     public static float getActivationRadiusSqr() {
@@ -46,7 +47,6 @@ public class Aimlock {
     public static void setRotationSpeed(float rotationSpeed) {
         Aimlock.rotationSpeed = rotationSpeed;
         Reporter.reportSet("Aimlock", "Rotation Speed", rotationSpeed);
-
     }
 
     public static boolean isEnabled() {
@@ -59,6 +59,15 @@ public class Aimlock {
 
     public static float getRotationSpeed() {
         return rotationSpeed;
+    }
+
+    public static boolean shouldDoVerticalRotations() {
+        return doVerticalRotations;
+    }
+
+    public static void setVerticalRotations(boolean doVerticalRotations) {
+        Aimlock.doVerticalRotations = doVerticalRotations;
+        Reporter.reportSet("Aimlock", "Vertical Rotations", doVerticalRotations);
     }
 
     @SubscribeEvent

@@ -8,6 +8,7 @@ import me.jameesyy.slant.render.InvisEsp;
 import me.jameesyy.slant.render.Pointer;
 import me.jameesyy.slant.render.SharkEsp;
 import me.jameesyy.slant.util.AntiBot;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -20,6 +21,12 @@ import org.lwjgl.input.Keyboard;
 public class Main {
     public static final String MODID = "slant";
     public static final String VERSION = "1.0";
+
+    private static final Minecraft mc = Minecraft.getMinecraft();
+
+    public static Minecraft getMc() {
+        return mc;
+    }
 
     private static KeyBinding lmbAutoclickKey;
     private static KeyBinding rmbAutoclickKey;

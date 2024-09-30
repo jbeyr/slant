@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(EntityPlayerSP.class)
-public class EntityPlayerSPMixin {
+public class MixinEntityPlayerSP {
 
     @Inject(method = "onUpdateWalkingPlayer", at = @At("HEAD"))
     private void onUpdateWalkingPlayer(CallbackInfo ci) {
@@ -30,8 +30,6 @@ public class EntityPlayerSPMixin {
 
             float currentYaw = player.rotationYaw;
             float centerYaw = (minYaw + maxYaw) / 2;
-            System.out.println("-------------------------------------------------------");
-            System.out.println("currentYaw: " + currentYaw);
 
             // Calculate yaw difference considering multiple rotations
             float yawDiff = (centerYaw - currentYaw) % 360;
@@ -47,7 +45,7 @@ public class EntityPlayerSPMixin {
 
             float rotationSpeed = Aimlock.getRotationSpeed();
             player.rotationYaw += yawDiff * rotationSpeed;
-            player.rotationPitch += pitchDiff * rotationSpeed;
+            if(Aimlock.shouldDoVerticalRotations()) player.rotationPitch += pitchDiff * rotationSpeed;
         }
     }
 }

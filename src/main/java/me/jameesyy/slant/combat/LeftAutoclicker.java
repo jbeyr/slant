@@ -2,6 +2,7 @@ package me.jameesyy.slant.combat;
 
 import me.jameesyy.slant.ModConfig;
 import me.jameesyy.slant.Reporter;
+import me.jameesyy.slant.movement.AutoJumpReset;
 import me.jameesyy.slant.util.AntiBot;
 import me.jameesyy.slant.Main;
 import net.minecraft.client.Minecraft;
@@ -19,15 +20,16 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import org.lwjgl.input.Mouse;
 
+import javax.swing.*;
+
 public class LeftAutoclicker {
     private static final Minecraft mc = Minecraft.getMinecraft();
-    private static boolean isLeftMouseDown = false;
     private static long lastClickTime = 0;
     private static long clickDelay = 0;
 
-    private static float rangeSqr = (float) Math.pow(4.5, 2);
-    private static int minCPS = 12;
-    private static int maxCPS = 14;
+    private static float rangeSqr;
+    private static int minCPS;
+    private static int maxCPS;
 
     private static boolean enabled;
 
@@ -71,22 +73,19 @@ public class LeftAutoclicker {
 
     @SubscribeEvent
     public void onMouseEvent(MouseEvent event) {
-        if (event.button == 0) {  // 0 is the left mouse button
-            isLeftMouseDown = event.buttonstate;  // True if pressed, false if released
-            if (isLeftMouseDown) {
-                resetClickDelay(); // Reset the delay when the mouse button is pressed
-            }
+        if (event.button == 0 && event.buttonstate) {  // 0 is the left mouse button; buttonstate is true if pressed
+            resetClickDelay();
         }
     }
 
-    private boolean isValidEntityInCrosshair() {
+    public static boolean isValidEntityInCrosshair() {
         EntityPlayer me = mc.thePlayer;
         if (me == null) return false;
 
         Vec3 lookVec = me.getLookVec();
         Vec3 eyePos = me.getPositionEyes(1.0F);
 
-        double fov = Math.cos(Math.toRadians(30));
+        double fov = Math.cos(Math.toRadians(45));
 
         boolean foundValidTarget = false;
         double closestDistanceSqr = rangeSqr;
@@ -94,15 +93,16 @@ public class LeftAutoclicker {
         for (Entity entity : mc.theWorld.loadedEntityList) {
             if (entity instanceof EntityLivingBase && entity != me) {
                 Vec3 toEntity = entity.getPositionVector().addVector(0, entity.getEyeHeight() / 2, 0).subtract(eyePos);
-                double distanceSqr = toEntity.lengthVector();
+                double distance = toEntity.lengthVector();
+                double distSqr = distance * distance;
 
-                if (distanceSqr <= rangeSqr) {
+                if (distSqr <= rangeSqr) {
                     Vec3 toEntityNormalized = toEntity.normalize();
                     double dotProduct = lookVec.dotProduct(toEntityNormalized);
                     if (dotProduct > fov) {
                         foundValidTarget = true;
-                        if (distanceSqr < closestDistanceSqr) {
-                            closestDistanceSqr = distanceSqr;
+                        if (distSqr < closestDistanceSqr) {
+                            closestDistanceSqr = distSqr;
                         }
                     }
                 }
@@ -126,56 +126,40 @@ public class LeftAutoclicker {
     @SubscribeEvent
     public void onClientTick(ClientTickEvent event) {
         if (event.phase != TickEvent.Phase.START) return;
+        if (Main.getLeftAutoclickKey().isPressed()) setEnabled(!enabled);
 
-        if (Main.getLeftAutoclickKey().isPressed()) {
-            setEnabled(!enabled);
-        }
-
-        if(!enabled) return;
-        if(!isInAValidStateToClick()) return;
-        if (!Mouse.isButtonDown(0)) return;  // 0 is the left mouse button
-
-        long currentTime = System.currentTimeMillis();
-        if (currentTime - lastClickTime >= clickDelay && isValidEntityInCrosshair()) {
-            simulateMouseClick();
-            resetClickDelay();
-        }
+        if(shouldClick()) legitLeftClick();
     }
 
-    private boolean isInAValidStateToClick() {
-        if (mc.thePlayer == null || !mc.thePlayer.isEntityAlive()) return false;
-        if (mc.currentScreen != null) return false;
-        if (mc.thePlayer.isUsingItem()) return false;
-        return isLeftMouseDown;
+    public static void legitLeftClick() {
+        int key = mc.gameSettings.keyBindAttack.getKeyCode();
+
+        KeyBinding.setKeyBindState(key, true);
+        KeyBinding.onTick(key);
+        KeyBinding.setKeyBindState(key, false);
     }
 
-    private void simulateMouseClick() {
-        MovingObjectPosition objectMouseOver = mc.objectMouseOver;
-
-        if (objectMouseOver != null) {
-            switch (objectMouseOver.typeOfHit) {
-                case ENTITY:
-                    Entity entity = objectMouseOver.entityHit;
-                    if (entity != null) {
-                        mc.thePlayer.swingItem();
-                        mc.playerController.attackEntity(mc.thePlayer, entity);
-                    }
-                    break;
-                case BLOCK:
-                    KeyBinding.onTick(mc.gameSettings.keyBindAttack.getKeyCode());
-                    break;
-                case MISS:
-                    mc.thePlayer.swingItem();
-            }
-        }
+    public static boolean shouldClick() {
+        return enabled && Mouse.isButtonDown(0) && hasCooldownExpired() && isInAValidStateToClick() && isValidEntityInCrosshair();
     }
 
-    private void resetClickDelay() {
+    public static void resetClickDelay() {
         lastClickTime = System.currentTimeMillis();
         clickDelay = getRandomClickDelay();
     }
 
-    private long getRandomClickDelay() {
+    private static boolean hasCooldownExpired() {
+        long currentTime = System.currentTimeMillis();
+        return currentTime - lastClickTime >= clickDelay;
+    }
+
+    private static boolean isInAValidStateToClick() {
+        if (mc.thePlayer == null || !mc.thePlayer.isEntityAlive()) return false;
+        if (mc.currentScreen != null) return false;
+        return !mc.thePlayer.isUsingItem();
+    }
+
+    private static long getRandomClickDelay() {
         long minDelay = 1000 / maxCPS;
         long maxDelay = 1000 / minCPS;
         return minDelay + (long) (Math.random() * (maxDelay - minDelay + 1));

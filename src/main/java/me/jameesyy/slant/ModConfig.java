@@ -20,8 +20,6 @@ import net.minecraftforge.fml.common.gameevent.InputEvent;
 
 import java.io.File;
 
-import static java.lang.System.getProperty;
-
 public class ModConfig extends Vigilant {
 
     private static ModConfig INSTANCE;
@@ -38,10 +36,13 @@ public class ModConfig extends Vigilant {
     @Property(type = PropertyType.SWITCH, name = "Aimlock", category = "Combat", description = "Helps track the target hitbox when your crosshair enters it.")
     public static boolean aimlockEnabled = false;
 
-        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Aimlock: Rotation Speed", category = "Combat", minF = .01f, maxF = 1f)
+        @Property(type = PropertyType.SWITCH, name = "Aimlock: Vertical Rotations", category = "Combat")
+        public static boolean aimlockVerticalRotations = false;
+
+        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Aimlock: Rotation Speed", category = "Combat", minF = .05f, maxF = .5f)
         public static float aimlockRotationSpeed = 0.15f;
 
-        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Aimlock: Max Yaw Tick Rotation", category = "Combat", minF = 0f, maxF = 100f)
+        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Aimlock: Max Yaw Tick Rotation", category = "Combat", minF = 1f, maxF = 50f)
         public static float aimlockMaxYawTickRotation = 40f;
 
         @Property(type = PropertyType.DECIMAL_SLIDER, name = "Aimlock: Activation Radius", category = "Combat", minF = 1f, maxF = 8f)
@@ -121,6 +122,7 @@ public class ModConfig extends Vigilant {
         AntiBot.setEnabled(antiBotEnabled);
 
         Aimlock.setEnabled(aimlockEnabled);
+        Aimlock.setVerticalRotations(aimlockVerticalRotations);
         Aimlock.setRotationSpeed(aimlockRotationSpeed);
         Aimlock.setMaxYawTickRotation(aimlockMaxYawTickRotation);
         Aimlock.setActivationRadius(aimlockActivationRadius);
@@ -183,6 +185,7 @@ public class ModConfig extends Vigilant {
         registerListener("rightAutoClickerMaxCps", RightAutoclicker::setMaxCPS);
 
         // aimlock
+        registerListener("aimlockVerticalRotations", Aimlock::setVerticalRotations);
         registerListener("aimlockRotationSpeed", Aimlock::setRotationSpeed);
         registerListener("aimlockMaxYawTickRotation", Aimlock::setMaxYawTickRotation);
         registerListener("aimlockActivationRadius", Aimlock::setActivationRadius);
