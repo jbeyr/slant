@@ -1,20 +1,19 @@
-package me.calclb.aimer;
+package me.jameesyy.slant;
 
 import gg.essential.vigilance.Vigilant;
-import gg.essential.vigilance.data.JVMAnnotationPropertyCollector;
 import gg.essential.vigilance.data.Property;
 import gg.essential.vigilance.data.PropertyType;
-import me.calclb.aimer.combat.Aimlock;
-import me.calclb.aimer.combat.LeftAutoclicker;
-import me.calclb.aimer.combat.NoHitDelay;
-import me.calclb.aimer.combat.RightAutoclicker;
-import me.calclb.aimer.movement.AutoJumpReset;
-import me.calclb.aimer.movement.NoJumpDelay;
-import me.calclb.aimer.render.BedEsp;
-import me.calclb.aimer.render.InvisEsp;
-import me.calclb.aimer.render.Pointer;
-import me.calclb.aimer.render.SharkEsp;
-import me.calclb.aimer.util.AntiBot;
+import me.jameesyy.slant.combat.Aimlock;
+import me.jameesyy.slant.combat.LeftAutoclicker;
+import me.jameesyy.slant.combat.NoHitDelay;
+import me.jameesyy.slant.combat.RightAutoclicker;
+import me.jameesyy.slant.movement.AutoJumpReset;
+import me.jameesyy.slant.movement.NoJumpDelay;
+import me.jameesyy.slant.render.BedEsp;
+import me.jameesyy.slant.render.InvisEsp;
+import me.jameesyy.slant.render.Pointer;
+import me.jameesyy.slant.render.SharkEsp;
+import me.jameesyy.slant.util.AntiBot;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
@@ -22,7 +21,6 @@ import net.minecraftforge.fml.common.gameevent.InputEvent;
 import java.io.File;
 
 import static java.lang.System.getProperty;
-import static java.lang.System.setProperty;
 
 public class ModConfig extends Vigilant {
 

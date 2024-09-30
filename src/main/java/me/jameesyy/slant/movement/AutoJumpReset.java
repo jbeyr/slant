@@ -1,7 +1,7 @@
-package me.calclb.aimer.movement;
+package me.jameesyy.slant.movement;
 
-import me.calclb.aimer.Main;
-import me.calclb.aimer.Reporter;
+import me.jameesyy.slant.Main;
+import me.jameesyy.slant.Reporter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;

@@ -1,7 +1,6 @@
-package me.calclb.aimer.mixins;
+package me.jameesyy.slant.mixins;
 
-import me.calclb.aimer.Main;
-import me.calclb.aimer.combat.Aimlock;
+import me.jameesyy.slant.combat.Aimlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;

@@ -1,14 +1,14 @@
 [
   {
-    "modid": "aimer",
-    "name": "Aimer",
-    "description": "less mouse dpi skill issues",
+    "modid": "slant",
+    "name": "Slant",
+    "description": "less skill issues",
     "version": "${version}",
     "mcversion": "${mcversion}",
     "url": "",
     "updateUrl": "",
     "authorList": [
-      "calclb"
+      "jameesyy"
     ],
     "credits": "",
     "logoFile": "",

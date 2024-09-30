@@ -1,4 +1,4 @@
-package me.calclb.aimer;
+package me.jameesyy.slant;
 
 import gg.essential.universal.ChatColor;
 import net.minecraft.client.Minecraft;
@@ -6,12 +6,10 @@ import net.minecraft.client.gui.ChatLine;
 import net.minecraft.client.gui.GuiNewChat;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.IChatComponent;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 
 import java.util.List;
 import java.util.Queue;

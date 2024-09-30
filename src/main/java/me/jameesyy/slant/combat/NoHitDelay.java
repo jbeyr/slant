@@ -1,6 +1,6 @@
-package me.calclb.aimer.combat;
+package me.jameesyy.slant.combat;
 
-import me.calclb.aimer.Reporter;
+import me.jameesyy.slant.Reporter;
 
 public class NoHitDelay {
     // TODO implement

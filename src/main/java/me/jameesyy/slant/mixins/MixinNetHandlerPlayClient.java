@@ -1,6 +1,6 @@
-package me.calclb.aimer.mixins;
+package me.jameesyy.slant.mixins;
 
-import me.calclb.aimer.movement.AutoJumpReset;
+import me.jameesyy.slant.movement.AutoJumpReset;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.settings.KeyBinding;

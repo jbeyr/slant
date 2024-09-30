@@ -1,10 +1,9 @@
-package me.calclb.aimer.combat;
+package me.jameesyy.slant.combat;
 
-import gg.essential.universal.ChatColor;
-import me.calclb.aimer.ModConfig;
-import me.calclb.aimer.Reporter;
-import me.calclb.aimer.util.AntiBot;
-import me.calclb.aimer.Main;
+import me.jameesyy.slant.ModConfig;
+import me.jameesyy.slant.Reporter;
+import me.jameesyy.slant.util.AntiBot;
+import me.jameesyy.slant.Main;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
@@ -12,8 +11,6 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityFireball;
-import net.minecraft.util.ChatComponentStyle;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.client.event.MouseEvent;
@@ -21,8 +18,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import org.lwjgl.input.Mouse;
-
-import java.awt.*;
 
 public class LeftAutoclicker {
     private static final Minecraft mc = Minecraft.getMinecraft();

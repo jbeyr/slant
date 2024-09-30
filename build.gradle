@@ -27,19 +27,19 @@ compileJava {
 }
 
 version = "1.0"
-group = "me.calclb"
-archivesBaseName = "aimer"
+group = "me.jameesyy"
+archivesBaseName = "slant"
 
 minecraft {
     version = "1.8.9-11.15.1.2318-1.8.9"
     runDir = "run"
     mappings = "stable_22"
-    clientJvmArgs += '-Dfml.coreMods.load=me.calclb.aimer.mixins.MixinLoader'
+    clientJvmArgs += '-Dfml.coreMods.load=me.jameesyy.slant.mixins.MixinLoader'
 }
 
 mixin {
     defaultObfuscationEnv = "searge"
-    add sourceSets.main, "mixins.aimer.refmap.json"
+    add sourceSets.main, "mixins.slant.refmap.json"
 }
 
 configurations {
@@ -89,7 +89,7 @@ jar {
 
     manifest {
         attributes(
-                'MixinConfigs': 'mixins.aimer.json',
+                'MixinConfigs': 'mixins.slant.json',
                 'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
                 "ForceLoadAsMod": true,
                 'FMLCorePluginContainsFMLMod': true,
@@ -101,9 +101,9 @@ shadowJar {
     configurations = [project.configurations.shade, project.configurations.embed]
     classifier = ''
 
-    relocate 'gg.essential.vigilance', 'me.calclb.aimer.vigilance'
-    relocate 'gg.essential.elementa', 'me.calclb.aimer.elementa'
-    relocate 'gg.essential.universalcraft', 'me.calclb.aimer.universalcraft'
+    relocate 'gg.essential.vigilance', 'me.jameesyy.slant.vigilance'
+    relocate 'gg.essential.elementa', 'me.jameesyy.slant.elementa'
+    relocate 'gg.essential.universalcraft', 'me.jameesyy.slant.universalcraft'
 
     // Exclude problematic files
     exclude 'module-info.class'

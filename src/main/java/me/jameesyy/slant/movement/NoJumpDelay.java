@@ -1,8 +1,6 @@
-package me.calclb.aimer.movement;
+package me.jameesyy.slant.movement;
 
-import me.calclb.aimer.Reporter;
-import net.minecraft.client.Minecraft;
-import net.minecraft.util.ChatComponentText;
+import me.jameesyy.slant.Reporter;
 
 public class NoJumpDelay {
     private static boolean enabled;

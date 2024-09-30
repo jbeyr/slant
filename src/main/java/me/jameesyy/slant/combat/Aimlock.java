@@ -1,14 +1,13 @@
-package me.calclb.aimer.combat;
+package me.jameesyy.slant.combat;
 
-import me.calclb.aimer.ModConfig;
-import me.calclb.aimer.Reporter;
-import me.calclb.aimer.util.AntiBot;
-import me.calclb.aimer.Main;
+import me.jameesyy.slant.ModConfig;
+import me.jameesyy.slant.Reporter;
+import me.jameesyy.slant.util.AntiBot;
+import me.jameesyy.slant.Main;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;

@@ -1,6 +1,6 @@
-package me.calclb.aimer.mixins;
+package me.jameesyy.slant.mixins;
 
-import me.calclb.aimer.movement.NoJumpDelay;
+import me.jameesyy.slant.movement.NoJumpDelay;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.world.World;

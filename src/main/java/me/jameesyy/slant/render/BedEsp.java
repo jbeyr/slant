@@ -1,7 +1,7 @@
-package me.calclb.aimer.render;
+package me.jameesyy.slant.render;
 
-import me.calclb.aimer.Reporter;
-import me.calclb.aimer.util.Renderer;
+import me.jameesyy.slant.Reporter;
+import me.jameesyy.slant.util.Renderer;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBed;
 import net.minecraft.client.Minecraft;
@@ -10,7 +10,6 @@ import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
-import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;

@@ -1,4 +1,4 @@
-package me.calclb.aimer.mixins;
+package me.jameesyy.slant.mixins;
 
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import org.jetbrains.annotations.NotNull;
@@ -13,7 +13,7 @@ import java.util.Map;
 public class MixinLoader implements IFMLLoadingPlugin {
     public MixinLoader() {
         MixinBootstrap.init();
-        Mixins.addConfiguration("mixins.aimer.json");
+        Mixins.addConfiguration("mixins.slant.json");
         MixinEnvironment.getDefaultEnvironment().setSide(MixinEnvironment.Side.CLIENT);
     }
 

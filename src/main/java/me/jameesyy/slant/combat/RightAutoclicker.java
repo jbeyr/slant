@@ -1,7 +1,7 @@
-package me.calclb.aimer.combat;
+package me.jameesyy.slant.combat;
 
-import me.calclb.aimer.Main;
-import me.calclb.aimer.Reporter;
+import me.jameesyy.slant.Main;
+import me.jameesyy.slant.Reporter;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.BlockWorkbench;
@@ -10,7 +10,6 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraftforge.client.event.MouseEvent;

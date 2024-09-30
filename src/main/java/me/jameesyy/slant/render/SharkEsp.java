@@ -1,7 +1,7 @@
-package me.calclb.aimer.render;
+package me.jameesyy.slant.render;
 
-import me.calclb.aimer.Reporter;
-import me.calclb.aimer.util.Renderer;
+import me.jameesyy.slant.Reporter;
+import me.jameesyy.slant.util.Renderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.client.event.RenderWorldLastEvent;

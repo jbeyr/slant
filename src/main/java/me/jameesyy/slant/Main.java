@@ -1,25 +1,24 @@
-package me.calclb.aimer;
+package me.jameesyy.slant;
 
-import me.calclb.aimer.combat.Aimlock;
-import me.calclb.aimer.combat.LeftAutoclicker;
-import me.calclb.aimer.combat.RightAutoclicker;
-import me.calclb.aimer.render.BedEsp;
-import me.calclb.aimer.render.InvisEsp;
-import me.calclb.aimer.render.Pointer;
-import me.calclb.aimer.render.SharkEsp;
-import me.calclb.aimer.util.AntiBot;
+import me.jameesyy.slant.combat.Aimlock;
+import me.jameesyy.slant.combat.LeftAutoclicker;
+import me.jameesyy.slant.combat.RightAutoclicker;
+import me.jameesyy.slant.render.BedEsp;
+import me.jameesyy.slant.render.InvisEsp;
+import me.jameesyy.slant.render.Pointer;
+import me.jameesyy.slant.render.SharkEsp;
+import me.jameesyy.slant.util.AntiBot;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import org.lwjgl.input.Keyboard;
 
 @Mod(modid = Main.MODID, version = Main.VERSION)
 public class Main {
-    public static final String MODID = "aimer";
+    public static final String MODID = "slant";
     public static final String VERSION = "1.0";
 
     private static KeyBinding lmbAutoclickKey;

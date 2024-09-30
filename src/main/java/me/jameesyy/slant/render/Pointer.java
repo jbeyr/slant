@@ -1,15 +1,14 @@
-package me.calclb.aimer.render;
+package me.jameesyy.slant.render;
 
-import me.calclb.aimer.Reporter;
-import me.calclb.aimer.util.AntiBot;
-import me.calclb.aimer.util.Renderer;
+import me.jameesyy.slant.Reporter;
+import me.jameesyy.slant.util.AntiBot;
+import me.jameesyy.slant.util.Renderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
