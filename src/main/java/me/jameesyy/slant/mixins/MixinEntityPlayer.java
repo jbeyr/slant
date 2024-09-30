@@ -1,0 +1,23 @@
+package me.jameesyy.slant.mixins;
+
+import me.jameesyy.slant.combat.AutoWeapon;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.Optional;
+
+@Mixin(EntityPlayer.class)
+public class MixinEntityPlayer {
+    @Inject(method = "attackTargetEntityWithCurrentItem", at = @At("HEAD"))
+    private void swapToWeaponIfTargeting(Entity targetEntity, CallbackInfo ci) {
+        if (!AutoWeapon.isEnabled() || !(targetEntity instanceof EntityLivingBase)) return;
+        AutoWeapon.swap();
+    }
+}

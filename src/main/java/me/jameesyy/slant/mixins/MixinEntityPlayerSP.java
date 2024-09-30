@@ -4,6 +4,7 @@ import me.jameesyy.slant.combat.Aimlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -48,4 +49,6 @@ public class MixinEntityPlayerSP {
             if(Aimlock.shouldDoVerticalRotations()) player.rotationPitch += pitchDiff * rotationSpeed;
         }
     }
+
+
 }

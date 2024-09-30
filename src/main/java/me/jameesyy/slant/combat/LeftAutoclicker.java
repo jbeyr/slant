@@ -2,7 +2,6 @@ package me.jameesyy.slant.combat;
 
 import me.jameesyy.slant.ModConfig;
 import me.jameesyy.slant.Reporter;
-import me.jameesyy.slant.movement.AutoJumpReset;
 import me.jameesyy.slant.util.AntiBot;
 import me.jameesyy.slant.Main;
 import net.minecraft.client.Minecraft;
@@ -19,8 +18,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import org.lwjgl.input.Mouse;
-
-import javax.swing.*;
 
 public class LeftAutoclicker {
     private static final Minecraft mc = Minecraft.getMinecraft();
@@ -128,7 +125,10 @@ public class LeftAutoclicker {
         if (event.phase != TickEvent.Phase.START) return;
         if (Main.getLeftAutoclickKey().isPressed()) setEnabled(!enabled);
 
-        if(shouldClick()) legitLeftClick();
+        if(shouldClick()) {
+            if(AutoWeapon.isEnabled() && AutoWeapon.shouldSwapOnSwing()) AutoWeapon.swap();
+            legitLeftClick();
+        }
     }
 
     public static void legitLeftClick() {

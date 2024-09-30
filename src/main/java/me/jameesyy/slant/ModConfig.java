@@ -3,10 +3,7 @@ package me.jameesyy.slant;
 import gg.essential.vigilance.Vigilant;
 import gg.essential.vigilance.data.Property;
 import gg.essential.vigilance.data.PropertyType;
-import me.jameesyy.slant.combat.Aimlock;
-import me.jameesyy.slant.combat.LeftAutoclicker;
-import me.jameesyy.slant.combat.NoHitDelay;
-import me.jameesyy.slant.combat.RightAutoclicker;
+import me.jameesyy.slant.combat.*;
 import me.jameesyy.slant.movement.AutoJumpReset;
 import me.jameesyy.slant.movement.NoJumpDelay;
 import me.jameesyy.slant.render.BedEsp;
@@ -33,6 +30,12 @@ public class ModConfig extends Vigilant {
     public static boolean antiBotEnabled = true;
 
     // Combat
+    @Property(type = PropertyType.SWITCH, name = "Auto Weapon", category = "Combat", description = "Sets your selected item to a weapon when attacking.")
+    public static boolean autoWeaponEnabled = false;
+
+        @Property(type = PropertyType.SWITCH, name = "Auto Weapon: Swap On Swing", category = "Combat", description = "If true, swaps when a target entity triggers LMB Autoclicker.")
+        public static boolean autoWeaponSwapOnSwing = false;
+
     @Property(type = PropertyType.SWITCH, name = "Aimlock", category = "Combat", description = "Helps track the target hitbox when your crosshair enters it.")
     public static boolean aimlockEnabled = false;
 
@@ -121,6 +124,9 @@ public class ModConfig extends Vigilant {
 //        OppTracker.setEnabled(oppTrackerEnabled); // Assuming OppTracker has a static setEnabled() method
         AntiBot.setEnabled(antiBotEnabled);
 
+        AutoWeapon.setEnabled(autoWeaponEnabled);
+        AutoWeapon.setSwapOnSwing(autoWeaponSwapOnSwing);
+
         Aimlock.setEnabled(aimlockEnabled);
         Aimlock.setVerticalRotations(aimlockVerticalRotations);
         Aimlock.setRotationSpeed(aimlockRotationSpeed);
@@ -166,6 +172,8 @@ public class ModConfig extends Vigilant {
 
         // when toggles change, enable the module
         registerListener("antiBotEnabled", AntiBot::setEnabled);
+        registerListener("autoWeaponEnabled", AutoWeapon::setEnabled);
+        registerListener("autoWeaponSwapOnSwing", AutoWeapon::setSwapOnSwing);
         registerListener("aimlockEnabled", Aimlock::setEnabled);
         registerListener("rightAutoclickerEnabled", RightAutoclicker::setEnabled);
         registerListener("leftAutoclickerEnabled", LeftAutoclicker::setEnabled);
