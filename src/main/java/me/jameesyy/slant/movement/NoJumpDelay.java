@@ -1,6 +1,6 @@
 package me.jameesyy.slant.movement;
 
-import me.jameesyy.slant.Reporter;
+import me.jameesyy.slant.util.Reporter;
 
 public class NoJumpDelay {
     private static boolean enabled;

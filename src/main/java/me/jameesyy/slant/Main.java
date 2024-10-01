@@ -8,6 +8,9 @@ import me.jameesyy.slant.render.InvisEsp;
 import me.jameesyy.slant.render.Pointer;
 import me.jameesyy.slant.render.SharkEsp;
 import me.jameesyy.slant.util.AntiBot;
+import me.jameesyy.slant.util.AutoGhead;
+import me.jameesyy.slant.util.NbtPrinter;
+import me.jameesyy.slant.util.Reporter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.common.MinecraftForge;
@@ -23,16 +26,16 @@ public class Main {
     public static final String VERSION = "1.0";
 
     private static final Minecraft mc = Minecraft.getMinecraft();
-
-    public static Minecraft getMc() {
-        return mc;
-    }
-
     private static KeyBinding lmbAutoclickKey;
     private static KeyBinding rmbAutoclickKey;
     private static KeyBinding aimlockKey;
     private static KeyBinding autoJumpResetKey;
     private static KeyBinding openConfigKey;
+    private static KeyBinding printNbtKey;
+
+    public static Minecraft getMc() {
+        return mc;
+    }
 
     public static KeyBinding getLeftAutoclickKey() {
         return lmbAutoclickKey;
@@ -54,6 +57,10 @@ public class Main {
         return autoJumpResetKey;
     }
 
+    public static KeyBinding getPrintNbtKey() {
+        return printNbtKey;
+    }
+
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
@@ -63,12 +70,14 @@ public class Main {
         rmbAutoclickKey = new KeyBinding("RMB Autoclicker", Keyboard.KEY_NONE, "key.categories.gameplay");
         autoJumpResetKey = new KeyBinding("Auto Jump Reset", Keyboard.KEY_NONE, "key.categories.gameplay");
         openConfigKey = new KeyBinding("Open Slant Config", Keyboard.KEY_NONE, "key.categories.gameplay");
+        printNbtKey = new KeyBinding("Print NBT of Held Item", Keyboard.KEY_NONE, "key.categories.gameplay");
 
         ClientRegistry.registerKeyBinding(lmbAutoclickKey);
         ClientRegistry.registerKeyBinding(rmbAutoclickKey);
         ClientRegistry.registerKeyBinding(aimlockKey);
         ClientRegistry.registerKeyBinding(autoJumpResetKey);
         ClientRegistry.registerKeyBinding(openConfigKey);
+        ClientRegistry.registerKeyBinding(printNbtKey);
 
         ModConfig.getInstance().preload();
         ModConfig.getInstance().setupDependencies();
@@ -82,6 +91,8 @@ public class Main {
         MinecraftForge.EVENT_BUS.register(new BedEsp());
         MinecraftForge.EVENT_BUS.register(new Pointer());
         MinecraftForge.EVENT_BUS.register(new Aimlock());
+        MinecraftForge.EVENT_BUS.register(new NbtPrinter());
+        MinecraftForge.EVENT_BUS.register(new AutoGhead());
         ModConfig.getInstance().setModulesToConfig();
     }
 }

@@ -1,4 +1,4 @@
-package me.jameesyy.slant;
+package me.jameesyy.slant.util;
 
 import gg.essential.universal.ChatColor;
 import net.minecraft.client.Minecraft;
@@ -9,13 +9,11 @@ import net.minecraft.util.IChatComponent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import net.minecraftforge.fml.common.Mod;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.LinkedList;
 
-@Mod(modid = "reporter", name = "Reporter", version = "1.0")
 public class Reporter {
 
     private static final int MOD_CHAT_LINE_IDENTIFIER = 0xA5000000;

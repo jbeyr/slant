@@ -1,9 +1,11 @@
 package me.jameesyy.slant.combat;
 
-import me.jameesyy.slant.ModConfig;
-import me.jameesyy.slant.Reporter;
-import me.jameesyy.slant.util.AntiBot;
+import me.jameesyy.slant.ActionConflictResolver;
 import me.jameesyy.slant.Main;
+import me.jameesyy.slant.ModConfig;
+import me.jameesyy.slant.render.Pointer;
+import me.jameesyy.slant.util.AntiBot;
+import me.jameesyy.slant.util.Reporter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
@@ -30,31 +32,18 @@ public class LeftAutoclicker {
 
     private static boolean enabled;
 
-    public static void setEnabled(boolean b) {
-        enabled = b;
-        Reporter.reportToggled("LMB Autoclicker", b);
-    }
-
     public static void setActivationRadius(float range) {
-        LeftAutoclicker.rangeSqr = range*range;
+        LeftAutoclicker.rangeSqr = range * range;
         Reporter.reportSet("LMB Autoclicker", "Activation Radius", range);
-
-    }
-
-    public static void setMinCPS(int cps) {
-        LeftAutoclicker.minCPS = cps;
-        ModConfig.leftAutoClickerMinCps = cps;
-        Reporter.reportSet("LMB Autoclicker", "Min CPS", cps);
-    }
-
-    public static void setMaxCPS(int cps) {
-        LeftAutoclicker.maxCPS = cps;
-        ModConfig.leftAutoClickerMaxCps = cps;
-        Reporter.reportSet("LMB Autoclicker", "Max CPS", cps);
     }
 
     public static boolean isEnabled() {
         return enabled;
+    }
+
+    public static void setEnabled(boolean b) {
+        enabled = b;
+        Reporter.reportToggled("LMB Autoclicker", b);
     }
 
     public static float getActivationRangeSqr() {
@@ -64,15 +53,21 @@ public class LeftAutoclicker {
     public static int getMaxCPS() {
         return maxCPS;
     }
+
+    public static void setMaxCPS(int cps) {
+        LeftAutoclicker.maxCPS = cps;
+        ModConfig.leftAutoClickerMaxCps = cps;
+        Reporter.reportSet("LMB Autoclicker", "Max CPS", cps);
+    }
+
     public static int getMinCPS() {
         return minCPS;
     }
 
-    @SubscribeEvent
-    public void onMouseEvent(MouseEvent event) {
-        if (event.button == 0 && event.buttonstate) {  // 0 is the left mouse button; buttonstate is true if pressed
-            resetClickDelay();
-        }
+    public static void setMinCPS(int cps) {
+        LeftAutoclicker.minCPS = cps;
+        ModConfig.leftAutoClickerMinCps = cps;
+        Reporter.reportSet("LMB Autoclicker", "Min CPS", cps);
     }
 
     public static boolean isValidEntityInCrosshair() {
@@ -88,21 +83,24 @@ public class LeftAutoclicker {
         double closestDistanceSqr = rangeSqr;
 
         for (Entity entity : mc.theWorld.loadedEntityList) {
-            if (entity instanceof EntityLivingBase && entity != me) {
-                Vec3 toEntity = entity.getPositionVector().addVector(0, entity.getEyeHeight() / 2, 0).subtract(eyePos);
-                double distance = toEntity.lengthVector();
-                double distSqr = distance * distance;
+            if (!(entity instanceof EntityLivingBase) || entity == me) continue;
+            EntityLivingBase leb = (EntityLivingBase) entity;
 
-                if (distSqr <= rangeSqr) {
-                    Vec3 toEntityNormalized = toEntity.normalize();
-                    double dotProduct = lookVec.dotProduct(toEntityNormalized);
-                    if (dotProduct > fov) {
-                        foundValidTarget = true;
-                        if (distSqr < closestDistanceSqr) {
-                            closestDistanceSqr = distSqr;
-                        }
-                    }
-                }
+            Vec3 toEntity = leb.getPositionVector().addVector(0, leb.getEyeHeight() / 2, 0).subtract(eyePos);
+            double distance = toEntity.lengthVector();
+            double distSqr = distance * distance;
+
+            if (distSqr > rangeSqr) continue;
+
+            Vec3 toEntityNormalized = toEntity.normalize();
+            double dotProduct = lookVec.dotProduct(toEntityNormalized);
+            if (dotProduct <= fov) continue;
+
+            if (Pointer.getVisiblePart(me, leb) == null) continue;
+
+            foundValidTarget = true;
+            if (distSqr < closestDistanceSqr) {
+                closestDistanceSqr = distSqr;
             }
         }
 
@@ -120,17 +118,6 @@ public class LeftAutoclicker {
         return foundValidTarget;
     }
 
-    @SubscribeEvent
-    public void onClientTick(ClientTickEvent event) {
-        if (event.phase != TickEvent.Phase.START) return;
-        if (Main.getLeftAutoclickKey().isPressed()) setEnabled(!enabled);
-
-        if(shouldClick()) {
-            if(AutoWeapon.isEnabled() && AutoWeapon.shouldSwapOnSwing()) AutoWeapon.swap();
-            legitLeftClick();
-        }
-    }
-
     public static void legitLeftClick() {
         int key = mc.gameSettings.keyBindAttack.getKeyCode();
 
@@ -140,7 +127,11 @@ public class LeftAutoclicker {
     }
 
     public static boolean shouldClick() {
-        return enabled && Mouse.isButtonDown(0) && hasCooldownExpired() && isInAValidStateToClick() && isValidEntityInCrosshair();
+        return enabled
+                && ActionConflictResolver.isClickAllowed()
+                && Mouse.isButtonDown(0)
+                && hasCooldownExpired()
+                && isValidEntityInCrosshair();
     }
 
     public static void resetClickDelay() {
@@ -153,15 +144,27 @@ public class LeftAutoclicker {
         return currentTime - lastClickTime >= clickDelay;
     }
 
-    private static boolean isInAValidStateToClick() {
-        if (mc.thePlayer == null || !mc.thePlayer.isEntityAlive()) return false;
-        if (mc.currentScreen != null) return false;
-        return !mc.thePlayer.isUsingItem();
-    }
-
     private static long getRandomClickDelay() {
         long minDelay = 1000 / maxCPS;
         long maxDelay = 1000 / minCPS;
         return minDelay + (long) (Math.random() * (maxDelay - minDelay + 1));
+    }
+
+    @SubscribeEvent
+    public void onMouseEvent(MouseEvent event) {
+        if (event.button == 0 && event.buttonstate) {  // 0 is the left mouse button; buttonstate is true if pressed
+            resetClickDelay();
+        }
+    }
+
+    @SubscribeEvent
+    public void onClientTick(ClientTickEvent event) {
+        if (event.phase != TickEvent.Phase.START) return;
+        if (Main.getLeftAutoclickKey().isPressed()) setEnabled(!enabled);
+
+        if (shouldClick()) {
+            if (AutoWeapon.isEnabled() && AutoWeapon.shouldSwapOnSwing()) AutoWeapon.swap();
+            legitLeftClick();
+        }
     }
 }

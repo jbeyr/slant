@@ -1,6 +1,6 @@
 package me.jameesyy.slant.combat;
 
-import me.jameesyy.slant.Reporter;
+import me.jameesyy.slant.util.Reporter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;

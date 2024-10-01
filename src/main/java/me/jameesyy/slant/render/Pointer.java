@@ -1,8 +1,8 @@
 package me.jameesyy.slant.render;
 
-import me.jameesyy.slant.Reporter;
 import me.jameesyy.slant.util.AntiBot;
 import me.jameesyy.slant.util.Renderer;
+import me.jameesyy.slant.util.Reporter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;

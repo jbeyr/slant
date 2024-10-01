@@ -1,7 +1,7 @@
 package me.jameesyy.slant.render;
 
-import me.jameesyy.slant.Reporter;
 import me.jameesyy.slant.util.Renderer;
+import me.jameesyy.slant.util.Reporter;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBed;
 import net.minecraft.client.Minecraft;

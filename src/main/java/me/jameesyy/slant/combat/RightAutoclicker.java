@@ -1,7 +1,8 @@
 package me.jameesyy.slant.combat;
 
+import me.jameesyy.slant.ActionConflictResolver;
 import me.jameesyy.slant.Main;
-import me.jameesyy.slant.Reporter;
+import me.jameesyy.slant.util.Reporter;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.BlockWorkbench;
@@ -69,7 +70,12 @@ public class RightAutoclicker {
     }
 
     public static boolean shouldClick() {
-        return enabled && Mouse.isButtonDown(1) && hasCooldownExpired() && isInAValidStateToClick();
+        return enabled
+                && ActionConflictResolver.isClickAllowed()
+                && Mouse.isButtonDown(1)
+                && hasCooldownExpired()
+                && isHoldingPlaceableBlock()
+                && !isHoldingInteractableBlock();
     }
 
     public static void resetClickDelay() {
@@ -80,14 +86,6 @@ public class RightAutoclicker {
     private static boolean hasCooldownExpired() {
         long currentTime = System.currentTimeMillis();
         return currentTime - lastClickTime >= clickDelay;
-    }
-
-    private static boolean isInAValidStateToClick() {
-        if (mc.thePlayer == null || !mc.thePlayer.isEntityAlive()) return false;
-        if (mc.currentScreen != null) return false;
-        if (mc.thePlayer.isUsingItem()) return false;
-        if (!isHoldingPlaceableBlock()) return false;
-        return !isHoldingInteractableBlock();
     }
 
     private static boolean isHoldingPlaceableBlock() {
@@ -115,7 +113,7 @@ public class RightAutoclicker {
         if (event.phase != TickEvent.Phase.START) return;
         if (Main.getRightAutoclickKey().isPressed()) setEnabled(!enabled);
 
-        if(shouldClick()) legitRightClick();
+        if (shouldClick()) legitRightClick();
     }
 
     @SubscribeEvent

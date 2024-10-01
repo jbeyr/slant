@@ -1,9 +1,9 @@
 package me.jameesyy.slant.combat;
 
-import me.jameesyy.slant.ModConfig;
-import me.jameesyy.slant.Reporter;
-import me.jameesyy.slant.util.AntiBot;
 import me.jameesyy.slant.Main;
+import me.jameesyy.slant.ModConfig;
+import me.jameesyy.slant.util.AntiBot;
+import me.jameesyy.slant.util.Reporter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
@@ -83,7 +83,6 @@ public class Aimlock {
         if (!enabled) return;
         if (event.phase != TickEvent.Phase.END) return;
         if (mc.thePlayer == null) return;
-
 
         // Reset target if not looking at an entity
         if (mc.objectMouseOver == null || mc.objectMouseOver.typeOfHit != MovingObjectPosition.MovingObjectType.ENTITY) {

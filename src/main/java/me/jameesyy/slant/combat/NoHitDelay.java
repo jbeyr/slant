@@ -1,6 +1,6 @@
 package me.jameesyy.slant.combat;
 
-import me.jameesyy.slant.Reporter;
+import me.jameesyy.slant.util.Reporter;
 
 public class NoHitDelay {
     private static boolean enabled;

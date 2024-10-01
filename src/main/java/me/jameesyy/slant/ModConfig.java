@@ -11,6 +11,7 @@ import me.jameesyy.slant.render.InvisEsp;
 import me.jameesyy.slant.render.Pointer;
 import me.jameesyy.slant.render.SharkEsp;
 import me.jameesyy.slant.util.AntiBot;
+import me.jameesyy.slant.util.AutoGhead;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
@@ -26,8 +27,14 @@ public class ModConfig extends Vigilant {
     @Property(type = PropertyType.SWITCH, name = "Opp Tracker", category = "Utility", description = "Tells combat modules to prioritize targets that are aggressive to you.")
     public static boolean oppTrackerEnabled = false;
 
-    @Property(type = PropertyType.SWITCH, name = "AntiBot", category = "Utility", description = "Tells combat modules to ignore bots.")
+    @Property(type = PropertyType.SWITCH, name = "Anti Bot", category = "Utility", description = "Tells combat modules to ignore bots.")
     public static boolean antiBotEnabled = true;
+
+    @Property(type = PropertyType.SWITCH, name = "Auto Ghead", category = "Utility", description = "Consumes golden heads when you're low on health.")
+    public static boolean autoGheadEnabled = false;
+
+        @Property(type = PropertyType.PERCENT_SLIDER, name = "Auto Ghead: Health Threshold", category = "Utility", description = "Won't consume a golden head above this threshold.", maxF = 1f)
+        public static float autoGheadHealthThreshold = 0.75f;
 
     // Combat
     @Property(type = PropertyType.SWITCH, name = "Auto Weapon", category = "Combat", description = "Sets your selected item to a weapon when attacking.")
@@ -124,6 +131,9 @@ public class ModConfig extends Vigilant {
 //        OppTracker.setEnabled(oppTrackerEnabled); // Assuming OppTracker has a static setEnabled() method
         AntiBot.setEnabled(antiBotEnabled);
 
+        AutoGhead.setEnabled(autoGheadEnabled);
+        AutoGhead.setHealthThreshold(autoGheadHealthThreshold);
+
         AutoWeapon.setEnabled(autoWeaponEnabled);
         AutoWeapon.setSwapOnSwing(autoWeaponSwapOnSwing);
 
@@ -172,6 +182,7 @@ public class ModConfig extends Vigilant {
 
         // when toggles change, enable the module
         registerListener("antiBotEnabled", AntiBot::setEnabled);
+        registerListener("autoGheadEnabled", AutoGhead::setEnabled);
         registerListener("autoWeaponEnabled", AutoWeapon::setEnabled);
         registerListener("autoWeaponSwapOnSwing", AutoWeapon::setSwapOnSwing);
         registerListener("aimlockEnabled", Aimlock::setEnabled);
@@ -199,6 +210,7 @@ public class ModConfig extends Vigilant {
         registerListener("aimlockActivationRadius", Aimlock::setActivationRadius);
 
         // others
+        registerListener("autoGheadHealthThreshold", AutoGhead::setHealthThreshold);
         registerListener("autoJumpResetChance", AutoJumpReset::setChance);
         registerListener("pointerActivationRadius", Pointer::setActivationRadius);
         registerListener("sharkEspActivationRadius", SharkEsp::setActivationRadius);

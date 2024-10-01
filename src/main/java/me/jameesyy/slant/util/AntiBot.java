@@ -2,13 +2,13 @@ package me.jameesyy.slant.util;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import me.jameesyy.slant.Reporter;
 import me.jameesyy.slant.render.Pointer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ChatComponentText;
@@ -168,6 +168,7 @@ public class AntiBot {
     public static boolean isRecommendedTarget(EntityLivingBase other, double rangeSqr) {
         EntityPlayer me = Minecraft.getMinecraft().thePlayer;
         if (other == null || me == other) return false;
+        if (other instanceof EntityArmorStand) return false;
         return other.isEntityAlive()
                 && me.getDistanceSqToEntity(other) < rangeSqr
                 && (!enabled || !AntiBot.isBotUuid(other.getUniqueID())) // if disabled, allow blacklisted entities
