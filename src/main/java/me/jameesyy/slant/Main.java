@@ -8,10 +8,7 @@ import me.jameesyy.slant.render.BedEsp;
 import me.jameesyy.slant.render.InvisEsp;
 import me.jameesyy.slant.render.Pointer;
 import me.jameesyy.slant.render.SharkEsp;
-import me.jameesyy.slant.util.AntiBot;
-import me.jameesyy.slant.util.AutoGhead;
-import me.jameesyy.slant.util.NbtPrinter;
-import me.jameesyy.slant.util.Reporter;
+import me.jameesyy.slant.util.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.common.MinecraftForge;
@@ -102,6 +99,7 @@ public class Main {
         MinecraftForge.EVENT_BUS.register(new NbtPrinter());
         MinecraftForge.EVENT_BUS.register(new AutoGhead());
         MinecraftForge.EVENT_BUS.register(new Safewalk());
+        MinecraftForge.EVENT_BUS.register(new AutoTool());
         ModConfig.getInstance().setModulesToConfig();
     }
 }

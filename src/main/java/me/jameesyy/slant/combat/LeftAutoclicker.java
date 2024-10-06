@@ -164,7 +164,7 @@ public class LeftAutoclicker {
         if (Main.getLeftAutoclickKey().isPressed()) setEnabled(!enabled);
 
         if (shouldClick()) {
-            if (AutoWeapon.isEnabled() && AutoWeapon.shouldSwapOnSwing()) AutoWeapon.swap();
+            if (AutoWeapon.isEnabled() && AutoWeapon.shouldSwapOnSwing() && ActionConflictResolver.isHotbarSelectedSlotChangeAllowed()) AutoWeapon.swap();
             legitLeftClick();
         }
     }

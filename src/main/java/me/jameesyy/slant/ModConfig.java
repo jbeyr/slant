@@ -13,6 +13,8 @@ import me.jameesyy.slant.render.Pointer;
 import me.jameesyy.slant.render.SharkEsp;
 import me.jameesyy.slant.util.AntiBot;
 import me.jameesyy.slant.util.AutoGhead;
+import me.jameesyy.slant.util.AutoTool;
+import me.jameesyy.slant.util.NoMiningDelay;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
@@ -39,6 +41,12 @@ public class ModConfig extends Vigilant {
 
         @Property(type = PropertyType.PERCENT_SLIDER, name = "Auto Ghead: Health Threshold", category = "Utility", description = "Won't consume a golden head above this threshold.", maxF = 1f)
         public static float autoGheadHealthThreshold = 0.75f;
+
+    @Property(type = PropertyType.SWITCH, name = "Auto Tool", category = "Utility", description = "Swaps to the ideal tool to break a block.")
+    public static boolean autoToolEnabled = false;
+
+        @Property(type = PropertyType.SWITCH, name = "Auto Tool: On Sneak Only", category = "Utility", description = "Only swap if crouching and breaking a block.")
+        public static boolean autoToolOnSneakOnly = false;
 
     // Combat
     @Property(type = PropertyType.SWITCH, name = "Auto Weapon", category = "Combat", description = "Sets your selected item to a weapon when attacking.")
@@ -101,6 +109,9 @@ public class ModConfig extends Vigilant {
     @Property(type = PropertyType.SWITCH, name = "No Hit Delay", category = "Combat", description = "Removes the swing cooldown when you miss attacks repeatedly.")
     public static boolean noHitDelayEnabled = false;
 
+    @Property(type = PropertyType.SWITCH, name = "No Mining Delay", category = "Utility", description = "Removes the swing cooldown when you try breaking a block.")
+    public static boolean noMiningDelayEnabled = false;
+
     @Property(type = PropertyType.SWITCH, name = "Pointer", category = "Render", description = "Points at the closest part of a target's hitbox.")
     public static boolean pointerEnabled = false;
 
@@ -146,6 +157,9 @@ public class ModConfig extends Vigilant {
         AutoWeapon.setEnabled(autoWeaponEnabled);
         AutoWeapon.setSwapOnSwing(autoWeaponSwapOnSwing);
 
+        AutoTool.setEnabled(autoToolEnabled);
+        AutoTool.setOnSneakOnly(autoToolOnSneakOnly);
+
         Aimlock.setEnabled(aimlockEnabled);
         Aimlock.setFov(aimlockFov);
         Aimlock.setTargetPriority(Aimlock.TargetPriority.values()[aimlockTargetPriority]);
@@ -164,6 +178,7 @@ public class ModConfig extends Vigilant {
         LeftAutoclicker.setMaxCPS(leftAutoClickerMaxCps);
 
         NoHitDelay.setEnabled(noHitDelayEnabled);
+        NoMiningDelay.setEnabled(noMiningDelayEnabled);
 
         AutoJumpReset.setEnabled(autoJumpResetEnabled);
         AutoJumpReset.setChance(autoJumpResetChance);
@@ -192,12 +207,15 @@ public class ModConfig extends Vigilant {
         registerListener("autoGheadEnabled", AutoGhead::setEnabled);
         registerListener("autoWeaponEnabled", AutoWeapon::setEnabled);
         registerListener("autoWeaponSwapOnSwing", AutoWeapon::setSwapOnSwing);
+        registerListener("autoToolEnabled", AutoTool::setEnabled);
+        registerListener("autoToolOnSneakOnly", AutoTool::setOnSneakOnly);
         registerListener("aimlockEnabled", Aimlock::setEnabled);
         registerListener("rightAutoclickerEnabled", RightAutoclicker::setEnabled);
         registerListener("leftAutoclickerEnabled", LeftAutoclicker::setEnabled);
         registerListener("autoJumpResetEnabled", AutoJumpReset::setEnabled);
         registerListener("noJumpDelayEnabled", NoJumpDelay::setEnabled);
         registerListener("noHitDelayEnabled", NoHitDelay::setEnabled);
+        registerListener("noMiningDelayEnabled", NoMiningDelay::setEnabled);
         registerListener("pointerEnabled", Pointer::setEnabled);
         registerListener("bedEspEnabled", BedEsp::setEnabled);
         registerListener("invisEspEnabled", InvisEsp::setEnabled);

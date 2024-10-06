@@ -1,5 +1,6 @@
 package me.jameesyy.slant.mixins;
 
+import me.jameesyy.slant.ActionConflictResolver;
 import me.jameesyy.slant.combat.AutoWeapon;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -13,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinEntityPlayer {
     @Inject(method = "attackTargetEntityWithCurrentItem", at = @At("HEAD"))
     private void swapToWeaponIfTargeting(Entity targetEntity, CallbackInfo ci) {
-        if (!AutoWeapon.isEnabled() || !(targetEntity instanceof EntityLivingBase)) return;
+        if (!AutoWeapon.isEnabled() || !ActionConflictResolver.isHotbarSelectedSlotChangeAllowed() || !(targetEntity instanceof EntityLivingBase)) return;
         AutoWeapon.swap();
     }
 }

@@ -11,6 +11,7 @@
     "MixinEntityLivingBase",
     "MixinEntityPlayerSP",
     "MixinMinecraft",
+    "MixinPlayerContollerMP",
     "MixinWorldClient"
   ]
 }

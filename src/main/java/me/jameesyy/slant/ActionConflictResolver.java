@@ -19,7 +19,7 @@ public class ActionConflictResolver {
         return isActingOnPlayerBehalfAllowed() && !AutoGhead.isInProgress() && !mc.thePlayer.isUsingItem();
     }
 
-    public static boolean isSneakingAllowed () {
+    public static boolean isSneakingAllowed() {
         return isActingOnPlayerBehalfAllowed();
     }
 
@@ -28,6 +28,6 @@ public class ActionConflictResolver {
     }
 
     public static boolean isRotatingAllowed() {
-        return isActingOnPlayerBehalfAllowed() && !AutoGhead.isInProgress();
+        return isActingOnPlayerBehalfAllowed();
     }
 }
