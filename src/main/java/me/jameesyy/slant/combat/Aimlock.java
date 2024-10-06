@@ -23,6 +23,7 @@ public class Aimlock {
     private static boolean doVerticalRotations;
     private static boolean enabled;
     private static TargetPriority targetPriority;
+    private static boolean isHittingBlock;
 
     public static float getFov() {
         return fov;
@@ -35,6 +36,14 @@ public class Aimlock {
     }
 
     private static float fov = 60f;
+
+    public static boolean isHittingBlock() {
+        return isHittingBlock;
+    }
+
+    public static void setIsHittingBlock(boolean b) {
+        Aimlock.isHittingBlock = b;
+    }
 
     public enum TargetPriority {
         INITIAL_HITSCAN("Initial Hitscan"),
