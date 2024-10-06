@@ -20,8 +20,6 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import org.lwjgl.opengl.GL11;
 
-import java.text.DecimalFormat;
-
 public class Safewalk {
     /**
      * Players bridge at a pitch above this value.

@@ -1,6 +1,7 @@
 package me.jameesyy.slant.mixins;
 
 
+import me.jameesyy.slant.combat.Aimlock;
 import me.jameesyy.slant.util.AutoTool;
 import me.jameesyy.slant.util.NoMiningDelay;
 import net.minecraft.client.Minecraft;
@@ -11,10 +12,14 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(PlayerControllerMP.class)
 public class MixinPlayerContollerMP {
+
+    @Shadow
+    private boolean isHittingBlock;
 
     @Shadow
     private int blockHitDelay;
@@ -31,5 +36,21 @@ public class MixinPlayerContollerMP {
                 mc.thePlayer.inventory.currentItem = bestSlot;
             }
         }
+    }
+
+    // for aimlock
+    @Inject(method = "onPlayerDamageBlock", at = @At("TAIL"))
+    private void afterPlayerDamageBlock(BlockPos p_onPlayerDamageBlock_1_, EnumFacing p_onPlayerDamageBlock_2_, CallbackInfoReturnable<Boolean> cir) {
+        Aimlock.setIsHittingBlock(isHittingBlock);
+    }
+
+    @Inject(method = "resetBlockRemoving", at = @At("TAIL"))
+    private void afterResetBlockRemoving(CallbackInfo ci) {
+        Aimlock.setIsHittingBlock(isHittingBlock);
+    }
+
+    @Inject(method = "clickBlock", at = @At("TAIL"))
+    private void afterClickBlock(BlockPos p_clickBlock_1_, EnumFacing p_clickBlock_2_, CallbackInfoReturnable<Boolean> cir) {
+        Aimlock.setIsHittingBlock(isHittingBlock);
     }
 }

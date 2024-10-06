@@ -5,21 +5,12 @@ import me.jameesyy.slant.combat.Aimlock;
 import me.jameesyy.slant.movement.Safewalk;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.IChatComponent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import javax.swing.*;
-import java.util.Optional;
 
 @Mixin(EntityPlayerSP.class)
 public class MixinEntityPlayerSP {
@@ -28,7 +19,8 @@ public class MixinEntityPlayerSP {
     private void onUpdateWalkingPlayer(CallbackInfo ci) {
         EntityPlayerSP player = (EntityPlayerSP) (Object) this;
         Safewalk.setLastMovementInput(player.movementInput);
-        slant$handleAimlock(player);
+
+        if (ActionConflictResolver.isRotatingAllowed() && !player.isUsingItem() && !Aimlock.isHittingBlock()) slant$handleAimlock(player);
     }
 
     @Unique
