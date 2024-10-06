@@ -19,6 +19,10 @@ public class ActionConflictResolver {
         return isActingOnPlayerBehalfAllowed() && !AutoGhead.isInProgress() && !mc.thePlayer.isUsingItem();
     }
 
+    public static boolean isSneakingAllowed () {
+        return isActingOnPlayerBehalfAllowed();
+    }
+
     public static boolean isHotbarSelectedSlotChangeAllowed() {
         return isActingOnPlayerBehalfAllowed() && !AutoGhead.isInProgress();
     }

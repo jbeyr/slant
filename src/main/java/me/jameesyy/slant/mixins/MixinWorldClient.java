@@ -12,6 +12,5 @@ public class MixinWorldClient {
 
     @Inject(method = "sendQuittingDisconnectingPacket", at = {@At("HEAD")})
     public void sendQuittingDisconnectingPacket(CallbackInfo ci) {
-        // TODO add disconnection handlers for modules if needed
     }
 }

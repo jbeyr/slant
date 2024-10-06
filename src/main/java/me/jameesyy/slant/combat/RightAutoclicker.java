@@ -2,6 +2,7 @@ package me.jameesyy.slant.combat;
 
 import me.jameesyy.slant.ActionConflictResolver;
 import me.jameesyy.slant.Main;
+import me.jameesyy.slant.ModConfig;
 import me.jameesyy.slant.util.Reporter;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
@@ -33,6 +34,7 @@ public class RightAutoclicker {
 
     public static void setMinCPS(int cps) {
         RightAutoclicker.minCPS = cps;
+        ModConfig.rightAutoClickerMinCps = cps;
         Reporter.reportSet("RMB Autoclicker", "Min CPS", cps);
     }
 
@@ -42,6 +44,7 @@ public class RightAutoclicker {
 
     public static void setMaxCPS(int cps) {
         RightAutoclicker.maxCPS = cps;
+        ModConfig.rightAutoClickerMaxCps = cps;
         Reporter.reportSet("RMB Autoclicker", "Max CPS", cps);
     }
 
@@ -51,6 +54,7 @@ public class RightAutoclicker {
 
     public static void setEnabled(boolean b) {
         enabled = b;
+        ModConfig.rightAutoclickerEnabled = b;
         Reporter.reportToggled("RMB Autoclicker", b);
     }
 

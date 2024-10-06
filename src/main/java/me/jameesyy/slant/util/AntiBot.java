@@ -2,6 +2,7 @@ package me.jameesyy.slant.util;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import me.jameesyy.slant.ModConfig;
 import me.jameesyy.slant.render.Pointer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetworkPlayerInfo;
@@ -39,6 +40,7 @@ public class AntiBot {
 
     public static void setEnabled(boolean b) {
         enabled = b;
+        ModConfig.antiBotEnabled = b;
         Reporter.reportToggled("Anti Bot", b);
     }
 

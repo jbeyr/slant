@@ -1,5 +1,6 @@
 package me.jameesyy.slant.render;
 
+import me.jameesyy.slant.ModConfig;
 import me.jameesyy.slant.util.Renderer;
 import me.jameesyy.slant.util.Reporter;
 import net.minecraft.block.Block;
@@ -22,11 +23,13 @@ public class BedEsp {
 
     public static void setActivationRadiusBlocks(int radius) {
         activationRadiusBlocks = radius;
+        ModConfig.bedEspActivationRadiusBlocks = radius;
         Reporter.reportSet("Bed ESP", "Activation Radius", radius);
     }
 
     public static void setEnabled(boolean b) {
         enabled = b;
+        ModConfig.bedEspEnabled = b;
         Reporter.reportToggled("Bed ESP", b);
     }
 

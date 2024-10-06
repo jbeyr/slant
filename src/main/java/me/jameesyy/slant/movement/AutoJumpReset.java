@@ -1,6 +1,7 @@
 package me.jameesyy.slant.movement;
 
 import me.jameesyy.slant.Main;
+import me.jameesyy.slant.ModConfig;
 import me.jameesyy.slant.util.Reporter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
@@ -21,6 +22,7 @@ public class AutoJumpReset {
 
     public static void setEnabled(boolean b) {
         enabled = b;
+        ModConfig.autoJumpResetEnabled = b;
         Reporter.reportToggled("Auto Jump Reset", b);
     }
 
@@ -30,6 +32,7 @@ public class AutoJumpReset {
 
     public static void setChance(float f) {
         chance = Math.max(0, Math.min(1, f));
+        ModConfig.autoJumpResetChance = f;
         Reporter.reportSet("Auto Jump Reset", "Chance", f);
 
     }

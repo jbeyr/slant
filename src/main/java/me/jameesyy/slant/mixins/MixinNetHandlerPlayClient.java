@@ -16,13 +16,15 @@ import javax.swing.*;
 
 @Mixin(value = NetHandlerPlayClient.class)
 public class MixinNetHandlerPlayClient {
+
     public MixinNetHandlerPlayClient() {
     }
 
+    // region auto jump reset
     @Inject(method = "handleEntityVelocity", at = {@At("HEAD")})
     public void handleEntityVelocity(S12PacketEntityVelocity velocityPacket, CallbackInfo ci) {
 
-        if(!AutoJumpReset.isEnabled()) return;
+        if (!AutoJumpReset.isEnabled()) return;
         Minecraft mc = Main.getMc();
         if (velocityPacket.getEntityID() == mc.thePlayer.getEntityId()) {
             if (mc.thePlayer == null || !mc.thePlayer.isEntityAlive()) return;
@@ -40,4 +42,6 @@ public class MixinNetHandlerPlayClient {
             timer.start();
         }
     }
+
+    // endregion
 }

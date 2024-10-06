@@ -1,5 +1,6 @@
 package me.jameesyy.slant.render;
 
+import me.jameesyy.slant.ModConfig;
 import me.jameesyy.slant.util.Renderer;
 import me.jameesyy.slant.util.Reporter;
 import net.minecraft.client.Minecraft;
@@ -18,11 +19,13 @@ public class InvisEsp {
 
     public static void setActivationRadius(float radius) {
         activationRadiusSqr = radius * radius;
+        ModConfig.invisEspActivationRadius = radius;
         Reporter.reportSet("Invis ESP", "Activation Radius", radius);
     }
 
     public static void setEnabled(boolean b) {
         enabled = b;
+        ModConfig.invisEspEnabled = b;
         Reporter.reportToggled("Invis ESP", b);
     }
 

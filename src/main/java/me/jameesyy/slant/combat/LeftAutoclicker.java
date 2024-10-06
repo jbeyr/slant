@@ -43,6 +43,7 @@ public class LeftAutoclicker {
 
     public static void setEnabled(boolean b) {
         enabled = b;
+        ModConfig.leftAutoclickerEnabled = b;
         Reporter.reportToggled("LMB Autoclicker", b);
     }
 

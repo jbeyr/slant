@@ -1,6 +1,7 @@
 package me.jameesyy.slant.util;
 
 import me.jameesyy.slant.ActionConflictResolver;
+import me.jameesyy.slant.ModConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
@@ -20,12 +21,13 @@ public class AutoGhead {
 
     private static long inProgressUntil = 0;
     private static long cooldownUntil = 0;
+    private static int slotSwappedFrom = 0;
 
 
     private static final Minecraft mc = Minecraft.getMinecraft();
 
     private static final long IN_PROGRESS_DURATION = 50;
-    private static final long COOLDOWN_DURATION = 2000;
+    private static final long COOLDOWN_DURATION = 250;
 
     public static boolean isEnabled() {
         return enabled;
@@ -33,6 +35,7 @@ public class AutoGhead {
 
     public static void setEnabled(boolean b) {
         AutoGhead.enabled = b;
+        ModConfig.autoGheadEnabled = b;
         Reporter.reportToggled("Auto Ghead", b);
     }
 
@@ -77,20 +80,32 @@ public class AutoGhead {
 
     public static void setHealthThreshold(float ratio) {
         AutoGhead.healthThreshold = ratio;
+        ModConfig.autoGheadHealthThreshold = ratio;
         Reporter.reportSet("Auto Ghead", "Health Threshold", ratio);
     }
+
+    private int swappedFrom = 0;
+    private boolean needToSwapBack = false;
 
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent event) {
         if (!enabled) return;
         if (!ActionConflictResolver.isGheadAllowed()) return;
         if (event.phase != TickEvent.Phase.START) return;
-        if (System.currentTimeMillis() < cooldownUntil) return; // Still on cooldown
 
         EntityPlayer me = mc.thePlayer;
 
+        if (needToSwapBack) {
+            me.inventory.currentItem = swappedFrom;
+            needToSwapBack = false;
+            return;
+        }
+
+        if (System.currentTimeMillis() < cooldownUntil) return; // Still on cooldown, so don't use another ghead
+
         if (me.getAbsorptionAmount() > 1f || me.getHealth() / me.getMaxHealth() > healthThreshold) return;
 
+        swappedFrom = me.inventory.currentItem;
         int gheadSlot = -1;
         for (int i = 0; i < 9; i++) {
             ItemStack stack = me.inventory.getStackInSlot(i);
@@ -110,5 +125,8 @@ public class AutoGhead {
         KeyBinding.setKeyBindState(useItemKey, true);
         KeyBinding.onTick(useItemKey);
         KeyBinding.setKeyBindState(useItemKey, false);
+
+        // Schedule swap back for next tick
+        needToSwapBack = true;
     }
 }

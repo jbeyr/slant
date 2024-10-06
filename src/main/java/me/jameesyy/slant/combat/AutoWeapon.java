@@ -1,5 +1,6 @@
 package me.jameesyy.slant.combat;
 
+import me.jameesyy.slant.ModConfig;
 import me.jameesyy.slant.util.Reporter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
@@ -31,6 +32,7 @@ public class AutoWeapon {
 
     public static void setEnabled(boolean b) {
         enabled = b;
+        ModConfig.autoWeaponEnabled = b;
         Reporter.reportToggled("Auto Weapon", b);
     }
 
@@ -51,6 +53,7 @@ public class AutoWeapon {
 
     public static void setSwapOnSwing(boolean b) {
         AutoWeapon.swapOnSwing = b;
+        ModConfig.autoWeaponSwapOnSwing = b;
         Reporter.reportSet("Auto Weapon", "Swap On Swing", b);
     }
 }

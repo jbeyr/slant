@@ -1,5 +1,6 @@
 package me.jameesyy.slant.render;
 
+import me.jameesyy.slant.ModConfig;
 import me.jameesyy.slant.util.AntiBot;
 import me.jameesyy.slant.util.Renderer;
 import me.jameesyy.slant.util.Reporter;
@@ -27,11 +28,13 @@ public class Pointer {
 
     public static void setEnabled(boolean b) {
         enabled = b;
+        ModConfig.pointerEnabled = b;
         Reporter.reportToggled("Pointer", b);
     }
 
     public static void setActivationRadius(float radius) {
         activationRadiusSqr = radius*radius;
+        ModConfig.pointerActivationRadius = radius;
         Reporter.reportSet("Pointer", "Activation Radius", radius);
 
     }

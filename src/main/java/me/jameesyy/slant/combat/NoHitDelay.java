@@ -1,5 +1,6 @@
 package me.jameesyy.slant.combat;
 
+import me.jameesyy.slant.ModConfig;
 import me.jameesyy.slant.util.Reporter;
 
 public class NoHitDelay {
@@ -7,6 +8,7 @@ public class NoHitDelay {
 
     public static void setEnabled(boolean b) {
         enabled = b;
+        ModConfig.noHitDelayEnabled = b;
         Reporter.reportToggled("No Hit Delay", b);
     }
 

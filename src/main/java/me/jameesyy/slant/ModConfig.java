@@ -6,6 +6,7 @@ import gg.essential.vigilance.data.PropertyType;
 import me.jameesyy.slant.combat.*;
 import me.jameesyy.slant.movement.AutoJumpReset;
 import me.jameesyy.slant.movement.NoJumpDelay;
+import me.jameesyy.slant.movement.Safewalk;
 import me.jameesyy.slant.render.BedEsp;
 import me.jameesyy.slant.render.InvisEsp;
 import me.jameesyy.slant.render.Pointer;
@@ -24,8 +25,11 @@ public class ModConfig extends Vigilant {
 
     // region MODULE STATES
 
-    @Property(type = PropertyType.SWITCH, name = "Opp Tracker", category = "Utility", description = "Tells combat modules to prioritize targets that are aggressive to you.")
-    public static boolean oppTrackerEnabled = false;
+    @Property(type = PropertyType.SWITCH, name = "Safewalk", category = "Movement", description = "Sneak near the edge of blocks.")
+    public static boolean safewalkEnabled = false;
+
+        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Safewalk: Edge Distance", category = "Movement", description = "The distance from the edge at which sneaking occurs.", maxF = 0.5f, decimalPlaces = 2)
+        public static float safewalkEdgeDistance = 0.15f;
 
     @Property(type = PropertyType.SWITCH, name = "Anti Bot", category = "Utility", description = "Tells combat modules to ignore bots.")
     public static boolean antiBotEnabled = true;
@@ -46,17 +50,23 @@ public class ModConfig extends Vigilant {
     @Property(type = PropertyType.SWITCH, name = "Aimlock", category = "Combat", description = "Helps track the target hitbox when your crosshair enters it.")
     public static boolean aimlockEnabled = false;
 
+        @Property(type = PropertyType.SELECTOR, name = "Aimlock: Target Priority", category = "Combat", description = "Focus aimlock on the initially hitscanned player, the closest player within the FOV range, or the lowest health player within the FOV range.", options = {"Initial Hitscan", "Closest FOV", "Lowest Health"})
+        public static int aimlockTargetPriority = Aimlock.TargetPriority.INITIAL_HITSCAN.ordinal();
+
         @Property(type = PropertyType.SWITCH, name = "Aimlock: Vertical Rotations", category = "Combat")
         public static boolean aimlockVerticalRotations = false;
 
-        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Aimlock: Rotation Speed", category = "Combat", minF = .05f, maxF = .5f)
+        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Aimlock: FOV", category = "Combat", minF = 0, maxF = 360, decimalPlaces = 0)
+        public static float aimlockFov = 30f;
+
+    @Property(type = PropertyType.DECIMAL_SLIDER, name = "Aimlock: Rotation Speed", category = "Combat", minF = .05f, maxF = .5f, decimalPlaces = 2)
         public static float aimlockRotationSpeed = 0.15f;
 
         @Property(type = PropertyType.DECIMAL_SLIDER, name = "Aimlock: Max Yaw Tick Rotation", category = "Combat", minF = 1f, maxF = 50f)
         public static float aimlockMaxYawTickRotation = 40f;
 
-        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Aimlock: Activation Radius", category = "Combat", minF = 1f, maxF = 8f)
-        public static float aimlockActivationRadius = 4.25f;
+        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Aimlock: Activation Radius", category = "Combat", minF = 1f, maxF = 8f, decimalPlaces = 2)
+        public static float aimlockActivationRadius = 4.15f;
 
     @Property(type = PropertyType.SWITCH, name = "Right Autoclicker", category = "Combat", description = "Places held blocks when you're pressing the 'use item' key.")
     public static boolean rightAutoclickerEnabled = false;
@@ -70,7 +80,7 @@ public class ModConfig extends Vigilant {
     @Property(type = PropertyType.SWITCH, name = "Left Autoclicker", category = "Combat", description = "Swings when a player is in front of you.")
     public static boolean leftAutoclickerEnabled = false;
 
-        @Property(type = PropertyType.DECIMAL_SLIDER, name = "LMB: Activation Range", category = "Combat", minF = 1f, maxF = 8f)
+        @Property(type = PropertyType.DECIMAL_SLIDER, name = "LMB: Activation Range", category = "Combat", minF = 1f, maxF = 8f, decimalPlaces = 2)
         public static float leftAutoclickerActivationRadius = 4.5f;
 
         @Property(type = PropertyType.SLIDER, name = "LMB: Min CPS", category = "Combat", min = 8, max = 25)
@@ -94,15 +104,15 @@ public class ModConfig extends Vigilant {
     @Property(type = PropertyType.SWITCH, name = "Pointer", category = "Render", description = "Points at the closest part of a target's hitbox.")
     public static boolean pointerEnabled = false;
 
-        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Pointer Activation Radius", category = "Render", maxF = 12f)
+        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Pointer Activation Radius", category = "Render", maxF = 12f, decimalPlaces = 2)
         public static float pointerActivationRadius = 4.5f;
 
     // Render
     @Property(type = PropertyType.SWITCH, name = "Bed ESP", category = "Render", subcategory = "ESP")
     public static boolean bedEspEnabled = false;
 
-        @Property(type = PropertyType.SLIDER, name = "Bed ESP Radius", category = "Render", min = 5, max = 100)
-        public static int bedEspActivationRadiusBlocks = 20;
+    @Property(type = PropertyType.SLIDER, name = "Bed ESP Radius", category = "Render", min = 5, max = 40)
+    public static int bedEspActivationRadiusBlocks = 20;
 
     @Property(type = PropertyType.SWITCH, name = "Invis ESP", category = "Render", subcategory = "ESP")
     public static boolean invisEspEnabled = false;
@@ -128,7 +138,6 @@ public class ModConfig extends Vigilant {
     }
 
     public void setModulesToConfig() {
-//        OppTracker.setEnabled(oppTrackerEnabled); // Assuming OppTracker has a static setEnabled() method
         AntiBot.setEnabled(antiBotEnabled);
 
         AutoGhead.setEnabled(autoGheadEnabled);
@@ -138,6 +147,8 @@ public class ModConfig extends Vigilant {
         AutoWeapon.setSwapOnSwing(autoWeaponSwapOnSwing);
 
         Aimlock.setEnabled(aimlockEnabled);
+        Aimlock.setFov(aimlockFov);
+        Aimlock.setTargetPriority(Aimlock.TargetPriority.values()[aimlockTargetPriority]);
         Aimlock.setVerticalRotations(aimlockVerticalRotations);
         Aimlock.setRotationSpeed(aimlockRotationSpeed);
         Aimlock.setMaxYawTickRotation(aimlockMaxYawTickRotation);
@@ -156,8 +167,9 @@ public class ModConfig extends Vigilant {
 
         AutoJumpReset.setEnabled(autoJumpResetEnabled);
         AutoJumpReset.setChance(autoJumpResetChance);
-
         NoJumpDelay.setEnabled(noJumpDelayEnabled);
+        Safewalk.setEnabled(safewalkEnabled);
+        Safewalk.setEdgeDistance(safewalkEdgeDistance);
 
         // Render
         Pointer.setEnabled(pointerEnabled);
@@ -175,12 +187,7 @@ public class ModConfig extends Vigilant {
     }
 
     public void setupDependencies() {
-        // Combat dependencies
-        registerListener("oppTrackerEnabled", (Boolean b) -> {
-            System.out.println("oppTrackerEnabled was set to " + b);
-        });
 
-        // when toggles change, enable the module
         registerListener("antiBotEnabled", AntiBot::setEnabled);
         registerListener("autoGheadEnabled", AutoGhead::setEnabled);
         registerListener("autoWeaponEnabled", AutoWeapon::setEnabled);
@@ -195,6 +202,7 @@ public class ModConfig extends Vigilant {
         registerListener("bedEspEnabled", BedEsp::setEnabled);
         registerListener("invisEspEnabled", InvisEsp::setEnabled);
         registerListener("sharkEspEnabled", SharkEsp::setEnabled);
+        registerListener("safewalkEnabled", Safewalk::setEnabled);
 
         // autoclickers
         registerListener("leftAutoClickerMinCps", LeftAutoclicker::setMinCPS);
@@ -203,9 +211,12 @@ public class ModConfig extends Vigilant {
         registerListener("rightAutoClickerMinCps", RightAutoclicker::setMinCPS);
         registerListener("rightAutoClickerMaxCps", RightAutoclicker::setMaxCPS);
 
+
         // aimlock
+        registerListener("aimlockTargetPriority", (Integer i) -> Aimlock.setTargetPriority(Aimlock.TargetPriority.values()[i]));
         registerListener("aimlockVerticalRotations", Aimlock::setVerticalRotations);
         registerListener("aimlockRotationSpeed", Aimlock::setRotationSpeed);
+        registerListener("aimlockFov", Aimlock::setFov);
         registerListener("aimlockMaxYawTickRotation", Aimlock::setMaxYawTickRotation);
         registerListener("aimlockActivationRadius", Aimlock::setActivationRadius);
 
@@ -217,6 +228,7 @@ public class ModConfig extends Vigilant {
         registerListener("invisEspActivationRadius", InvisEsp::setActivationRadius);
         registerListener("bedEspActivationRadiusBlocks", BedEsp::setActivationRadiusBlocks);
         registerListener("sharkEspLowHealthThreshold", SharkEsp::setLowHealthThreshold);
+        registerListener("safewalkEdgeDistance", Safewalk::setEdgeDistance);
     }
 
     private static void openConfigGui() {

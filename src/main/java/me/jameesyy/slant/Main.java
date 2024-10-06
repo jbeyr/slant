@@ -3,6 +3,7 @@ package me.jameesyy.slant;
 import me.jameesyy.slant.combat.Aimlock;
 import me.jameesyy.slant.combat.LeftAutoclicker;
 import me.jameesyy.slant.combat.RightAutoclicker;
+import me.jameesyy.slant.movement.Safewalk;
 import me.jameesyy.slant.render.BedEsp;
 import me.jameesyy.slant.render.InvisEsp;
 import me.jameesyy.slant.render.Pointer;
@@ -30,6 +31,7 @@ public class Main {
     private static KeyBinding rmbAutoclickKey;
     private static KeyBinding aimlockKey;
     private static KeyBinding autoJumpResetKey;
+    private static KeyBinding safewalkKey;
     private static KeyBinding openConfigKey;
     private static KeyBinding printNbtKey;
 
@@ -57,6 +59,10 @@ public class Main {
         return autoJumpResetKey;
     }
 
+    public static KeyBinding getSafewalkKey() {
+        return safewalkKey;
+    }
+
     public static KeyBinding getPrintNbtKey() {
         return printNbtKey;
     }
@@ -69,6 +75,7 @@ public class Main {
         lmbAutoclickKey = new KeyBinding("LMB Autoclicker", Keyboard.KEY_NONE, "key.categories.gameplay");
         rmbAutoclickKey = new KeyBinding("RMB Autoclicker", Keyboard.KEY_NONE, "key.categories.gameplay");
         autoJumpResetKey = new KeyBinding("Auto Jump Reset", Keyboard.KEY_NONE, "key.categories.gameplay");
+        safewalkKey = new KeyBinding("Safewalk", Keyboard.KEY_NONE, "key.categories.gameplay");
         openConfigKey = new KeyBinding("Open Slant Config", Keyboard.KEY_NONE, "key.categories.gameplay");
         printNbtKey = new KeyBinding("Print NBT of Held Item", Keyboard.KEY_NONE, "key.categories.gameplay");
 
@@ -76,6 +83,7 @@ public class Main {
         ClientRegistry.registerKeyBinding(rmbAutoclickKey);
         ClientRegistry.registerKeyBinding(aimlockKey);
         ClientRegistry.registerKeyBinding(autoJumpResetKey);
+        ClientRegistry.registerKeyBinding(safewalkKey);
         ClientRegistry.registerKeyBinding(openConfigKey);
         ClientRegistry.registerKeyBinding(printNbtKey);
 
@@ -93,6 +101,7 @@ public class Main {
         MinecraftForge.EVENT_BUS.register(new Aimlock());
         MinecraftForge.EVENT_BUS.register(new NbtPrinter());
         MinecraftForge.EVENT_BUS.register(new AutoGhead());
+        MinecraftForge.EVENT_BUS.register(new Safewalk());
         ModConfig.getInstance().setModulesToConfig();
     }
 }

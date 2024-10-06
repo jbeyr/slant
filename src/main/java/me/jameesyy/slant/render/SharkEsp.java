@@ -1,5 +1,6 @@
 package me.jameesyy.slant.render;
 
+import me.jameesyy.slant.ModConfig;
 import me.jameesyy.slant.util.Renderer;
 import me.jameesyy.slant.util.Reporter;
 import net.minecraft.client.Minecraft;
@@ -21,6 +22,7 @@ public class SharkEsp {
 
     public static void setActivationRadius(float radius) {
         activationRadiusSqr = radius * radius;
+        ModConfig.sharkEspActivationRadius = radius;
         Reporter.reportSet("Shark ESP", "Activation Radius", radius);
     }
 
@@ -30,6 +32,7 @@ public class SharkEsp {
 
     public static void setLowHealthThreshold(float ratio) {
         lowHealthThreshold = ratio;
+        ModConfig.sharkEspLowHealthThreshold = ratio;
         Reporter.reportSet("Shark ESP", "Low Health Threshold", ratio);
     }
 
@@ -43,6 +46,7 @@ public class SharkEsp {
 
     public static void setEnabled(boolean b) {
         enabled = b;
+        ModConfig.sharkEspEnabled = b;
         Reporter.reportToggled("Shark ESP", b);
     }
 
