@@ -94,7 +94,7 @@ public class AutoGhead {
         KeyBinding.onTick(useItemKey);
         KeyBinding.setKeyBindState(useItemKey, false);
 
-        // Schedule swap back for next tick
+        // schedule swapping back on next tick
         needToSwapBack = true;
     }
 }

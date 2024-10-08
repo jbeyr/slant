@@ -40,7 +40,8 @@ public class MixinEntityRenderer {
             if (target.isPresent()) {
                 float[] mappedDeltas = EnhancedAimingModule.mapRotation(f2, f3, player, target.get());
 
-                // Modify f2 and f3 which will be used in the upcoming setAngles call
+                // mutate f2 and f3 - the modified values will be used in the vanilla setAngles call following this
+                // we don't want to call setAngles() twice since that produces an unnatural acceleration effect
                 f2 = mappedDeltas[0];
                 if(Aimlock.doesVerticalRotations()) f3 = mappedDeltas[1];
             }

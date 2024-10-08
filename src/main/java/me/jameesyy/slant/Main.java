@@ -85,7 +85,7 @@ public class Main {
         ClientRegistry.registerKeyBinding(printNbtKey);
 
         ModConfig.getInstance().preload();
-        ModConfig.getInstance().setupDependencies();
+        ModConfig.getInstance().setupConfigCallbacks();
         MinecraftForge.EVENT_BUS.register(ModConfig.getInstance());
         MinecraftForge.EVENT_BUS.register(new Reporter());
         MinecraftForge.EVENT_BUS.register(new AntiBot());

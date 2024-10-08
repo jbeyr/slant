@@ -23,7 +23,7 @@ public class AutoWeapon {
             Item item = itemStack.getItem();
             if (item instanceof ItemSword || item instanceof ItemAxe) return Optional.of(i);
         }
-        return Optional.empty(); // Return -1 if no weapon was found in the hotbar
+        return Optional.empty();
     }
 
     public static boolean isEnabled() {

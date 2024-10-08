@@ -23,8 +23,6 @@ public class ModConfig extends Vigilant {
 
     private static ModConfig INSTANCE;
 
-    // region MODULE STATES
-
     @Property(type = PropertyType.SWITCH, name = "Safewalk", category = "Modules", description = "Sneak near the edge of blocks.")
     public static boolean safewalkEnabled = false;
 
@@ -52,14 +50,12 @@ public class ModConfig extends Vigilant {
         @Property(type = PropertyType.SWITCH, name = "Near Bed Only", category = "Auto Tool", description = "Only swap if a bed is within a 10-block cuboid of you.")
         public static boolean autoToolNearBedOnly = false;
 
-    // Combat
     @Property(type = PropertyType.SWITCH, name = "Auto Weapon", category = "Modules", description = "Sets your selected item to a weapon when attacking.")
     public static boolean autoWeaponEnabled = false;
 
         @Property(type = PropertyType.SWITCH, name = "Swap On Swing", category = "Auto Weapon", description = "If true, swaps when a target entity triggers LMB Autoclicker.")
         public static boolean autoWeaponSwapOnSwing = false;
 
-    // region aimlock
     @Property(type = PropertyType.SWITCH, name = "Aimlock", category = "Modules", description = "Helps track the target hitbox when your crosshair enters it.")
     public static boolean aimlockEnabled = false;
 
@@ -75,7 +71,7 @@ public class ModConfig extends Vigilant {
         @Property(type = PropertyType.DECIMAL_SLIDER, name = "Activation Radius", category = "Aimlock", minF = 1f, maxF = 8f, decimalPlaces = 2)
         public static float aimlockActivationRadius = 4.15f;
 
-    @Property(type = PropertyType.DECIMAL_SLIDER, name = "Aim Strength", category = "Aimlock", minF = 0f, maxF = 5f, decimalPlaces = 1)
+    @Property(type = PropertyType.DECIMAL_SLIDER, name = "Aim Strength", category = "Aimlock", minF = 0f, maxF = 10f, decimalPlaces = 1)
     public static float aimStrength = 1f;
 
     @Property(type = PropertyType.DECIMAL_SLIDER, name = "Minimum Target Angular Size (Degrees)", category="Aimlock", minF = 0.1f, maxF = 45f, decimalPlaces = 1)
@@ -86,8 +82,6 @@ public class ModConfig extends Vigilant {
 
     @Property(type = PropertyType.COLOR, name = "Target Hitbox Color", category="Aimlock")
     public static Color aimlockTargetHitboxColor = new Color(255, 255, 255, 255);
-
-    // endregion
 
     @Property(type = PropertyType.SWITCH, name = "Right Autoclicker", category = "Modules", description = "Places held blocks when you're pressing the 'use item' key.")
     public static boolean rightAutoclickerEnabled = false;
@@ -131,7 +125,6 @@ public class ModConfig extends Vigilant {
         @Property(type = PropertyType.DECIMAL_SLIDER, name = "Activation Radius", category = "Pointer", maxF = 12f, decimalPlaces = 2)
         public static float pointerActivationRadius = 4.5f;
 
-    // Render
     @Property(type = PropertyType.SWITCH, name = "Bed ESP", category = "Modules", subcategory = "ESP")
     public static boolean bedEspEnabled = false;
 
@@ -152,8 +145,6 @@ public class ModConfig extends Vigilant {
 
         @Property(type = PropertyType.PERCENT_SLIDER, name = "Shark ESP: Low Health Threshold", category = "ESP")
         public static float sharkEspLowHealthThreshold = 0.5f;
-
-    // endregion
 
 
     private ModConfig() {
@@ -217,7 +208,7 @@ public class ModConfig extends Vigilant {
         SharkEsp.setLowHealthThreshold(sharkEspLowHealthThreshold);
     }
 
-    public void setupDependencies() {
+    public void setupConfigCallbacks() {
 
         registerListener("antiBotEnabled", AntiBot::setEnabled);
         registerListener("autoGheadEnabled", AutoGhead::setEnabled);
@@ -242,7 +233,6 @@ public class ModConfig extends Vigilant {
         registerListener("safewalkDisableIfNotBridgingPitch", Safewalk::setDisableIfNotBridgingPitch);
         registerListener("antiBotRespectTeams", AntiBot::setRespectTeams);
 
-        // autoclickers
         registerListener("leftAutoClickerMinCps", LeftAutoclicker::setMinCPS);
         registerListener("leftAutoClickerMaxCps", LeftAutoclicker::setMaxCPS);
         registerListener("leftAutoclickerActivationRadius", LeftAutoclicker::setActivationRadius);
@@ -250,7 +240,6 @@ public class ModConfig extends Vigilant {
         registerListener("rightAutoClickerMaxCps", RightAutoclicker::setMaxCPS);
 
 
-        // aimlock
         registerListener("aimlockTargetHitboxColor", Aimlock::setTargetHitboxColor);
         registerListener("aimlockTargetPriority", (Integer i) -> Aimlock.setTargetPriority(Aimlock.TargetPriority.values()[i]));
         registerListener("aimlockVerticalRotations", Aimlock::setVerticalRotations);
@@ -261,7 +250,6 @@ public class ModConfig extends Vigilant {
         registerListener("minTargetAngularSize", EnhancedAimingModule::setMinTargetAngularSize);
         registerListener("blendFactor", EnhancedAimingModule::setBlendFactor);
 
-        // others
         registerListener("autoJumpResetChance", AutoJumpReset::setChance);
         registerListener("pointerActivationRadius", Pointer::setActivationRadius);
         registerListener("sharkEspActivationRadius", SharkEsp::setActivationRadius);

@@ -81,7 +81,6 @@ public class BedEsp {
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-        // Set color to light gray with low opacity
         GlStateManager.color(0.8F, 0.8F, 0.8F, 0.2F);
 
         RenderGlobal.drawOutlinedBoundingBox(box, Renderer.scaleZeroOneRangeTo255(0.8f), Renderer.scaleZeroOneRangeTo255(0.8f), Renderer.scaleZeroOneRangeTo255(0.8f), Renderer.scaleZeroOneRangeTo255(0.2f));

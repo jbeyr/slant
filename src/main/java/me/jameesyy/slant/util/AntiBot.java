@@ -117,7 +117,6 @@ public class AntiBot {
         if (mc.thePlayer == null || mc.theWorld == null) return;
         if (amIInCombat()) lastCombatTick = currentTick;
 
-        // Update the player list
         for (NetworkPlayerInfo playerInfo : mc.getNetHandler().getPlayerInfoMap()) {
             UUID uuid = playerInfo.getGameProfile().getId();
             if (Minecraft.getMinecraft().thePlayer.getUniqueID() == uuid) continue;
@@ -137,7 +136,7 @@ public class AntiBot {
             }
         }
 
-        // Clean up players who are no longer in the list
+        // clean up players no longer in the list
         Iterator<Map.Entry<UUID, Long>> iterator = playerFirstSeenTick.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<UUID, Long> entry = iterator.next();

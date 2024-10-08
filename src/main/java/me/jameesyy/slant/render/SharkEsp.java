@@ -15,7 +15,7 @@ public class SharkEsp {
 
     private static final float MAX_OPACITY = 0.9F;
     private static final float MIN_OPACITY = 0.1F;
-    private static final float CRITICAL_HEALTH = 0.15f; // 15% health
+    private static final float CRITICAL_HEALTH = 0.15f;
     private static float lowHealthThreshold = 0.7f;
     private static float activationRadiusSqr = 50 * 50;
     private static boolean enabled;
@@ -91,13 +91,11 @@ public class SharkEsp {
         float green, blue;
 
         if (healthRatio <= CRITICAL_HEALTH) {
-            // Very red for critical health
             green = 0.0f;
             blue = 0.0f;
-        } else {
-            // Interpolate between yellow and red for health above critical
+        } else { // interpolate between yellow and red for health above critical threshold
             float normalizedHealth = (healthRatio - CRITICAL_HEALTH) / (lowHealthThreshold - CRITICAL_HEALTH);
-            green = normalizedHealth * normalizedHealth; // Quadratic falloff for smoother transition
+            green = normalizedHealth * normalizedHealth; // quadratic fn - steeper color dropoff
             blue = 0.0f;
         }
 
@@ -107,11 +105,11 @@ public class SharkEsp {
     private float calculateOpacity(float healthRatio) {
         float normalizedHealth;
         if (healthRatio <= CRITICAL_HEALTH) {
-            normalizedHealth = 0; // Full opacity for critical health
+            normalizedHealth = 0;
         } else {
             normalizedHealth = (healthRatio - CRITICAL_HEALTH) / (lowHealthThreshold - CRITICAL_HEALTH);
         }
-        float opacityFactor = 1 - (float) Math.pow(normalizedHealth, 2); // Quadratic function for steeper curve
+        float opacityFactor = 1 - (float) Math.pow(normalizedHealth, 2); // quadratic fn - steeper color dropoff
         return MIN_OPACITY + (MAX_OPACITY - MIN_OPACITY) * opacityFactor;
     }
 }

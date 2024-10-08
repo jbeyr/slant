@@ -86,37 +86,37 @@ public class Renderer {
 
     private static void drawFilledBox(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
         GL11.glBegin(GL11.GL_QUADS);
-        // Front
+        // front
         GL11.glVertex3d(minX, minY, minZ);
         GL11.glVertex3d(maxX, minY, minZ);
         GL11.glVertex3d(maxX, maxY, minZ);
         GL11.glVertex3d(minX, maxY, minZ);
 
-        // Back
+        // back
         GL11.glVertex3d(minX, minY, maxZ);
         GL11.glVertex3d(minX, maxY, maxZ);
         GL11.glVertex3d(maxX, maxY, maxZ);
         GL11.glVertex3d(maxX, minY, maxZ);
 
-        // Bottom
+        // bottom
         GL11.glVertex3d(minX, minY, minZ);
         GL11.glVertex3d(minX, minY, maxZ);
         GL11.glVertex3d(maxX, minY, maxZ);
         GL11.glVertex3d(maxX, minY, minZ);
 
-        // Top
+        // top
         GL11.glVertex3d(minX, maxY, minZ);
         GL11.glVertex3d(maxX, maxY, minZ);
         GL11.glVertex3d(maxX, maxY, maxZ);
         GL11.glVertex3d(minX, maxY, maxZ);
 
-        // Left
+        // left
         GL11.glVertex3d(minX, minY, minZ);
         GL11.glVertex3d(minX, maxY, minZ);
         GL11.glVertex3d(minX, maxY, maxZ);
         GL11.glVertex3d(minX, minY, maxZ);
 
-        // Right
+        // right
         GL11.glVertex3d(maxX, minY, minZ);
         GL11.glVertex3d(maxX, minY, maxZ);
         GL11.glVertex3d(maxX, maxY, maxZ);

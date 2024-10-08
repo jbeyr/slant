@@ -88,7 +88,6 @@ public class Aimlock {
         }
         if (!bestTarget.isPresent() && targetPriority == TargetPriority.INITIAL_HITSCAN) return Optional.empty();
 
-        // If no target found with initial hitscan or if using a different priority mode
         float lowestHealth = Float.MAX_VALUE;
         double closestAngle = Double.MAX_VALUE;
 
@@ -98,19 +97,17 @@ public class Aimlock {
 
             if (!AntiBot.isRecommendedTarget(livingEntity, rangeSqr)) continue;
 
-            // Check if player's pitch is within the target's hitbox boundaries
             double[] hitboxBounds = calculateHitboxBounds(mc.thePlayer, livingEntity);
             float minPitch = (float) hitboxBounds[2];
             float maxPitch = (float) hitboxBounds[3];
             if (mc.thePlayer.rotationPitch < minPitch || mc.thePlayer.rotationPitch > maxPitch) continue;
 
-            // FOV check
             double[] rotations = getRotationsNeeded(livingEntity);
             double yawDifference = normalizeAngle(rotations[0] - mc.thePlayer.rotationYaw);
             double pitchDifference = normalizeAngle(rotations[1] - mc.thePlayer.rotationPitch);
             double angleDifference = Math.sqrt(yawDifference * yawDifference + pitchDifference * pitchDifference);
 
-            if (angleDifference > fov) continue; // Assuming 'fov' is a defined constant or variable
+            if (angleDifference > fov) continue;
 
             switch (targetPriority) {
                 case LOWEST_HEALTH:
@@ -133,7 +130,10 @@ public class Aimlock {
         return bestTarget;
     }
 
-    // Helper method to calculate rotations to a target
+    /**
+     * @param entity The target entity
+     * @return a 2-element array <code>[yaw, pitch]</code> describing the rotation delta needed to face a target
+     */
     private static double[] getRotationsNeeded(Entity entity) {
         double diffX = entity.posX - Minecraft.getMinecraft().thePlayer.posX;
         double diffZ = entity.posZ - Minecraft.getMinecraft().thePlayer.posZ;
@@ -146,13 +146,11 @@ public class Aimlock {
         return new double[]{yaw, pitch};
     }
 
-    public static boolean isInAValidStateToAim() {
-        Minecraft mc = Minecraft.getMinecraft();
-        if (mc.thePlayer == null || !mc.thePlayer.isEntityAlive()) return false;
-        if (mc.currentScreen != null) return false;
-        return enabled;
-    }
-
+    /**
+     * @param player the avatar to rotate
+     * @param target the entity to derive the hitbox from
+     * @return a 4-element array <code>[minYawDelta, maxYawDelta, minPitchDelta, maxPitchDelta]</code> describing the acceptable range of yaw and pitch to position the cursor over the target hitbox
+     */
     public static double[] calculateHitboxBounds(EntityPlayerSP player, Entity target) {
         double eyeHeight = player.getEyeHeight();
         double dx = target.posX - player.posX;
@@ -178,6 +176,10 @@ public class Aimlock {
         return new double[]{minYaw, maxYaw, minPitch, maxPitch};
     }
 
+    /**
+     * @param angle the angle, in degrees
+     * @return <code>angle</code>, clamped between <code>[-180, 180)</code> degrees.
+     */
     private static double normalizeAngle(double angle) {
         angle = angle % 360.0;
         if (angle >= 180.0) {

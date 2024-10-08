@@ -25,8 +25,8 @@ public class RightAutoclicker {
     private static long clickDelay = 0;
 
     private static boolean enabled;
-    private static int minCPS;  // Minimum clicks per second
-    private static int maxCPS; // Maximum clicks per second
+    private static int minCPS;
+    private static int maxCPS;
 
     public static int getMinCPS() {
         return minCPS;
@@ -122,7 +122,7 @@ public class RightAutoclicker {
 
     @SubscribeEvent
     public void onMouseEvent(MouseEvent event) {
-        if (event.button == 1 && event.buttonstate) {  // 0 is the left mouse button; buttonstate is true if pressed
+        if (event.button == 1 && event.buttonstate) {  // 1 is right mouse button; buttonstate is true if pressed
             resetClickDelay();
         }
     }

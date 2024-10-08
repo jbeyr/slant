@@ -50,13 +50,13 @@ public class NbtComparer {
 
             try {
                 s1 = parser.parse(nbtStr).toString();
-            } catch (JsonSyntaxException e) { // If parsing fails, assume it's the Base64 encoded string
+            } catch (JsonSyntaxException e) { // assume it's base64 encoded
                 s1 = nbtStr;
             }
 
             try {
                 s2 = parser.parse(itemNbtJson).toString();
-            } catch (JsonSyntaxException e) { // If parsing fails, use the raw string
+            } catch (JsonSyntaxException e) { // try raw string
                 s2 = itemNbtJson;
             }
 
@@ -108,7 +108,6 @@ public class NbtComparer {
             return false;
         }
 
-        // Check if the helmets are colored
         if (!itemArmor1.hasColor(helmet1) || !itemArmor2.hasColor(helmet2)) {
             return false;
         }

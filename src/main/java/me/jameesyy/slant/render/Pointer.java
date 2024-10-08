@@ -16,24 +16,18 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
 public class Pointer {
+    private static final long FADE_IN_DURATION = 200;
+    private static final long FADE_OUT_DURATION = 100;
+    private static final double ANGLE_RAD = Math.toRadians(90f);
     private static Vec3 pointToRender = null;
     private static EntityPlayer targetPlayer = null;
     private static long fadeStartTime = 0;
     private static boolean isFadingIn = false;
-    private static final long FADE_IN_DURATION = 200; // 200ms fade in
-    private static final long FADE_OUT_DURATION = 100; // 100ms fade out
     private static float activationRadiusSqr = 25f;
-    private static final double ANGLE_RAD = Math.toRadians(90f);
     private static boolean enabled;
 
-    public static void setEnabled(boolean b) {
-        enabled = b;
-        ModConfig.pointerEnabled = b;
-        Reporter.reportToggled("Pointer", b);
-    }
-
     public static void setActivationRadius(float radius) {
-        activationRadiusSqr = radius*radius;
+        activationRadiusSqr = radius * radius;
         ModConfig.pointerActivationRadius = radius;
         Reporter.reportSet("Pointer", "Activation Radius", radius);
 
@@ -43,32 +37,15 @@ public class Pointer {
         return enabled;
     }
 
+    public static void setEnabled(boolean b) {
+        enabled = b;
+        ModConfig.pointerEnabled = b;
+        Reporter.reportToggled("Pointer", b);
+    }
+
     public static float getActivationRadiusSqr() {
         return activationRadiusSqr;
     }
-
-    @SubscribeEvent
-    public void onRenderWorldLast(RenderWorldLastEvent event) {
-        if(!enabled) return;
-
-        Minecraft mc = Minecraft.getMinecraft();
-        EntityPlayer me = mc.thePlayer;
-
-        if (me == null || mc.theWorld == null) return;
-
-        EntityPlayer target = findClosestAttackablePlayerInRange(me, activationRadiusSqr, ANGLE_RAD, event.partialTicks);
-        if (target != null) pointAtTarget(target, event.partialTicks);
-        else startFadeOut();
-
-        renderPoint(event);
-
-        // Check if we should clear the target after fade out
-        if (!isFadingIn && calculateFadeAlpha() == 0) {
-            targetPlayer = null;
-            pointToRender = null;
-        }
-    }
-
 
     public static void renderPoint(RenderWorldLastEvent event) {
         if (pointToRender == null) return;
@@ -90,9 +67,8 @@ public class Pointer {
         int stacks = 8;
 
         float alpha = calculateFadeAlpha();
-        GL11.glColor4f(.8f, 0.0f, 0.0f, alpha); // Red color with fading opacity
+        GL11.glColor4f(.8f, 0.0f, 0.0f, alpha);
 
-        // Draw the sphere
         for (int i = 0; i <= stacks; i++) {
             double lat0 = Math.PI * (-0.5 + (double) (i - 1) / stacks);
             double z0 = Math.sin(lat0);
@@ -128,19 +104,14 @@ public class Pointer {
         Vec3 intPosMe = Renderer.interpolatedPos(me, partialTicks);
         Vec3 intEyePosMe = intPosMe.addVector(0, me.getEyeHeight(), 0);
         Vec3 intPosEn = Renderer.interpolatedPos(entity, partialTicks);
-
-        // Calculate the offset between the entity's current position and interpolated position
-        Vec3 correctionOffset = intPosEn.subtract(entity.getPositionVector());
-
-        // Get the entity's bounding box
         AxisAlignedBB entityBox = entity.getEntityBoundingBox();
 
-        // Create a new bounding box offset by both the correction and the entity's position
+        // bounding box offset by both (1) the ideal correction and (2) the entity's position
         AxisAlignedBB interpolatedBox = entityBox
-                .offset(-entity.posX, -entity.posY, -entity.posZ) // First, move to origin
-                .offset(intPosEn.xCoord, intPosEn.yCoord, intPosEn.zCoord); // Then, move to interpolated position
+                .offset(-entity.posX, -entity.posY, -entity.posZ) // start @ origin
+                .offset(intPosEn.xCoord, intPosEn.yCoord, intPosEn.zCoord); // then translate to interpolated position
 
-        // Find the nearest point on the interpolated bounding box to the player's eyes
+        // nearest point to player's eyes on the interpolated bounding box
         double nx = clamp(intEyePosMe.xCoord, interpolatedBox.minX, interpolatedBox.maxX);
         double ny = clamp(intEyePosMe.yCoord, interpolatedBox.minY, interpolatedBox.maxY);
         double nz = clamp(intEyePosMe.zCoord, interpolatedBox.minZ, interpolatedBox.maxZ);
@@ -208,10 +179,25 @@ public class Pointer {
         AxisAlignedBB boundingBox = target.getEntityBoundingBox();
         Vec3 eyePos = me.getPositionEyes(1.0F);
 
-        // Check corners of the bounding box
-        Vec3[] points = new Vec3[]{new Vec3(boundingBox.minX, boundingBox.minY, boundingBox.minZ), new Vec3(boundingBox.minX, boundingBox.minY, boundingBox.maxZ), new Vec3(boundingBox.minX, boundingBox.maxY, boundingBox.minZ), new Vec3(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ), new Vec3(boundingBox.maxX, boundingBox.minY, boundingBox.minZ), new Vec3(boundingBox.maxX, boundingBox.minY, boundingBox.maxZ), new Vec3(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ), new Vec3(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ),
-                // Center of each face
-                new Vec3(boundingBox.minX, (boundingBox.minY + boundingBox.maxY) / 2, (boundingBox.minZ + boundingBox.maxZ) / 2), new Vec3(boundingBox.maxX, (boundingBox.minY + boundingBox.maxY) / 2, (boundingBox.minZ + boundingBox.maxZ) / 2), new Vec3((boundingBox.minX + boundingBox.maxX) / 2, boundingBox.minY, (boundingBox.minZ + boundingBox.maxZ) / 2), new Vec3((boundingBox.minX + boundingBox.maxX) / 2, boundingBox.maxY, (boundingBox.minZ + boundingBox.maxZ) / 2), new Vec3((boundingBox.minX + boundingBox.maxX) / 2, (boundingBox.minY + boundingBox.maxY) / 2, boundingBox.minZ), new Vec3((boundingBox.minX + boundingBox.maxX) / 2, (boundingBox.minY + boundingBox.maxY) / 2, boundingBox.maxZ)};
+        Vec3[] points = new Vec3[]{
+                // corners of the bounding box
+                new Vec3(boundingBox.minX, boundingBox.minY, boundingBox.minZ),
+                new Vec3(boundingBox.minX, boundingBox.minY, boundingBox.maxZ),
+                new Vec3(boundingBox.minX, boundingBox.maxY, boundingBox.minZ),
+                new Vec3(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ),
+                new Vec3(boundingBox.maxX, boundingBox.minY, boundingBox.minZ),
+                new Vec3(boundingBox.maxX, boundingBox.minY, boundingBox.maxZ),
+                new Vec3(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ),
+                new Vec3(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ),
+
+                // center of each face
+                new Vec3(boundingBox.minX, (boundingBox.minY + boundingBox.maxY) / 2, (boundingBox.minZ + boundingBox.maxZ) / 2),
+                new Vec3(boundingBox.maxX, (boundingBox.minY + boundingBox.maxY) / 2, (boundingBox.minZ + boundingBox.maxZ) / 2),
+                new Vec3((boundingBox.minX + boundingBox.maxX) / 2, boundingBox.minY, (boundingBox.minZ + boundingBox.maxZ) / 2),
+                new Vec3((boundingBox.minX + boundingBox.maxX) / 2, boundingBox.maxY, (boundingBox.minZ + boundingBox.maxZ) / 2),
+                new Vec3((boundingBox.minX + boundingBox.maxX) / 2, (boundingBox.minY + boundingBox.maxY) / 2, boundingBox.minZ),
+                new Vec3((boundingBox.minX + boundingBox.maxX) / 2, (boundingBox.minY + boundingBox.maxY) / 2, boundingBox.maxZ)
+        };
 
         for (Vec3 point : points) {
             if (mc.theWorld.rayTraceBlocks(eyePos, point) == null) {
@@ -232,6 +218,28 @@ public class Pointer {
         } else {
             if (elapsedTime >= FADE_OUT_DURATION) return 0f;
             return 1f - ((float) elapsedTime / FADE_OUT_DURATION);
+        }
+    }
+
+    @SubscribeEvent
+    public void onRenderWorldLast(RenderWorldLastEvent event) {
+        if (!enabled) return;
+
+        Minecraft mc = Minecraft.getMinecraft();
+        EntityPlayer me = mc.thePlayer;
+
+        if (me == null || mc.theWorld == null) return;
+
+        EntityPlayer target = findClosestAttackablePlayerInRange(me, activationRadiusSqr, ANGLE_RAD, event.partialTicks);
+        if (target != null) pointAtTarget(target, event.partialTicks);
+        else startFadeOut();
+
+        renderPoint(event);
+
+        // clear the target after fading out
+        if (!isFadingIn && calculateFadeAlpha() == 0) {
+            targetPlayer = null;
+            pointToRender = null;
         }
     }
 
