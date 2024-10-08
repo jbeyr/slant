@@ -65,6 +65,25 @@ public class Renderer {
         GlStateManager.popMatrix();
     }
 
+    public static <T extends Entity> void drawEntityESP(T en, float partialTicks, float red, float green, float blue, float opacity, float fillBoxMultiplier) {
+
+        Vec3 dv = interpolatedDifferenceFromMe(en, partialTicks);
+
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(dv.xCoord, dv.yCoord, dv.zCoord);
+
+        double halfWidth = .4;
+        double height = 1.9;
+
+        GlStateManager.color(red, green, blue, opacity * fillBoxMultiplier);
+        drawFilledBox(-halfWidth, 0, -halfWidth, halfWidth, height, halfWidth);
+
+        GlStateManager.color(red, green, blue, opacity);
+        drawOutlineBox(-halfWidth, 0, -halfWidth, halfWidth, height, halfWidth);
+
+        GlStateManager.popMatrix();
+    }
+
     private static void drawFilledBox(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
         GL11.glBegin(GL11.GL_QUADS);
         // Front
