@@ -7,7 +7,7 @@ public class ActionConflictResolver {
 
     private static boolean isActingOnPlayerBehalfAllowed() {
         Minecraft mc = Minecraft.getMinecraft();
-        return mc.thePlayer != null && mc.thePlayer.isEntityAlive() && mc.currentScreen == null;
+        return mc.thePlayer != null && mc.thePlayer.isEntityAlive() && mc.currentScreen == null && mc.inGameHasFocus;
     }
 
     public static boolean isGheadAllowed() {

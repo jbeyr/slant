@@ -3,63 +3,34 @@ package me.jameesyy.slant.combat;
 import me.jameesyy.slant.Main;
 import me.jameesyy.slant.ModConfig;
 import me.jameesyy.slant.util.AntiBot;
+import me.jameesyy.slant.util.Renderer;
 import me.jameesyy.slant.util.Reporter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
+import java.awt.*;
 import java.util.Optional;
 
 public class Aimlock {
-    private static Optional<EntityLivingBase> targetEntity;
-    private static float range;
-    private static float rangeSqr;
-    private static float maxYawTickRotation;
-    private static float rotationSpeed;
-    private static boolean doVerticalRotations;
+    private static Optional<EntityLivingBase> targetEntity = Optional.empty();
     private static boolean enabled;
+    private static boolean doVerticalRotations;
+    private static float range;
     private static TargetPriority targetPriority;
-    private static boolean isHittingBlock;
-
-    public static float getFov() {
-        return fov;
-    }
+    private static float rangeSqr;
+    private static float fov;
+    private static Color targetHitboxColor;
 
     public static void setFov(float f) {
         Aimlock.fov = f;
         ModConfig.aimlockFov = f;
         Reporter.reportSet("Aimlock", "FOV", f);
-    }
-
-    private static float fov = 60f;
-
-    public static boolean isHittingBlock() {
-        return isHittingBlock;
-    }
-
-    public static void setIsHittingBlock(boolean b) {
-        Aimlock.isHittingBlock = b;
-    }
-
-    public enum TargetPriority {
-        INITIAL_HITSCAN("Initial Hitscan"),
-        CLOSEST_FOV("Closest FOV"),
-        LOWEST_HEALTH("Lowest Health");
-
-        private final String configName;
-
-        TargetPriority(String configName) {
-            this.configName = configName;
-        }
-
-        @Override
-        public String toString() {
-            return configName;
-        }
     }
 
     public static void setTargetPriority(TargetPriority tp) {
@@ -93,27 +64,7 @@ public class Aimlock {
         Reporter.reportToggled("Aimlock", b);
     }
 
-    public static float getMaxYawTickRotation() {
-        return maxYawTickRotation;
-    }
-
-    public static void setMaxYawTickRotation(float maxtickrot) {
-        Aimlock.maxYawTickRotation = maxtickrot;
-        ModConfig.aimlockMaxYawTickRotation = maxtickrot;
-        Reporter.reportSet("Aimlock", "Max Yaw Tick Rotation", maxtickrot);
-    }
-
-    public static float getRotationSpeed() {
-        return rotationSpeed;
-    }
-
-    public static void setRotationSpeed(float rotationSpeed) {
-        Aimlock.rotationSpeed = rotationSpeed;
-        ModConfig.aimlockRotationSpeed = rotationSpeed;
-        Reporter.reportSet("Aimlock", "Rotation Speed", rotationSpeed);
-    }
-
-    public static boolean shouldDoVerticalRotations() {
+    public static boolean doesVerticalRotations() {
         return doVerticalRotations;
     }
 
@@ -127,7 +78,7 @@ public class Aimlock {
         Minecraft mc = Minecraft.getMinecraft();
 
         Optional<EntityLivingBase> bestTarget = Optional.empty();
-        if (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY) {
+        if (targetPriority == TargetPriority.INITIAL_HITSCAN && mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY) {
             if (mc.objectMouseOver.entityHit instanceof EntityLivingBase) {
                 bestTarget = Optional.of((EntityLivingBase) mc.objectMouseOver.entityHit);
                 if (AntiBot.isRecommendedTarget(bestTarget.get(), rangeSqr)) {
@@ -146,6 +97,12 @@ public class Aimlock {
             EntityLivingBase livingEntity = (EntityLivingBase) entity;
 
             if (!AntiBot.isRecommendedTarget(livingEntity, rangeSqr)) continue;
+
+            // Check if player's pitch is within the target's hitbox boundaries
+            double[] hitboxBounds = calculateHitboxBounds(mc.thePlayer, livingEntity);
+            float minPitch = (float) hitboxBounds[2];
+            float maxPitch = (float) hitboxBounds[3];
+            if (mc.thePlayer.rotationPitch < minPitch || mc.thePlayer.rotationPitch > maxPitch) continue;
 
             // FOV check
             double[] rotations = getRotationsNeeded(livingEntity);
@@ -186,7 +143,7 @@ public class Aimlock {
         float yaw = (float) Math.toDegrees(Math.atan2(diffZ, diffX)) - 90.0F;
         float pitch = (float) -Math.toDegrees(Math.atan2(diffY, dist));
 
-        return new double[] { yaw, pitch };
+        return new double[]{yaw, pitch};
     }
 
     public static boolean isInAValidStateToAim() {
@@ -221,8 +178,15 @@ public class Aimlock {
         return new double[]{minYaw, maxYaw, minPitch, maxPitch};
     }
 
-    public static double clamp(double value, double min, double max) {
-        return Math.max(min, Math.min(max, value));
+    private static double normalizeAngle(double angle) {
+        angle = angle % 360.0;
+        if (angle >= 180.0) {
+            angle -= 360.0;
+        }
+        if (angle < -180.0) {
+            angle += 360.0;
+        }
+        return Math.abs(angle);
     }
 
     @SubscribeEvent
@@ -242,14 +206,32 @@ public class Aimlock {
         targetEntity = findTarget();
     }
 
-    private static double normalizeAngle(double angle) {
-        angle = angle % 360.0;
-        if (angle >= 180.0) {
-            angle -= 360.0;
-        }
-        if (angle < -180.0) {
-            angle += 360.0;
-        }
-        return Math.abs(angle);
+    @SubscribeEvent
+    public void onRenderTick(RenderWorldLastEvent event) {
+        if(!Aimlock.isEnabled()) return;
+        targetEntity.ifPresent(en -> {
+            Renderer.setupRendering();
+
+            float red = targetHitboxColor.getRed() / 255f;
+            float green = targetHitboxColor.getGreen() / 255f;
+            float blue = targetHitboxColor.getBlue() / 255f;
+            float alpha = targetHitboxColor.getRed() / 255f;
+
+            Renderer.drawEntityESP(en, event.partialTicks, red, green, blue, alpha, 0.6f);
+            Renderer.resetRendering();
+        });
+
+    }
+
+    public static void setTargetHitboxColor(Color color) {
+        targetHitboxColor = color;
+        ModConfig.aimlockTargetHitboxColor = color;
+        Reporter.reportSet("Aimlock", "Target Hitbox Color", color.toString());
+    }
+
+    public enum TargetPriority {
+        INITIAL_HITSCAN,
+        CLOSEST_FOV,
+        LOWEST_HEALTH;
     }
 }

@@ -6,28 +6,24 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import static me.jameesyy.slant.util.NbtComparer.overlappingNbt;
+
 public class AutoGhead {
 
-    public static final String SKULLOWNER_TEXTURE = "eyJ0aW1lc3RhbXAiOjE0ODUwMjM0NDEyNzAsInByb2ZpbGVJZCI6ImRhNDk4YWM0ZTkzNzRlNWNiNjEyN2IzODA4NTU3OTgzIiwicHJvZmlsZU5hbWUiOiJOaXRyb2hvbGljXzIiLCJzaWduYXR1cmVSZXF1aXJlZCI6dHJ1ZSwidGV4dHVyZXMiOnsiU0tJTiI6eyJ1cmwiOiJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2Y5MzdlMWM0NWJiOGRhMjliMmM1NjRkZDlhN2RhNzgwZGQyZmU1NDQ2OGE1ZGZiNDExM2I0ZmY2NThmMDQzZTEifX19";
-
-    private static boolean enabled;
-    private static float healthThreshold;
-
-    private static long inProgressUntil = 0;
-    private static long cooldownUntil = 0;
-    private static int slotSwappedFrom = 0;
-
-
-    private static final Minecraft mc = Minecraft.getMinecraft();
-
+    private static final Map<NbtComparer.HealingItem, Long> individualCooldowns = new HashMap<>();
     private static final long IN_PROGRESS_DURATION = 50;
-    private static final long COOLDOWN_DURATION = 250;
+    private static final Minecraft mc = Minecraft.getMinecraft();
+    private static boolean enabled;
+    private static long inProgressUntil = 0;
+    private int swappedFrom = 0;
+    private boolean needToSwapBack = false;
 
     public static boolean isEnabled() {
         return enabled;
@@ -43,49 +39,32 @@ public class AutoGhead {
         return System.currentTimeMillis() < inProgressUntil;
     }
 
-    public static void setInProgress() {
+    public static void setInProgress(NbtComparer.HealingItem healingItem) {
         inProgressUntil = System.currentTimeMillis() + IN_PROGRESS_DURATION;
-        cooldownUntil = System.currentTimeMillis() + COOLDOWN_DURATION;
+        individualCooldowns.put(healingItem, System.currentTimeMillis() + healingItem.cooldownMs);
     }
 
-    private static boolean isGhead(ItemStack item) {
-        if (item == null) return false;
 
-        NBTTagCompound nbt = item.getTagCompound();
-        if (nbt == null || !nbt.hasKey("SkullOwner", Constants.NBT.TAG_COMPOUND)) {
-            return false;
+    /**
+     * @param player the player whose hotbar should be scanned for a suitable item
+     * @return the healing item if (1) the player health threshold is below it, (2) if the item isn't on cooldown, and (3) if the nbt matches
+     */
+    public static Optional<NbtComparer.HealingItemResult> getFirstHealingItemInHotbarNotOnCooldown(EntityPlayer player) {
+
+        for (int i = 0; i < 9; i++) {
+            ItemStack stack = player.inventory.getStackInSlot(i);
+            for (NbtComparer.HealingItem hItem : NbtComparer.getItemCooldowns()) {
+                if (!overlappingNbt(stack, hItem.sourceNbt)) continue;
+                if (player.getAbsorptionAmount() > 1f || player.getHealth() / player.getMaxHealth() > hItem.usageThreshold) continue;
+
+                Long healingItemCooldown = individualCooldowns.getOrDefault(hItem, 0L);
+                if(System.currentTimeMillis() > healingItemCooldown) {
+                    return Optional.of(new NbtComparer.HealingItemResult(hItem, i));
+                }
+            }
         }
-
-        NBTTagCompound skullOwner = nbt.getCompoundTag("SkullOwner");
-        if (!skullOwner.hasKey("Properties", Constants.NBT.TAG_COMPOUND)) {
-            return false;
-        }
-
-        NBTTagCompound properties = skullOwner.getCompoundTag("Properties");
-        if (!properties.hasKey("textures", Constants.NBT.TAG_LIST)) {
-            return false;
-        }
-
-        NBTTagList textures = properties.getTagList("textures", Constants.NBT.TAG_COMPOUND);
-        if (textures.tagCount() == 0) return false;
-
-        NBTTagCompound textureEntry = textures.getCompoundTagAt(0);
-        if (!textureEntry.hasKey("Value", Constants.NBT.TAG_STRING)) {
-            return false;
-        }
-
-        String textureValue = textureEntry.getString("Value");
-        return textureValue.contains(SKULLOWNER_TEXTURE);
+        return Optional.empty();
     }
-
-    public static void setHealthThreshold(float ratio) {
-        AutoGhead.healthThreshold = ratio;
-        ModConfig.autoGheadHealthThreshold = ratio;
-        Reporter.reportSet("Auto Ghead", "Health Threshold", ratio);
-    }
-
-    private int swappedFrom = 0;
-    private boolean needToSwapBack = false;
 
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent event) {
@@ -101,24 +80,13 @@ public class AutoGhead {
             return;
         }
 
-        if (System.currentTimeMillis() < cooldownUntil) return; // Still on cooldown, so don't use another ghead
-
-        if (me.getAbsorptionAmount() > 1f || me.getHealth() / me.getMaxHealth() > healthThreshold) return;
+        Optional<NbtComparer.HealingItemResult> res = getFirstHealingItemInHotbarNotOnCooldown(me);
+        if (!res.isPresent()) return;
 
         swappedFrom = me.inventory.currentItem;
-        int gheadSlot = -1;
-        for (int i = 0; i < 9; i++) {
-            ItemStack stack = me.inventory.getStackInSlot(i);
-            if (isGhead(stack)) {
-                gheadSlot = i;
-                break;
-            }
-        }
-        if (gheadSlot == -1) return;
 
-        setInProgress();
-
-        me.inventory.currentItem = gheadSlot;
+        setInProgress(res.get().hItem);
+        me.inventory.currentItem = res.get().slot;
 
         // swap to item and use it
         int useItemKey = mc.gameSettings.keyBindUseItem.getKeyCode();

@@ -29,6 +29,7 @@ public class Safewalk {
     private static boolean enabled;
     private static float edgeDistance;
     private static MovementInput lastMovementInput;
+    private static boolean disableIfNotBridgingPitch;
 
     public static boolean isEnabled() {
         return enabled;
@@ -115,27 +116,41 @@ public class Safewalk {
         }
     }
 
+    public static void setDisableIfNotBridgingPitch(boolean b) {
+        Safewalk.disableIfNotBridgingPitch = b;
+        ModConfig.safewalkDisableIfNotBridgingPitch = b;
+        Reporter.reportSet("Safewalk", "Disable If Not Bridging Pitch", b);
+    }
+
     @SubscribeEvent
     public void onClientTick(ClientTickEvent event) {
         if (event.phase != TickEvent.Phase.START) return;
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
-        if (Main.getSafewalkKey().isPressed()) setEnabled(!enabled);
+        if (Main.getSafewalkKey().isPressed()) {
+            setEnabled(!enabled);
+            if(!enabled) {
+                KeyBinding sneakKey = mc.gameSettings.keyBindSneak;
+                KeyBinding.setKeyBindState(sneakKey.getKeyCode(), false);
+            }
+        }
     }
 
     @SubscribeEvent
     public void onRenderWorldLast(net.minecraftforge.client.event.RenderWorldLastEvent event) {
         if (isEnabled()) {
-            renderMovementLine(event.partialTicks);
             handleSafewalk(event.partialTicks);
         }
     }
 
     private void handleSafewalk(float partialTicks) {
-        if (!Safewalk.isEnabled() || !ActionConflictResolver.isSneakingAllowed()) return;
+        if (!ActionConflictResolver.isSneakingAllowed()) return;
 
         EntityPlayer player = Minecraft.getMinecraft().thePlayer;
-        if (player.rotationPitch < BRIDGING_PITCH) return;
+        if (player.rotationPitch < BRIDGING_PITCH) {
+            if(disableIfNotBridgingPitch) setEnabled(!enabled);
+            return;
+        }
 
         KeyBinding sneakKey = mc.gameSettings.keyBindSneak;
         boolean isSneaking = sneakKey.isKeyDown();
