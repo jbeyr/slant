@@ -24,22 +24,13 @@ public class Aimlock {
     private static float range;
     private static TargetPriority targetPriority;
     private static float rangeSqr;
-    private static boolean isHittingBlock;
-    private static float fov = 60f;
+    private static float fov;
     private static Color targetHitboxColor;
 
     public static void setFov(float f) {
         Aimlock.fov = f;
         ModConfig.aimlockFov = f;
         Reporter.reportSet("Aimlock", "FOV", f);
-    }
-
-    public static boolean isHittingBlock() {
-        return isHittingBlock;
-    }
-
-    public static void setIsHittingBlock(boolean b) {
-        Aimlock.isHittingBlock = b;
     }
 
     public static void setTargetPriority(TargetPriority tp) {
@@ -66,8 +57,6 @@ public class Aimlock {
     public static boolean isEnabled() {
         return enabled;
     }
-
-    // region new acceleration model
 
     public static void setEnabled(boolean b) {
         enabled = b;
@@ -245,6 +234,4 @@ public class Aimlock {
         CLOSEST_FOV,
         LOWEST_HEALTH;
     }
-
-    // endregion
 }

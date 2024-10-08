@@ -50,7 +50,6 @@ public class AutoJumpReset {
         int key = Minecraft.getMinecraft().gameSettings.keyBindJump.getKeyCode();
         KeyBinding.setKeyBindState(key, true);
         KeyBinding.onTick(key);
-        KeyBinding.setKeyBindState(key, false);
     }
 
     @SubscribeEvent

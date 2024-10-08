@@ -28,11 +28,17 @@ public class ModConfig extends Vigilant {
     @Property(type = PropertyType.SWITCH, name = "Safewalk", category = "Modules", description = "Sneak near the edge of blocks.")
     public static boolean safewalkEnabled = false;
 
+        @Property(type = PropertyType.SWITCH, name = "Disable If Not Bridging Pitch", category = "Safewalk", description = "Toggles off the module after lifting your head back up.")
+        public static boolean safewalkDisableIfNotBridgingPitch = false;
+
         @Property(type = PropertyType.DECIMAL_SLIDER, name = "Edge Distance", category = "Safewalk", description = "The distance from the edge at which sneaking occurs.", maxF = 0.5f, decimalPlaces = 2)
         public static float safewalkEdgeDistance = 0.15f;
 
     @Property(type = PropertyType.SWITCH, name = "Anti Bot", category = "Modules", description = "Tells combat modules to ignore bots.")
     public static boolean antiBotEnabled = true;
+
+        @Property(type = PropertyType.SWITCH, name = "Respect Teams", category = "Anti Bot", description = "Ignore teammates.")
+        public static boolean antiBotRespectTeams = true;
 
     @Property(type = PropertyType.SWITCH, name = "Auto Ghead", category = "Modules", description = "Consumes golden heads when you're low on health.")
     public static boolean autoGheadEnabled = false;
@@ -42,6 +48,9 @@ public class ModConfig extends Vigilant {
 
         @Property(type = PropertyType.SWITCH, name = "On Sneak Only", category = "Auto Tool", description = "Only swap if crouching and breaking a block.")
         public static boolean autoToolOnSneakOnly = false;
+
+        @Property(type = PropertyType.SWITCH, name = "Near Bed Only", category = "Auto Tool", description = "Only swap if a bed is within a 10-block cuboid of you.")
+        public static boolean autoToolNearBedOnly = false;
 
     // Combat
     @Property(type = PropertyType.SWITCH, name = "Auto Weapon", category = "Modules", description = "Sets your selected item to a weapon when attacking.")
@@ -61,18 +70,18 @@ public class ModConfig extends Vigilant {
         public static boolean aimlockVerticalRotations = false;
 
         @Property(type = PropertyType.DECIMAL_SLIDER, name = "Activation FOV", category = "Aimlock", minF = 0, maxF = 360, decimalPlaces = 0)
-        public static float aimlockFov = 30f;
+        public static float aimlockFov = 360f;
 
         @Property(type = PropertyType.DECIMAL_SLIDER, name = "Activation Radius", category = "Aimlock", minF = 1f, maxF = 8f, decimalPlaces = 2)
         public static float aimlockActivationRadius = 4.15f;
 
-    @Property(type = PropertyType.DECIMAL_SLIDER, name = "Aim Strength", category = "Aimlock", minF = 1f, maxF = 2f, decimalPlaces = 2)
+    @Property(type = PropertyType.DECIMAL_SLIDER, name = "Aim Strength", category = "Aimlock", minF = 0f, maxF = 5f, decimalPlaces = 1)
     public static float aimStrength = 1f;
 
-    @Property(type = PropertyType.DECIMAL_SLIDER, name = "Minimum Target Angular Size (Degrees)", category="Aimlock", minF = 10f, maxF = 45f, decimalPlaces = 0)
-    public static float minTargetAngularSize = 10f;
+    @Property(type = PropertyType.DECIMAL_SLIDER, name = "Minimum Target Angular Size (Degrees)", category="Aimlock", minF = 0.1f, maxF = 45f, decimalPlaces = 1)
+    public static float minTargetAngularSize = 1f;
 
-    @Property(type = PropertyType.DECIMAL_SLIDER, name = "Blend Strength", category="Aimlock", minF=0f, maxF=1f, decimalPlaces = 2)
+    @Property(type = PropertyType.DECIMAL_SLIDER, name = "Blend Strength", category="Aimlock", minF=0f, maxF=5f, decimalPlaces = 1)
     public static float blendFactor = 0.5f;
 
     @Property(type = PropertyType.COLOR, name = "Target Hitbox Color", category="Aimlock")
@@ -154,6 +163,7 @@ public class ModConfig extends Vigilant {
 
     public void setModulesToConfig() {
         AntiBot.setEnabled(antiBotEnabled);
+        AntiBot.setRespectTeams(antiBotRespectTeams);
 
         AutoGhead.setEnabled(autoGheadEnabled);
         AutoWeapon.setEnabled(autoWeaponEnabled);
@@ -161,6 +171,7 @@ public class ModConfig extends Vigilant {
 
         AutoTool.setEnabled(autoToolEnabled);
         AutoTool.setOnSneakOnly(autoToolOnSneakOnly);
+        AutoTool.setNearBedOnly(autoToolNearBedOnly);
 
         Aimlock.setEnabled(aimlockEnabled);
         Aimlock.setFov(aimlockFov);
@@ -187,6 +198,7 @@ public class ModConfig extends Vigilant {
         AutoJumpReset.setEnabled(autoJumpResetEnabled);
         AutoJumpReset.setChance(autoJumpResetChance);
         NoJumpDelay.setEnabled(noJumpDelayEnabled);
+        Safewalk.setDisableIfNotBridgingPitch(safewalkDisableIfNotBridgingPitch);
         Safewalk.setEnabled(safewalkEnabled);
         Safewalk.setEdgeDistance(safewalkEdgeDistance);
 
@@ -210,9 +222,7 @@ public class ModConfig extends Vigilant {
         registerListener("antiBotEnabled", AntiBot::setEnabled);
         registerListener("autoGheadEnabled", AutoGhead::setEnabled);
         registerListener("autoWeaponEnabled", AutoWeapon::setEnabled);
-        registerListener("autoWeaponSwapOnSwing", AutoWeapon::setSwapOnSwing);
         registerListener("autoToolEnabled", AutoTool::setEnabled);
-        registerListener("autoToolOnSneakOnly", AutoTool::setOnSneakOnly);
         registerListener("aimlockEnabled", Aimlock::setEnabled);
         registerListener("rightAutoclickerEnabled", RightAutoclicker::setEnabled);
         registerListener("leftAutoclickerEnabled", LeftAutoclicker::setEnabled);
@@ -225,6 +235,12 @@ public class ModConfig extends Vigilant {
         registerListener("invisEspEnabled", InvisEsp::setEnabled);
         registerListener("sharkEspEnabled", SharkEsp::setEnabled);
         registerListener("safewalkEnabled", Safewalk::setEnabled);
+
+        registerListener("autoWeaponSwapOnSwing", AutoWeapon::setSwapOnSwing);
+        registerListener("autoToolOnSneakOnly", AutoTool::setOnSneakOnly);
+        registerListener("autoToolNearBedOnly", AutoTool::setNearBedOnly);
+        registerListener("safewalkDisableIfNotBridgingPitch", Safewalk::setDisableIfNotBridgingPitch);
+        registerListener("antiBotRespectTeams", AntiBot::setRespectTeams);
 
         // autoclickers
         registerListener("leftAutoClickerMinCps", LeftAutoclicker::setMinCPS);

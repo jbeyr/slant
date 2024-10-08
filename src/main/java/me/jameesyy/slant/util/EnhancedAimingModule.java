@@ -7,33 +7,29 @@ import net.minecraft.util.MathHelper;
 public class EnhancedAimingModule {
     private static float MIN_TARGET_ANGULAR_SIZE; // degrees
     private static float BLEND_STRENGTH;
-    private static float AIM_STRENGTH = 1.0f; // Adjustable between 0.0 and 2.0, for example
+    private static float AIM_STRENGTH; // Adjustable between 0.0 and 10.0 (increased range)
 
     public static void setAimStrength(float strength) {
-        AIM_STRENGTH = MathHelper.clamp_float(strength, 0.0f, 2.0f);
+        AIM_STRENGTH = MathHelper.clamp_float(strength, 0.0f, 10.0f);
         ModConfig.aimStrength = strength;
         Reporter.reportSet("Aimlock", "Aim Strength", strength);
     }
 
-
     public static float[] mapRotation(float rawYawDelta, float rawPitchDelta, Entity player, Entity target) {
-        // Calculate angles to target
         double[] anglesToTarget = calculateAnglesToTarget(player, target);
         double yawToTarget = anglesToTarget[0];
         double pitchToTarget = anglesToTarget[1];
 
-        // Calculate distance to target
         double distanceToTarget = player.getDistanceToEntity(target);
-
-        // Calculate angular size of target
         double angularSize = calculateAngularSize(target, distanceToTarget);
 
-        // Apply mapping function for both yaw and pitch
-        float mappedYawDelta = applyMappingFunction(rawYawDelta, yawToTarget, angularSize);
-        float mappedPitchDelta = applyMappingFunction(rawPitchDelta, pitchToTarget, angularSize);
+        float aimAssistFactorYaw = calculateAimAssistFactor(yawToTarget, angularSize);
+        float aimAssistFactorPitch = calculateAimAssistFactor(pitchToTarget, angularSize);
 
-        // Apply an additional scaling based on AIM_STRENGTH
-        float scalingFactor = 1 + (AIM_STRENGTH - 1) * 0.25f;
+        float mappedYawDelta = applyMappingFunction(rawYawDelta, yawToTarget, angularSize) * (1 + aimAssistFactorYaw * AIM_STRENGTH * 2);
+        float mappedPitchDelta = applyMappingFunction(rawPitchDelta, pitchToTarget, angularSize) * (1 + aimAssistFactorPitch * AIM_STRENGTH * 2);
+
+        float scalingFactor = (float) Math.pow(AIM_STRENGTH, 3); // Increased power
         mappedYawDelta *= scalingFactor;
         mappedPitchDelta *= scalingFactor;
 
@@ -41,48 +37,36 @@ public class EnhancedAimingModule {
     }
 
     private static float applyMappingFunction(float rawDelta, double angleToTarget, double angularSize) {
-        // Calculate the absolute angle difference
         double angleDifference = Math.abs(angleToTarget);
-
-        // Define the range where we want to start decreasing sensitivity
-        double fullSensitivityThreshold = angularSize * 2; // Adjust this multiplier as needed
-        double minSensitivityThreshold = angularSize / 2; // Adjust this divisor as needed
+        double fullSensitivityThreshold = angularSize * 3; // Increased threshold
+        double minSensitivityThreshold = angularSize / 3; // Decreased threshold
 
         double scaleFactor;
 
         if (angleDifference > fullSensitivityThreshold) {
-            // Normal sensitivity when far from target
             scaleFactor = 1;
         } else if (angleDifference < minSensitivityThreshold) {
-            // Minimum sensitivity when very close to target
-            scaleFactor = 0.1; // Adjust this minimum value as needed
+            scaleFactor = 0.05; // Decreased minimum scale factor
         } else {
-            // Gradually decrease sensitivity as we get closer to the target
-            scaleFactor = 0.1 + (angleDifference - minSensitivityThreshold) / (fullSensitivityThreshold - minSensitivityThreshold) * 0.9;
+            scaleFactor = 0.05 + (angleDifference - minSensitivityThreshold) / (fullSensitivityThreshold - minSensitivityThreshold) * 0.95;
         }
 
-        // Calculate the direction towards the target
         float directionToTarget = (float) Math.signum(angleToTarget);
+        float adjustedDelta = (float) (rawDelta * scaleFactor * directionToTarget * Math.pow(AIM_STRENGTH, 3)); // Increased power
+        float blendFactor = (float) Math.pow(1 - scaleFactor, BLEND_STRENGTH * AIM_STRENGTH * 2); // Increased blend strength
 
-        // Blend between raw input and adjusted input based on how close we are to the target
-        float adjustedDelta = (float) (rawDelta * scaleFactor * directionToTarget * AIM_STRENGTH);
-        float blendFactor = (float) Math.pow(1 - scaleFactor, BLEND_STRENGTH * AIM_STRENGTH);
-        return (1 - blendFactor) * rawDelta + blendFactor * adjustedDelta;
+        return (1 - blendFactor) * rawDelta + blendFactor * adjustedDelta * AIM_STRENGTH * 2; // Increased final adjustment
     }
 
     private static double[] calculateAnglesToTarget(Entity player, Entity target) {
         double dx = target.posX - player.posX;
-        double dy = target.posY + (target.height * 0.85) - (player.posY + player.getEyeHeight());
+        double dy = target.posY + (target.height * 0.9) - (player.posY + player.getEyeHeight()); // Adjusted to aim slightly higher
         double dz = target.posZ - player.posZ;
 
-        double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
-
-        // Calculate yaw
         double yaw = Math.atan2(dz, dx);
         yaw = Math.toDegrees(yaw) - 90;
         yaw = MathHelper.wrapAngleTo180_double(yaw - player.rotationYaw);
 
-        // Calculate pitch
         double pitch = -Math.atan2(dy, Math.sqrt(dx * dx + dz * dz));
         pitch = Math.toDegrees(pitch);
         pitch = MathHelper.wrapAngleTo180_double(pitch - player.rotationPitch);
@@ -93,9 +77,15 @@ public class EnhancedAimingModule {
     private static double calculateAngularSize(Entity target, double distance) {
         double targetSize = Math.max(target.width, target.height);
         double angularSize = (targetSize / distance) * (180 / Math.PI);
-        angularSize *= (1 + (AIM_STRENGTH - 1) * 0.5);
 
-        return MathHelper.clamp_double(angularSize, MIN_TARGET_ANGULAR_SIZE, 45 * AIM_STRENGTH);
+        angularSize *= (1 + Math.pow(AIM_STRENGTH - 1, 3)); // Increased power
+
+        return MathHelper.clamp_double(angularSize, MIN_TARGET_ANGULAR_SIZE, 180 * AIM_STRENGTH); // Increased maximum angular size
+    }
+
+    private static float calculateAimAssistFactor(double angleToTarget, double angularSize) {
+        double normalizedAngle = Math.abs(angleToTarget) / angularSize;
+        return (float) (1 - Math.pow(normalizedAngle, AIM_STRENGTH / 2)); // Decreased power to make it more aggressive
     }
 
     public static void setBlendFactor(float f) {

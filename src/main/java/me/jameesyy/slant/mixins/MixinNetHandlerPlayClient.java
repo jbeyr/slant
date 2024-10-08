@@ -36,7 +36,7 @@ public class MixinNetHandlerPlayClient {
 
             // release the jump key
             Timer timer = new Timer(20, (actionevent) -> {
-                KeyBinding.setKeyBindState(Main.getMc().gameSettings.keyBindJump.getKeyCode(), isheld);
+                if(!isheld) KeyBinding.setKeyBindState(Main.getMc().gameSettings.keyBindJump.getKeyCode(), false);
             });
             timer.setRepeats(false);
             timer.start();

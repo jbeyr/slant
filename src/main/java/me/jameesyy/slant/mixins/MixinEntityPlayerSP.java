@@ -1,7 +1,5 @@
 package me.jameesyy.slant.mixins;
 
-import me.jameesyy.slant.ActionConflictResolver;
-import me.jameesyy.slant.combat.Aimlock;
 import me.jameesyy.slant.movement.Safewalk;
 import net.minecraft.client.entity.EntityPlayerSP;
 import org.spongepowered.asm.mixin.Mixin;

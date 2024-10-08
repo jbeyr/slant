@@ -13,11 +13,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static me.jameesyy.slant.util.NBTComparer.overlappingNbt;
+import static me.jameesyy.slant.util.NbtComparer.overlappingNbt;
 
 public class AutoGhead {
 
-    private static final Map<NBTComparer.HealingItem, Long> individualCooldowns = new HashMap<>();
+    private static final Map<NbtComparer.HealingItem, Long> individualCooldowns = new HashMap<>();
     private static final long IN_PROGRESS_DURATION = 50;
     private static final Minecraft mc = Minecraft.getMinecraft();
     private static boolean enabled;
@@ -39,7 +39,7 @@ public class AutoGhead {
         return System.currentTimeMillis() < inProgressUntil;
     }
 
-    public static void setInProgress(NBTComparer.HealingItem healingItem) {
+    public static void setInProgress(NbtComparer.HealingItem healingItem) {
         inProgressUntil = System.currentTimeMillis() + IN_PROGRESS_DURATION;
         individualCooldowns.put(healingItem, System.currentTimeMillis() + healingItem.cooldownMs);
     }
@@ -49,17 +49,17 @@ public class AutoGhead {
      * @param player the player whose hotbar should be scanned for a suitable item
      * @return the healing item if (1) the player health threshold is below it, (2) if the item isn't on cooldown, and (3) if the nbt matches
      */
-    public static Optional<NBTComparer.HealingItemResult> getFirstHealingItemInHotbarNotOnCooldown(EntityPlayer player) {
+    public static Optional<NbtComparer.HealingItemResult> getFirstHealingItemInHotbarNotOnCooldown(EntityPlayer player) {
 
         for (int i = 0; i < 9; i++) {
             ItemStack stack = player.inventory.getStackInSlot(i);
-            for (NBTComparer.HealingItem hItem : NBTComparer.getItemCooldowns()) {
+            for (NbtComparer.HealingItem hItem : NbtComparer.getItemCooldowns()) {
                 if (!overlappingNbt(stack, hItem.sourceNbt)) continue;
                 if (player.getAbsorptionAmount() > 1f || player.getHealth() / player.getMaxHealth() > hItem.usageThreshold) continue;
 
                 Long healingItemCooldown = individualCooldowns.getOrDefault(hItem, 0L);
                 if(System.currentTimeMillis() > healingItemCooldown) {
-                    return Optional.of(new NBTComparer.HealingItemResult(hItem, i));
+                    return Optional.of(new NbtComparer.HealingItemResult(hItem, i));
                 }
             }
         }
@@ -80,7 +80,7 @@ public class AutoGhead {
             return;
         }
 
-        Optional<NBTComparer.HealingItemResult> res = getFirstHealingItemInHotbarNotOnCooldown(me);
+        Optional<NbtComparer.HealingItemResult> res = getFirstHealingItemInHotbarNotOnCooldown(me);
         if (!res.isPresent()) return;
 
         swappedFrom = me.inventory.currentItem;

@@ -8,9 +8,9 @@
     "MixinNetHandlerPlayClient"
   ],
   "client": [
-    "MixinEntityRenderer",
     "MixinEntityLivingBase",
     "MixinEntityPlayerSP",
+    "MixinEntityRenderer",
     "MixinMinecraft",
     "MixinPlayerContollerMP",
     "MixinWorldClient"
