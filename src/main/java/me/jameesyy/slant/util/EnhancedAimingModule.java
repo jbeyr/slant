@@ -7,6 +7,14 @@ import net.minecraft.util.MathHelper;
 public class EnhancedAimingModule {
     private static float MIN_TARGET_ANGULAR_SIZE; // degrees
     private static float BLEND_STRENGTH;
+    private static float AIM_STRENGTH = 1.0f; // Adjustable between 0.0 and 2.0, for example
+
+    public static void setAimStrength(float strength) {
+        AIM_STRENGTH = MathHelper.clamp_float(strength, 0.0f, 2.0f);
+        ModConfig.aimStrength = strength;
+        Reporter.reportSet("Aimlock", "Aim Strength", strength);
+    }
+
 
     public static float[] mapRotation(float rawYawDelta, float rawPitchDelta, Entity player, Entity target) {
         // Calculate angles to target
@@ -23,6 +31,11 @@ public class EnhancedAimingModule {
         // Apply mapping function for both yaw and pitch
         float mappedYawDelta = applyMappingFunction(rawYawDelta, yawToTarget, angularSize);
         float mappedPitchDelta = applyMappingFunction(rawPitchDelta, pitchToTarget, angularSize);
+
+        // Apply an additional scaling based on AIM_STRENGTH
+        float scalingFactor = 1 + (AIM_STRENGTH - 1) * 0.25f;
+        mappedYawDelta *= scalingFactor;
+        mappedPitchDelta *= scalingFactor;
 
         return new float[]{mappedYawDelta, mappedPitchDelta};
     }
@@ -52,9 +65,8 @@ public class EnhancedAimingModule {
         float directionToTarget = (float) Math.signum(angleToTarget);
 
         // Blend between raw input and adjusted input based on how close we are to the target
-        float blendFactor = (float) (1 - Math.pow(scaleFactor, BLEND_STRENGTH)); // Adjust the power for different blending behavior
-        float adjustedDelta = (float) (rawDelta * scaleFactor * directionToTarget);
-
+        float adjustedDelta = (float) (rawDelta * scaleFactor * directionToTarget * AIM_STRENGTH);
+        float blendFactor = (float) Math.pow(1 - scaleFactor, BLEND_STRENGTH * AIM_STRENGTH);
         return (1 - blendFactor) * rawDelta + blendFactor * adjustedDelta;
     }
 
@@ -79,15 +91,11 @@ public class EnhancedAimingModule {
     }
 
     private static double calculateAngularSize(Entity target, double distance) {
-        // Get the largest dimension of the target's bounding box
         double targetSize = Math.max(target.width, target.height);
-
-        // Calculate the angular size using the small-angle approximation
-        // Angular size ≈ (size / distance) * (180 / π) for small angles
         double angularSize = (targetSize / distance) * (180 / Math.PI);
+        angularSize *= (1 + (AIM_STRENGTH - 1) * 0.5);
 
-        // Clamp the angular size to a reasonable range (e.g., 0.1 to 45 degrees)
-        return MathHelper.clamp_double(angularSize, MIN_TARGET_ANGULAR_SIZE, 45);
+        return MathHelper.clamp_double(angularSize, MIN_TARGET_ANGULAR_SIZE, 45 * AIM_STRENGTH);
     }
 
     public static void setBlendFactor(float f) {

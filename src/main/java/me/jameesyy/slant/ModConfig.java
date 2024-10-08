@@ -37,9 +37,6 @@ public class ModConfig extends Vigilant {
     @Property(type = PropertyType.SWITCH, name = "Auto Ghead", category = "Modules", description = "Consumes golden heads when you're low on health.")
     public static boolean autoGheadEnabled = false;
 
-        @Property(type = PropertyType.PERCENT_SLIDER, name = "Health Threshold", category = "Auto Ghead", description = "Won't consume a golden head above this threshold.", maxF = 1f)
-        public static float autoGheadHealthThreshold = 0.75f;
-
     @Property(type = PropertyType.SWITCH, name = "Auto Tool", category = "Modules", description = "Swaps to the ideal tool to break a block.")
     public static boolean autoToolEnabled = false;
 
@@ -68,6 +65,9 @@ public class ModConfig extends Vigilant {
 
         @Property(type = PropertyType.DECIMAL_SLIDER, name = "Activation Radius", category = "Aimlock", minF = 1f, maxF = 8f, decimalPlaces = 2)
         public static float aimlockActivationRadius = 4.15f;
+
+    @Property(type = PropertyType.DECIMAL_SLIDER, name = "Aim Strength", category = "Aimlock", minF = 1f, maxF = 2f, decimalPlaces = 2)
+    public static float aimStrength = 1f;
 
     @Property(type = PropertyType.DECIMAL_SLIDER, name = "Minimum Target Angular Size (Degrees)", category="Aimlock", minF = 10f, maxF = 45f, decimalPlaces = 0)
     public static float minTargetAngularSize = 10f;
@@ -156,8 +156,6 @@ public class ModConfig extends Vigilant {
         AntiBot.setEnabled(antiBotEnabled);
 
         AutoGhead.setEnabled(autoGheadEnabled);
-        AutoGhead.setHealthThreshold(autoGheadHealthThreshold);
-
         AutoWeapon.setEnabled(autoWeaponEnabled);
         AutoWeapon.setSwapOnSwing(autoWeaponSwapOnSwing);
 
@@ -172,6 +170,7 @@ public class ModConfig extends Vigilant {
         Aimlock.setActivationRadius(aimlockActivationRadius);
         EnhancedAimingModule.setMinTargetAngularSize(minTargetAngularSize);
         EnhancedAimingModule.setBlendFactor(blendFactor);
+        EnhancedAimingModule.setAimStrength(aimStrength);
 
         RightAutoclicker.setEnabled(rightAutoclickerEnabled);
         RightAutoclicker.setMinCPS(rightAutoClickerMinCps);
@@ -242,11 +241,11 @@ public class ModConfig extends Vigilant {
         registerListener("aimlockFov", Aimlock::setFov);
         registerListener("aimlockActivationRadius", Aimlock::setActivationRadius);
 
+        registerListener("aimStrength", EnhancedAimingModule::setAimStrength);
         registerListener("minTargetAngularSize", EnhancedAimingModule::setMinTargetAngularSize);
         registerListener("blendFactor", EnhancedAimingModule::setBlendFactor);
 
         // others
-        registerListener("autoGheadHealthThreshold", AutoGhead::setHealthThreshold);
         registerListener("autoJumpResetChance", AutoJumpReset::setChance);
         registerListener("pointerActivationRadius", Pointer::setActivationRadius);
         registerListener("sharkEspActivationRadius", SharkEsp::setActivationRadius);
