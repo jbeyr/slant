@@ -3,8 +3,8 @@ package me.jameesyy.slant.network;
 import me.jameesyy.slant.ModConfig;
 import me.jameesyy.slant.util.LagUtils;
 import me.jameesyy.slant.util.Reporter;
-
-import static me.jameesyy.slant.network.PacketManager.targetpos;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.AxisAlignedBB;
 
 public class Backtrack {
     public static boolean shouldSpoof = false;
@@ -13,13 +13,22 @@ public class Backtrack {
     private static int sensitivity;
 
     public static void tickCheck() {
-        if (!PacketManager.target.isPresent() || targetpos == null) {
-            shouldSpoof = false;
-            return;
-        }
+        EntityPlayer target = PacketManager.getTarget();
+        AxisAlignedBB targetpos = PacketManager.getTargetPos();
 
-        if (LagUtils.getDistanceToAxis(targetpos) + (double) (sensitivity - 100) / 100 < LagUtils.getDistanceToAxis(PacketManager.target.get().getEntityBoundingBox())) PacketManager.clearInboundQueue();
-        else shouldSpoof = true;
+        if (target != null) {
+            if (targetpos != null) {
+                if (LagUtils.getDistanceToAxis(targetpos) + (double) (sensitivity - 100) / 100 < LagUtils.getDistanceToAxis(target.getEntityBoundingBox())) {
+                    PacketManager.clearInboundQueue();
+                } else {
+                    shouldSpoof = true;
+                }
+            } else {
+                shouldSpoof = false;
+            }
+        } else {
+            shouldSpoof = false;
+        }
     }
 
     public static boolean isEnabled() {
@@ -27,6 +36,7 @@ public class Backtrack {
     }
 
     public static void setEnabled(boolean b) {
+        if(!b) shouldSpoof = false;
         Backtrack.enabled = b;
         ModConfig.backtrackEnabled = b;
         Reporter.reportToggled("Backtrack", b);

@@ -40,13 +40,13 @@ public class ModConfig extends Vigilant {
         @Property(type = PropertyType.SLIDER, name = "Delay", category = "Backtrack", description = "The millesecond offset to delay the target hitbox by. Rule of thumb: max +5ms for every +50ms ping. If you have 100ms ping, set to no more than 10ms.", min = 1, max = 50)
         public static int backtrackDelayMs = 1;
 
-        @Property(type = PropertyType.SLIDER, name = "Delay", category = "Backtrack", description = "Adjusts how aggressively the backtrack feature activates. Higher values increase the range and frequency of backtrack hits, potentially making them more noticeable. Lower values result in more subtle, conservative backtracking.", min = 0, max = 100, increment = 5)
+        @Property(type = PropertyType.SLIDER, name = "Sensitivity", category = "Backtrack", description = "Adjusts how aggressively the backtrack feature activates. Higher values increase the range and frequency of backtrack hits, potentially making them more noticeable. Lower values result in more subtle, conservative backtracking.", min = 0, max = 100, increment = 5)
         public static int backtrackSensitivity = 100;
 
     @Property(type = PropertyType.SWITCH, name = "Ping Spoofer", category = "Modules", description = "Increases your ping by a configurable offset.")
     public static boolean pingSpooferEnabled = false;
 
-        @Property(type = PropertyType.SLIDER, name = "Delay", category = "Ping Spoofer", description = "The offset (milleseconds) to increase your own ping by.", min = 5, max = 500, increment = 5)
+        @Property(type = PropertyType.SLIDER, name = "Delay", category = "Ping Spoofer", description = "The offset (milleseconds) to increase your own ping by.", min = 5, max = 300, increment = 5)
         public static int pingSpooferDelayMs = 50;
 
     @Property(type = PropertyType.SWITCH, name = "Anti Bot", category = "Modules", description = "Tells combat modules to ignore bots.")

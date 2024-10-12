@@ -92,8 +92,9 @@ public class Main {
         MinecraftForge.EVENT_BUS.register(ModConfig.getInstance());
 
         PacketManager packetManager = new PacketManager();
-        MinecraftForge.EVENT_BUS.register(new Targeter());
         Targeter.addListener(packetManager);
+        MinecraftForge.EVENT_BUS.register(packetManager);
+        MinecraftForge.EVENT_BUS.register(new Targeter());
 
         MinecraftForge.EVENT_BUS.register(new Reporter());
         MinecraftForge.EVENT_BUS.register(new AntiBot());

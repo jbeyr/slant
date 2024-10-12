@@ -2,7 +2,6 @@ package me.jameesyy.slant.network;
 
 import me.jameesyy.slant.ModConfig;
 import me.jameesyy.slant.util.Reporter;
-import net.minecraft.network.INetHandler;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S0CPacketSpawnPlayer;
 import net.minecraft.network.play.server.S3BPacketScoreboardObjective;
@@ -25,17 +24,17 @@ public class PingSpoofer {
                         if (((S3EPacketTeams) p).getPlayers() != null) {
                             p.processPacket(mc.thePlayer.sendQueue.getNetworkManager().getNetHandler());
                         }
-                    } else if (p instanceof S0CPacketSpawnPlayer){
-                        if (((S0CPacketSpawnPlayer) p).getPlayer()!=null) {
+                    } else if (p instanceof S0CPacketSpawnPlayer) {
+                        if (((S0CPacketSpawnPlayer) p).getPlayer() != null) {
                             p.processPacket(mc.thePlayer.sendQueue.getNetworkManager().getNetHandler());
                         }
 
-                    }else if (p instanceof S3BPacketScoreboardObjective){
-                        if (((S3BPacketScoreboardObjective) p).func_149337_d()!=null) {
+                    } else if (p instanceof S3BPacketScoreboardObjective) {
+                        if (((S3BPacketScoreboardObjective) p).func_149337_d() != null) {
                             p.processPacket(mc.thePlayer.sendQueue.getNetworkManager().getNetHandler());
                         }
 
-                    }else{
+                    } else {
 
                         p.processPacket(mc.thePlayer.sendQueue.getNetworkManager().getNetHandler());
                     }
@@ -47,29 +46,6 @@ public class PingSpoofer {
             }
         }
     }
-
-//    public static void tickCheck() {
-//        for (DelayedPacket<? extends INetHandler> packet : inboundPacketsQueue) {
-//
-//            // ignore packets in queue for later if we hadn't received it by now according to our emulated ping
-//            if (System.currentTimeMillis() <= packet.getTime() + delay) continue;
-//
-//            try {
-//                Packet p = packet.getPacket();
-//                if (p instanceof S3EPacketTeams) {
-//                    if (((S3EPacketTeams) p).getPlayers() != null) p.processPacket(mc.thePlayer.sendQueue.getNetworkManager().getNetHandler());
-//                } else if (p instanceof S0CPacketSpawnPlayer) {
-//                    if (((S0CPacketSpawnPlayer) p).getPlayer() != null) p.processPacket(mc.thePlayer.sendQueue.getNetworkManager().getNetHandler());
-//                } else if (p instanceof S3BPacketScoreboardObjective) {
-//                    if (((S3BPacketScoreboardObjective) p).func_149337_d() != null) p.processPacket(mc.thePlayer.sendQueue.getNetworkManager().getNetHandler());
-//                } else p.processPacket(mc.thePlayer.sendQueue.getNetworkManager().getNetHandler());
-//            } catch (Exception exception) {
-//                //   System.out.println("Error! - "+packet +", "+packets.size());
-//                exception.printStackTrace();
-//            }
-//            inboundPacketsQueue.remove(packet);
-//        }
-//    }
 
     public static int getDelay() {
         return delay;

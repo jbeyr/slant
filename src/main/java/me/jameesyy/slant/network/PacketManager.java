@@ -4,8 +4,8 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import me.jameesyy.slant.Targeter;
 import me.jameesyy.slant.util.LagUtils;
+import me.jameesyy.slant.util.Renderer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.INetHandler;
 import net.minecraft.network.Packet;
@@ -13,11 +13,9 @@ import net.minecraft.network.play.server.*;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
-import java.awt.*;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -26,11 +24,25 @@ public class PacketManager implements Targeter.TargetChangeListener {
     public static ConcurrentLinkedQueue<DelayedPacket<? extends INetHandler>> inboundPacketsQueue = new ConcurrentLinkedQueue<>();
     public static ConcurrentLinkedQueue<DelayedPacket<? extends INetHandler>> outboundPacketsQueue = new ConcurrentLinkedQueue<>();
 
-    public static Optional<EntityPlayer> target;
-    public static AxisAlignedBB targetpos;
+    private static EntityPlayer target;
+    private static AxisAlignedBB targetPos;
+    private static AxisAlignedBB lastTargetPos;
 
-    public static boolean anythingEnabled() {
-        return Backtrack.isEnabled() || PingSpoofer.isEnabled();
+    public static EntityPlayer getTarget() {
+        return target;
+    }
+
+    public static AxisAlignedBB getTargetPos() {
+        return targetPos;
+    }
+
+    public static AxisAlignedBB getLastTargetPos() {
+        return lastTargetPos;
+    }
+
+    public static void setTargetPos(AxisAlignedBB newpos) {
+        PacketManager.lastTargetPos = targetPos;
+        PacketManager.targetPos = newpos;
     }
 
 
@@ -40,18 +52,18 @@ public class PacketManager implements Targeter.TargetChangeListener {
                 if (p instanceof S18PacketEntityTeleport) {
                     if (((S18PacketEntityTeleport) p).getEntityId() == mc.thePlayer.getEntityId()) {
                         clearInboundQueue();
-                    } else if (target.isPresent() && ((S18PacketEntityTeleport) p).getEntityId() == target.get().getEntityId()) {
+                    } else if (target != null && ((S18PacketEntityTeleport) p).getEntityId() == target.getEntityId()) {
                         try {
-                            targetpos = new AxisAlignedBB((((S18PacketEntityTeleport) p).getX() / 32D) - 0.3, ((S18PacketEntityTeleport) p).getY() / 32D, (((S18PacketEntityTeleport) p).getZ() / 32D) - 0.3, (((S18PacketEntityTeleport) p).getX() / 32D) + 0.3D, (((S18PacketEntityTeleport) p).getY() / 32D) + 1.8, (((S18PacketEntityTeleport) p).getZ() / 32D) + 0.3);
+                            setTargetPos(new AxisAlignedBB((((S18PacketEntityTeleport) p).getX() / 32D) - 0.3, ((S18PacketEntityTeleport) p).getY() / 32D, (((S18PacketEntityTeleport) p).getZ() / 32D) - 0.3, (((S18PacketEntityTeleport) p).getX() / 32D) + 0.3D, (((S18PacketEntityTeleport) p).getY() / 32D) + 1.8, (((S18PacketEntityTeleport) p).getZ() / 32D) + 0.3));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
                 } else if (p instanceof S14PacketEntity) {
                     if (((S14PacketEntity) p).getEntity(mc.theWorld) != null) {
-                        if (target.isPresent() && ((S14PacketEntity) p).getEntity(mc.theWorld).getEntityId() == target.get().getEntityId()) {
+                        if (target != null && ((S14PacketEntity) p).getEntity(mc.theWorld).getEntityId() == target.getEntityId()) {
                             try {
-                                targetpos = new AxisAlignedBB((((S14PacketEntity) p).func_149062_c() / 32D) + targetpos.minX, (((S14PacketEntity) p).func_149061_d() / 32D) + targetpos.minY, (((S14PacketEntity) p).func_149064_e() / 32D) + targetpos.minZ, (((S14PacketEntity) p).func_149062_c() / 32D) + targetpos.minX + 0.6, (((S14PacketEntity) p).func_149061_d() / 32D) + targetpos.maxY, (((S14PacketEntity) p).func_149064_e() / 32D) + targetpos.minZ + 0.6);
+                                setTargetPos(new AxisAlignedBB((((S14PacketEntity) p).func_149062_c() / 32D) + targetPos.minX, (((S14PacketEntity) p).func_149061_d() / 32D) + targetPos.minY, (((S14PacketEntity) p).func_149064_e() / 32D) + targetPos.minZ, (((S14PacketEntity) p).func_149062_c() / 32D) + targetPos.minX + 0.6, (((S14PacketEntity) p).func_149061_d() / 32D) + targetPos.maxY, (((S14PacketEntity) p).func_149064_e() / 32D) + targetPos.minZ + 0.6));
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -75,12 +87,12 @@ public class PacketManager implements Targeter.TargetChangeListener {
         return false;
     }
 
-    public static void SpoofInboundPacket(Packet<? extends INetHandler> p) {
-        inboundPacketsQueue.add(new DelayedPacket(p, System.currentTimeMillis()));
+    public static <T extends INetHandler> void spoofInboundPacket(Packet<T> p) {
+        inboundPacketsQueue.add(new DelayedPacket<>(p, System.currentTimeMillis()));
     }
 
-    public static void SpoofOutboundPacket(Packet p) {
-        outboundPacketsQueue.add(new DelayedPacket(p, System.currentTimeMillis()));
+    public static <T extends INetHandler> void spoofOutboundPacket(Packet<T> p) {
+        outboundPacketsQueue.add(new DelayedPacket<>(p, System.currentTimeMillis()));
     }
 
     public static void clearInboundQueue() {
@@ -109,7 +121,7 @@ public class PacketManager implements Targeter.TargetChangeListener {
         }
     }
 
-    public static boolean IsPlayClientPacket(Packet packet) {
+    public static boolean IsPlayClientPacket(Packet<? extends INetHandler> packet) {
 
         //return packet instanceof INetHandlerPlayClient;
 
@@ -130,9 +142,8 @@ public class PacketManager implements Targeter.TargetChangeListener {
     @SubscribeEvent
     public void r1(RenderWorldLastEvent e) {
         if (LagUtils.isIngame()) {
-            if (Backtrack.isEnabled() && target.isPresent() && targetpos != null) {
-                int rgb = new Color(10, 255, 20).getRGB();
-                LagUtils.reAxis(target.get(), targetpos, rgb, true, e.partialTicks);
+            if (Backtrack.isEnabled() && target != null && targetPos != null && lastTargetPos != null) {
+                LagUtils.drawTrueBacktrackHitbox(lastTargetPos, targetPos, e.partialTicks, .5f, .5f, 1f, 0.5f);
             }
         }
     }
@@ -142,7 +153,7 @@ public class PacketManager implements Targeter.TargetChangeListener {
         if (LagUtils.isIngame() && e.phase == TickEvent.Phase.START) {
             if (Backtrack.isEnabled()) {
                 Backtrack.tickCheck();
-                for (DelayedPacket<? extends INetHandler> packet : inboundPacketsQueue) {
+                for (DelayedPacket packet : inboundPacketsQueue) {
                     if (System.currentTimeMillis() > packet.getTime() + Backtrack.getDelay() + (PingSpoofer.isEnabled() ? PingSpoofer.getDelay() : 0)) {
                         try {
                             Packet p = packet.getPacket();
@@ -159,13 +170,10 @@ public class PacketManager implements Targeter.TargetChangeListener {
                                 if (((S3BPacketScoreboardObjective) p).func_149337_d() != null) {
                                     p.processPacket(mc.thePlayer.sendQueue.getNetworkManager().getNetHandler());
                                 }
-
                             } else {
-
                                 p.processPacket(mc.thePlayer.sendQueue.getNetworkManager().getNetHandler());
                             }
                         } catch (Exception exception) {
-                            //   System.out.println("Error! - "+packet +", "+packets.size());
                             exception.printStackTrace();
                         }
                         inboundPacketsQueue.remove(packet);
@@ -181,23 +189,12 @@ public class PacketManager implements Targeter.TargetChangeListener {
         }
     }
 
-    @SubscribeEvent
-    public void attack(AttackEntityEvent e) {
-        if (LagUtils.isIngame() && anythingEnabled() && e.target instanceof EntityPlayer) {
-            if (!target.isPresent() || target.get() != e.target) {
-                target = Optional.of((EntityPlayer) e.target);
-                targetpos = target.get().getEntityBoundingBox();
-            }
-        }
-    }
-
     @Override
     public void onTargetChange(Optional<EntityPlayer> oldTarget, Optional<EntityPlayer> newTarget) {
-//        if(!LagUtils.isIngame() || !anythingEnabled()) return;
-//
-//        target = newTarget;
-//        targetpos = target.map(Entity::getEntityBoundingBox).orElse(null);
-//        Minecraft.getMinecraft().ingameGUI.setRecordPlaying(new ChatComponentText("Target: " + (!target.isPresent() ? "N/A" : target.get().getName())), true);
+        if(!LagUtils.isIngame() || (!Backtrack.isEnabled() && !PingSpoofer.isEnabled())) return;
+
+        target = newTarget.orElse(null);
+        setTargetPos(target == null ? null : target.getEntityBoundingBox());
     }
 
     public static class InboundHandlerTuplePacketListener<T extends INetHandler> {
