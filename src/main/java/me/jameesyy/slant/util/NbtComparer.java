@@ -14,8 +14,8 @@ import java.util.Set;
 public class NbtComparer {
 
     private static final Set<HealingItem> itemCooldowns = new HashSet<>();
-    private static final String FIRST_AID_EGG_JSON = "{id:\"minecraft:spawn_egg\",Count:1b,tag:{display:{Lore:[0:\"§eSpecial item\",1:\"§7Heals §c2.5❤\",2:\"§710 seconds cooldown.\"],Name:\"§cFirst-Aid Egg\"},ExtraAttributes:{ITEM_MARKERS:\"CANNOT_DROP\"}},Damage:96s}";
-    private static final String FRACTURED_SOUL_JSON = "{id:\"minecraft:magma_cream\",Count:1b,tag:{display:{Lore:[0:\"§7Event item\",1:\"§9Resistance II (0:03)\",2:\"§74§c❤ §7heal\",3:\"§73§6❤ §7absorption\"],Name:\"§bFractured Soul\"},ExtraAttributes:{ITEM_MARKERS:\"EVENT_ITEM\"}},Damage:0s}";
+    private static final String FIRST_AID_EGG_JSON_PARTIAL = "First-Aid Egg";
+    private static final String FRACTURED_SOUL_JSON_PARTIAL = "Fractured Soul";
     private static final String GOLDEN_HEAD_JSON_PARTIAL = "eyJ0aW1lc3RhbXAiOjE0ODUwMjM0NDEyNzAsInByb2ZpbGVJZCI6ImRhNDk4YWM0ZTkzNzRlNWNiNjEyN2IzODA4NTU3OTgzIiwicHJvZmlsZU5hbWUiOiJOaXRyb2hvbGljXzIiLCJzaWduYXR1cmVSZXF1aXJlZCI6dHJ1ZSwidGV4dHVyZXMiOnsiU0tJTiI6eyJ1cmwiOiJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2Y5MzdlMWM0NWJiOGRhMjliMmM1NjRkZDlhN2RhNzgwZGQyZmU1NDQ2OGE1ZGZiNDExM2I0ZmY2NThmMDQzZTEifX19";
 
     public static Set<HealingItem> getItemCooldowns() {
@@ -23,8 +23,8 @@ public class NbtComparer {
     }
 
     static {
-        itemCooldowns.add(new HealingItem(FIRST_AID_EGG_JSON, 0.75f, 200));
-        itemCooldowns.add(new HealingItem(FRACTURED_SOUL_JSON, 0.3f, 200));
+        itemCooldowns.add(new HealingItem(FIRST_AID_EGG_JSON_PARTIAL, 0.75f, 200));
+        itemCooldowns.add(new HealingItem(FRACTURED_SOUL_JSON_PARTIAL, 0.6f, 200));
         itemCooldowns.add(new HealingItem(GOLDEN_HEAD_JSON_PARTIAL, 0.75f, 1000));
     }
 

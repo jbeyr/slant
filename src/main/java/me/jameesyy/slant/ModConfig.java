@@ -7,6 +7,8 @@ import me.jameesyy.slant.combat.*;
 import me.jameesyy.slant.movement.AutoJumpReset;
 import me.jameesyy.slant.movement.NoJumpDelay;
 import me.jameesyy.slant.movement.Safewalk;
+import me.jameesyy.slant.network.Backtrack;
+import me.jameesyy.slant.network.PingSpoofer;
 import me.jameesyy.slant.render.BedEsp;
 import me.jameesyy.slant.render.InvisEsp;
 import me.jameesyy.slant.render.Pointer;
@@ -31,6 +33,21 @@ public class ModConfig extends Vigilant {
 
         @Property(type = PropertyType.DECIMAL_SLIDER, name = "Edge Distance", category = "Safewalk", description = "The distance from the edge at which sneaking occurs.", maxF = 0.5f, decimalPlaces = 2)
         public static float safewalkEdgeDistance = 0.15f;
+
+    @Property(type = PropertyType.SWITCH, name = "Backtrack", category = "Modules", description = "When fighting, uses a delayed hitbox of a target player to provide extra reach.")
+    public static boolean backtrackEnabled = false;
+
+        @Property(type = PropertyType.SLIDER, name = "Delay", category = "Backtrack", description = "The millesecond offset to delay the target hitbox by. Rule of thumb: max +5ms for every +50ms ping. If you have 100ms ping, set to no more than 10ms.", min = 1, max = 50)
+        public static int backtrackDelayMs = 1;
+
+        @Property(type = PropertyType.SLIDER, name = "Delay", category = "Backtrack", description = "Adjusts how aggressively the backtrack feature activates. Higher values increase the range and frequency of backtrack hits, potentially making them more noticeable. Lower values result in more subtle, conservative backtracking.", min = 0, max = 100, increment = 5)
+        public static int backtrackSensitivity = 100;
+
+    @Property(type = PropertyType.SWITCH, name = "Ping Spoofer", category = "Modules", description = "Increases your ping by a configurable offset.")
+    public static boolean pingSpooferEnabled = false;
+
+        @Property(type = PropertyType.SLIDER, name = "Delay", category = "Ping Spoofer", description = "The offset (milleseconds) to increase your own ping by.", min = 5, max = 500, increment = 5)
+        public static int pingSpooferDelayMs = 50;
 
     @Property(type = PropertyType.SWITCH, name = "Anti Bot", category = "Modules", description = "Tells combat modules to ignore bots.")
     public static boolean antiBotEnabled = true;
@@ -92,6 +109,9 @@ public class ModConfig extends Vigilant {
         @Property(type = PropertyType.SLIDER, name = "RMB: Max CPS", category = "Autoclicker", min = 8, max = 30)
         public static int rightAutoClickerMaxCps = 22;
 
+        @Property(type = PropertyType.SWITCH, name = "RMB: Placing Blocks Only", category = "Autoclicker", description = "Only clicks for placing blocks.")
+        public static boolean rightAutoClickerPlacingBlocksOnly = true;
+
     @Property(type = PropertyType.SWITCH, name = "Left Autoclicker", category = "Modules", description = "Swings when a player is in front of you.")
     public static boolean leftAutoclickerEnabled = false;
 
@@ -146,6 +166,8 @@ public class ModConfig extends Vigilant {
         @Property(type = PropertyType.PERCENT_SLIDER, name = "Shark ESP: Low Health Threshold", category = "ESP")
         public static float sharkEspLowHealthThreshold = 0.5f;
 
+    @Property(type = PropertyType.SWITCH, name = "Rod Recast", category = "Modules", description = "Immediately recasts the fishing rod once reeled in")
+    public static boolean rodRecastEnabled = false;
 
     private ModConfig() {
         super(new File("./config/" + Main.MODID + ".toml"), "Slant Config");
@@ -174,9 +196,17 @@ public class ModConfig extends Vigilant {
         EnhancedAimingModule.setBlendFactor(blendFactor);
         EnhancedAimingModule.setAimStrength(aimStrength);
 
+        Backtrack.setEnabled(backtrackEnabled);
+        Backtrack.setDelay(backtrackDelayMs);
+        Backtrack.setSensitivity(backtrackSensitivity);
+
+        PingSpoofer.setEnabled(pingSpooferEnabled);
+        PingSpoofer.setDelay(pingSpooferDelayMs);
+
         RightAutoclicker.setEnabled(rightAutoclickerEnabled);
         RightAutoclicker.setMinCPS(rightAutoClickerMinCps);
         RightAutoclicker.setMaxCPS(rightAutoClickerMaxCps);
+        RightAutoclicker.setPlacingBlocksOnly(rightAutoClickerPlacingBlocksOnly);
 
         LeftAutoclicker.setEnabled(leftAutoclickerEnabled);
         LeftAutoclicker.setActivationRadius(leftAutoclickerActivationRadius);
@@ -206,6 +236,8 @@ public class ModConfig extends Vigilant {
         SharkEsp.setEnabled(sharkEspEnabled);
         SharkEsp.setActivationRadius(sharkEspActivationRadius);
         SharkEsp.setLowHealthThreshold(sharkEspLowHealthThreshold);
+
+        RodRecast.setEnabled(rodRecastEnabled);
     }
 
     public void setupConfigCallbacks() {
@@ -216,16 +248,20 @@ public class ModConfig extends Vigilant {
         registerListener("autoToolEnabled", AutoTool::setEnabled);
         registerListener("aimlockEnabled", Aimlock::setEnabled);
         registerListener("rightAutoclickerEnabled", RightAutoclicker::setEnabled);
+        registerListener("rightAutoClickerPlacingBlocksOnly", RightAutoclicker::setPlacingBlocksOnly);
+
         registerListener("leftAutoclickerEnabled", LeftAutoclicker::setEnabled);
         registerListener("autoJumpResetEnabled", AutoJumpReset::setEnabled);
         registerListener("noJumpDelayEnabled", NoJumpDelay::setEnabled);
         registerListener("noHitDelayEnabled", NoHitDelay::setEnabled);
         registerListener("noMiningDelayEnabled", NoMiningDelay::setEnabled);
-        registerListener("pointerEnabled", Pointer::setEnabled);
         registerListener("bedEspEnabled", BedEsp::setEnabled);
         registerListener("invisEspEnabled", InvisEsp::setEnabled);
         registerListener("sharkEspEnabled", SharkEsp::setEnabled);
+        registerListener("pointerEnabled", Pointer::setEnabled);
         registerListener("safewalkEnabled", Safewalk::setEnabled);
+        registerListener("backtrackEnabled", Backtrack::setEnabled);
+        registerListener("pingSpooferEnabled", PingSpoofer::setEnabled);
 
         registerListener("autoWeaponSwapOnSwing", AutoWeapon::setSwapOnSwing);
         registerListener("autoToolOnSneakOnly", AutoTool::setOnSneakOnly);
@@ -246,6 +282,10 @@ public class ModConfig extends Vigilant {
         registerListener("aimlockFov", Aimlock::setFov);
         registerListener("aimlockActivationRadius", Aimlock::setActivationRadius);
 
+        registerListener("pingSpooferDelayMs", PingSpoofer::setDelay);
+        registerListener("backtrackDelayMs", Backtrack::setDelay);
+        registerListener("backtrackSensitivity", Backtrack::setSensitivity);
+
         registerListener("aimStrength", EnhancedAimingModule::setAimStrength);
         registerListener("minTargetAngularSize", EnhancedAimingModule::setMinTargetAngularSize);
         registerListener("blendFactor", EnhancedAimingModule::setBlendFactor);
@@ -257,6 +297,7 @@ public class ModConfig extends Vigilant {
         registerListener("bedEspActivationRadiusBlocks", BedEsp::setActivationRadiusBlocks);
         registerListener("sharkEspLowHealthThreshold", SharkEsp::setLowHealthThreshold);
         registerListener("safewalkEdgeDistance", Safewalk::setEdgeDistance);
+        registerListener("rodRecastEnabled", RodRecast::setEnabled);
     }
 
     private static void openConfigGui() {

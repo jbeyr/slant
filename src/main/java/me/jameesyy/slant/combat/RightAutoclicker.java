@@ -25,6 +25,7 @@ public class RightAutoclicker {
     private static long clickDelay = 0;
 
     private static boolean enabled;
+    private static boolean placingBlocksOnly;
     private static int minCPS;
     private static int maxCPS;
 
@@ -78,7 +79,7 @@ public class RightAutoclicker {
                 && ActionConflictResolver.isClickAllowed()
                 && Mouse.isButtonDown(1)
                 && hasCooldownExpired()
-                && isHoldingPlaceableBlock()
+                && (!placingBlocksOnly || isHoldingPlaceableBlock())
                 && !isHoldingInteractableBlock();
     }
 
@@ -110,6 +111,12 @@ public class RightAutoclicker {
         long minDelay = (1000 / maxCPS);
         long maxDelay = (1000 / minCPS);
         return minDelay + (long) (Math.random() * (maxDelay - minDelay + 1));
+    }
+
+    public static void setPlacingBlocksOnly(boolean b) {
+        RightAutoclicker.placingBlocksOnly = b;
+        ModConfig.rightAutoClickerPlacingBlocksOnly = b;
+        Reporter.reportSet("RMB Autoclicker", "Placing Blocks Only", b);
     }
 
     @SubscribeEvent
