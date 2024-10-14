@@ -67,25 +67,3 @@ public class PingSpoofer {
         Reporter.reportToggled("Ping Spoofer", b);
     }
 }
-
-
-/*
-
-package me.jameesyy.slant.network;
-
-import net.minecraft.network.INetHandler;
-import net.minecraft.network.Packet;
-import net.minecraft.network.play.server.S0CPacketSpawnPlayer;
-import net.minecraft.network.play.server.S3BPacketScoreboardObjective;
-import net.minecraft.network.play.server.S3EPacketTeams;
-
-import static me.jameesyy.slant.network.PacketManager.inboundPacketsQueue;
-import static me.jameesyy.slant.network.PacketManager.mc;
-
-public class PingChanger {
-
-
-}
-
-
-*/

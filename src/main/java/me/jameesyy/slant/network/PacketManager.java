@@ -26,7 +26,6 @@ public class PacketManager implements Targeter.TargetChangeListener {
 
     private static EntityPlayer target;
     private static AxisAlignedBB targetPos;
-    private static AxisAlignedBB lastTargetPos;
 
     public static EntityPlayer getTarget() {
         return target;
@@ -36,12 +35,7 @@ public class PacketManager implements Targeter.TargetChangeListener {
         return targetPos;
     }
 
-    public static AxisAlignedBB getLastTargetPos() {
-        return lastTargetPos;
-    }
-
     public static void setTargetPos(AxisAlignedBB newpos) {
-        PacketManager.lastTargetPos = targetPos;
         PacketManager.targetPos = newpos;
     }
 
@@ -123,7 +117,7 @@ public class PacketManager implements Targeter.TargetChangeListener {
 
     public static boolean IsPlayClientPacket(Packet<? extends INetHandler> packet) {
 
-        //return packet instanceof INetHandlerPlayClient;
+        // return packet instanceof INetHandlerPlayClient;
 
         return packet instanceof S0EPacketSpawnObject || packet instanceof S11PacketSpawnExperienceOrb || packet instanceof S2CPacketSpawnGlobalEntity || packet instanceof
                 S0FPacketSpawnMob || packet instanceof S3BPacketScoreboardObjective || packet instanceof S10PacketSpawnPainting || packet instanceof S0CPacketSpawnPlayer || packet instanceof S0BPacketAnimation || packet instanceof
@@ -142,8 +136,10 @@ public class PacketManager implements Targeter.TargetChangeListener {
     @SubscribeEvent
     public void r1(RenderWorldLastEvent e) {
         if (LagUtils.isIngame()) {
-            if (Backtrack.isEnabled() && target != null && targetPos != null && lastTargetPos != null) {
-                LagUtils.drawTrueBacktrackHitbox(lastTargetPos, targetPos, e.partialTicks, .5f, .5f, 1f, 0.5f);
+
+            System.out.println("target: " + (target != null ? target.getName() : "null") + "targetpos: " + (targetPos != null ? targetPos : "n/a"));
+            if (Backtrack.isEnabled() && target != null && targetPos != null) {
+                LagUtils.drawTrueBacktrackHitbox(targetPos, targetPos, e.partialTicks, .5f, .5f, 1f, 0.5f);
             }
         }
     }
