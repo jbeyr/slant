@@ -35,20 +35,32 @@ public class Renderer {
         return new Vec3(ix, iy, iz);
     }
 
+    public static Vec3 interpolatedPos(Vec3 now, Vec3 prev, double partialTicks) {
+        double ix = prev.xCoord + (now.xCoord - prev.xCoord) * partialTicks;
+        double iy = prev.yCoord + (now.yCoord - prev.yCoord) * partialTicks;
+        double iz = prev.zCoord + (now.zCoord - prev.zCoord) * partialTicks;
+        return new Vec3(ix, iy, iz);
+    }
+
     public static Vec3 interpolatedDifferenceFromEntities(Entity src, Entity dst, double partialTicks) {
         Vec3 sv = interpolatedPos(src, partialTicks);
         Vec3 ov = interpolatedPos(dst, partialTicks);
         return ov.subtract(sv);
     }
 
-    public static Vec3 interpolatedDifferenceFromMe(Entity dst, double partialTicks) {
+    public static Vec3 interpolatedDifferenceFromMeAndVector(Vec3 dst, double partialTicks) {
+        EntityPlayer me = Minecraft.getMinecraft().thePlayer;
+        return interpolatedPos(me.getPositionVector(), dst, partialTicks);
+    }
+
+    public static Vec3 interpolatedDifferenceFromMeAndEntity(Entity dst, double partialTicks) {
         EntityPlayer me = Minecraft.getMinecraft().thePlayer;
         return interpolatedDifferenceFromEntities(me, dst, partialTicks);
     }
 
     public static <T extends Entity> void drawEntityESP(T en, float partialTicks, float red, float green, float blue, float opacity) {
 
-        Vec3 dv = interpolatedDifferenceFromMe(en, partialTicks);
+        Vec3 dv = interpolatedDifferenceFromMeAndEntity(en, partialTicks);
 
         GlStateManager.pushMatrix();
         GlStateManager.translate(dv.xCoord, dv.yCoord, dv.zCoord);
@@ -67,7 +79,7 @@ public class Renderer {
 
     public static <T extends Entity> void drawEntityESP(T en, float partialTicks, float red, float green, float blue, float opacity, float fillBoxMultiplier) {
 
-        Vec3 dv = interpolatedDifferenceFromMe(en, partialTicks);
+        Vec3 dv = interpolatedDifferenceFromMeAndEntity(en, partialTicks);
 
         GlStateManager.pushMatrix();
         GlStateManager.translate(dv.xCoord, dv.yCoord, dv.zCoord);
@@ -84,7 +96,7 @@ public class Renderer {
         GlStateManager.popMatrix();
     }
 
-    private static void drawFilledBox(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
+    static void drawFilledBox(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
         GL11.glBegin(GL11.GL_QUADS);
         // front
         GL11.glVertex3d(minX, minY, minZ);
@@ -124,7 +136,7 @@ public class Renderer {
         GL11.glEnd();
     }
 
-    private static void drawOutlineBox(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
+    static void drawOutlineBox(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
         GL11.glBegin(GL11.GL_LINE_STRIP);
         GL11.glVertex3d(minX, minY, minZ);
         GL11.glVertex3d(maxX, minY, minZ);

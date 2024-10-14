@@ -1,10 +1,17 @@
 package me.jameesyy.slant.mixins;
 
 import me.jameesyy.slant.Main;
+import me.jameesyy.slant.Targeter;
 import me.jameesyy.slant.movement.AutoJumpReset;
+import me.jameesyy.slant.util.AntiBot;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.client.C02PacketUseEntity;
 import net.minecraft.network.play.server.S12PacketEntityVelocity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -36,7 +43,7 @@ public class MixinNetHandlerPlayClient {
 
             // release the jump key
             Timer timer = new Timer(20, (actionevent) -> {
-                if(!isheld) KeyBinding.setKeyBindState(Main.getMc().gameSettings.keyBindJump.getKeyCode(), false);
+                if (!isheld) KeyBinding.setKeyBindState(Main.getMc().gameSettings.keyBindJump.getKeyCode(), false);
             });
             timer.setRepeats(false);
             timer.start();

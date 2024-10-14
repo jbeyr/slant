@@ -4,10 +4,8 @@ import me.jameesyy.slant.combat.Aimlock;
 import me.jameesyy.slant.combat.LeftAutoclicker;
 import me.jameesyy.slant.combat.RightAutoclicker;
 import me.jameesyy.slant.movement.Safewalk;
-import me.jameesyy.slant.render.BedEsp;
-import me.jameesyy.slant.render.InvisEsp;
-import me.jameesyy.slant.render.Pointer;
-import me.jameesyy.slant.render.SharkEsp;
+import me.jameesyy.slant.network.PacketManager;
+import me.jameesyy.slant.render.*;
 import me.jameesyy.slant.util.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
@@ -17,6 +15,8 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import org.lwjgl.input.Keyboard;
+
+import java.lang.annotation.Target;
 
 @Mod(modid = Main.MODID, version = Main.VERSION)
 public class Main {
@@ -87,6 +87,12 @@ public class Main {
         ModConfig.getInstance().preload();
         ModConfig.getInstance().setupConfigCallbacks();
         MinecraftForge.EVENT_BUS.register(ModConfig.getInstance());
+
+        PacketManager packetManager = new PacketManager();
+        Targeter.addListener(packetManager);
+        MinecraftForge.EVENT_BUS.register(packetManager);
+
+        MinecraftForge.EVENT_BUS.register(new Targeter());
         MinecraftForge.EVENT_BUS.register(new Reporter());
         MinecraftForge.EVENT_BUS.register(new AntiBot());
         MinecraftForge.EVENT_BUS.register(new LeftAutoclicker());
@@ -99,7 +105,8 @@ public class Main {
         MinecraftForge.EVENT_BUS.register(new NbtPrinter());
         MinecraftForge.EVENT_BUS.register(new AutoGhead());
         MinecraftForge.EVENT_BUS.register(new Safewalk());
-        MinecraftForge.EVENT_BUS.register(new AutoTool());
+        MinecraftForge.EVENT_BUS.register(new RodRecast());
+        MinecraftForge.EVENT_BUS.register(new FireballPointer());
         ModConfig.getInstance().setModulesToConfig();
     }
 }

@@ -23,14 +23,13 @@ public class Pointer {
     private static EntityPlayer targetPlayer = null;
     private static long fadeStartTime = 0;
     private static boolean isFadingIn = false;
-    private static float activationRadiusSqr = 25f;
+    private static float activationRadiusSqr;
     private static boolean enabled;
 
     public static void setActivationRadius(float radius) {
         activationRadiusSqr = radius * radius;
         ModConfig.pointerActivationRadius = radius;
         Reporter.reportSet("Pointer", "Activation Radius", radius);
-
     }
 
     public static boolean isEnabled() {
