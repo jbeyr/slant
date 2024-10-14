@@ -5,6 +5,9 @@
 
 # Slant
 
+
+![](https://tokei.rs/b1/github/jameesyy/slant)
+
 Slant is a hacked client for Minecraft 1.8.9 built with closet modules and QoL features.
 </div>
 
