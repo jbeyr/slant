@@ -71,7 +71,7 @@ public class FireballPointer {
         GlStateManager.rotate((float) Math.toDegrees(Math.atan2(centerY - pointerY, pointerX - centerX)), 0, 0, 1);
         GlStateManager.scale(1, 1, 1);
 
-        int color = distance <= DANGER_DISTANCE ? 0xFFFF0000 : 0xFFFFFFFF; // Red if close, white otherwise
+        int color = distance <= DANGER_DISTANCE ? 0xFFFF0000 : 0xFFFFFFFF; // red if close; white otherwise
         drawArrowhead(color);
 
         GlStateManager.popMatrix();
