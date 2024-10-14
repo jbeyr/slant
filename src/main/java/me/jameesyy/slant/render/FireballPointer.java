@@ -17,9 +17,9 @@ import java.util.List;
 
 public class FireballPointer {
 
+    // TODO make configurable
     private static final double DANGER_DISTANCE = 5.0;
-    private static final int POINTER_DISTANCE = 50; // Distance from crosshair to place the pointer
-
+    private static final int POINTER_DISTANCE = 50;
     @SubscribeEvent
     public void onRenderGameOverlay(RenderGameOverlayEvent.Post event) {
         if (event.type != RenderGameOverlayEvent.ElementType.CROSSHAIRS) {
@@ -45,10 +45,10 @@ public class FireballPointer {
         double distance = playerPos.distanceTo(fireballPos);
         String distanceText = String.format("%.1f", distance);
 
-        // Transform the direction vector based on player's rotation
+        // transform direction vector based on player's rotation
         Vec3 transformedDir = transformDirection(direction, player);
 
-        // Calculate screen position
+        // screen position
         int centerX = screenWidth / 2;
         int centerY = screenHeight / 2;
 
@@ -57,18 +57,15 @@ public class FireballPointer {
 
         int pointerX, pointerY;
 
-        if (Math.abs(screenX) < 0.1 && Math.abs(screenY) < 0.1) {
-            // Fireball is near the crosshair, render pointer at fireball position
+        if (Math.abs(screenX) < 0.1 && Math.abs(screenY) < 0.1) { // fireball near crosshair; render pointer at fireball pos
             pointerX = centerX + (int)(screenX * centerX);
             pointerY = centerY - (int)(screenY * centerY);
-        } else {
-            // Calculate pointer position around the crosshair
+        } else { // render pointer position around the crosshair; FIXME direction relative to player
             double angle = Math.atan2(screenY, screenX);
             pointerX = centerX + (int)(Math.cos(angle) * POINTER_DISTANCE);
             pointerY = centerY - (int)(Math.sin(angle) * POINTER_DISTANCE);
         }
 
-        // Render arrowhead
         GlStateManager.pushMatrix();
         GlStateManager.translate(pointerX, pointerY, 0);
         GlStateManager.rotate((float) Math.toDegrees(Math.atan2(centerY - pointerY, pointerX - centerX)), 0, 0, 1);
@@ -79,7 +76,6 @@ public class FireballPointer {
 
         GlStateManager.popMatrix();
 
-        // Render distance text
         FontRenderer fontRenderer = mc.fontRendererObj;
         fontRenderer.drawStringWithShadow(distanceText, pointerX + 5, pointerY - 4, color);
     }
@@ -116,7 +112,6 @@ public class FireballPointer {
         WorldRenderer worldrenderer = tessellator.getWorldRenderer();
         worldrenderer.begin(GL11.GL_TRIANGLES, DefaultVertexFormats.POSITION_COLOR);
 
-        // Draw the triangle
         worldrenderer.pos(0, -5, 0).color((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, (color >> 24) & 0xFF).endVertex();
         worldrenderer.pos(-5, 5, 0).color((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, (color >> 24) & 0xFF).endVertex();
         worldrenderer.pos(5, 5, 0).color((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, (color >> 24) & 0xFF).endVertex();
