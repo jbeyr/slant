@@ -16,8 +16,6 @@ import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import org.lwjgl.input.Keyboard;
 
-import java.lang.annotation.Target;
-
 @Mod(modid = Main.MODID, version = Main.VERSION)
 public class Main {
     public static final String MODID = "slant";
@@ -31,6 +29,7 @@ public class Main {
     private static KeyBinding safewalkKey;
     private static KeyBinding openConfigKey;
     private static KeyBinding printNbtKey;
+    private static KeyBinding triggerbotKey;
 
     public static Minecraft getMc() {
         return mc;
@@ -64,6 +63,10 @@ public class Main {
         return printNbtKey;
     }
 
+    public static KeyBinding getTriggerBotKey() {
+        return triggerbotKey;
+    }
+
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
@@ -71,14 +74,16 @@ public class Main {
         aimlockKey = new KeyBinding("Aimlock", Keyboard.KEY_NONE, "key.categories.gameplay");
         lmbAutoclickKey = new KeyBinding("LMB Autoclicker", Keyboard.KEY_NONE, "key.categories.gameplay");
         rmbAutoclickKey = new KeyBinding("RMB Autoclicker", Keyboard.KEY_NONE, "key.categories.gameplay");
+        triggerbotKey = new KeyBinding("Trigger Bot", Keyboard.KEY_NONE, "key.categories.gameplay");
         autoJumpResetKey = new KeyBinding("Auto Jump Reset", Keyboard.KEY_NONE, "key.categories.gameplay");
         safewalkKey = new KeyBinding("Safewalk", Keyboard.KEY_NONE, "key.categories.gameplay");
         openConfigKey = new KeyBinding("Open Slant Config", Keyboard.KEY_NONE, "key.categories.gameplay");
         printNbtKey = new KeyBinding("Print NBT of Held Item", Keyboard.KEY_NONE, "key.categories.gameplay");
 
+        ClientRegistry.registerKeyBinding(aimlockKey);
         ClientRegistry.registerKeyBinding(lmbAutoclickKey);
         ClientRegistry.registerKeyBinding(rmbAutoclickKey);
-        ClientRegistry.registerKeyBinding(aimlockKey);
+        ClientRegistry.registerKeyBinding(triggerbotKey);
         ClientRegistry.registerKeyBinding(autoJumpResetKey);
         ClientRegistry.registerKeyBinding(safewalkKey);
         ClientRegistry.registerKeyBinding(openConfigKey);
@@ -107,6 +112,9 @@ public class Main {
         MinecraftForge.EVENT_BUS.register(new Safewalk());
         MinecraftForge.EVENT_BUS.register(new RodRecast());
         MinecraftForge.EVENT_BUS.register(new FireballPointer());
+        MinecraftForge.EVENT_BUS.register(new QuickMathsSolver());
+        MinecraftForge.EVENT_BUS.register(new ChestEsp());
+        MinecraftForge.EVENT_BUS.register(new Tracers());
         ModConfig.getInstance().setModulesToConfig();
     }
 }

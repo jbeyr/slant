@@ -1,17 +1,10 @@
 package me.jameesyy.slant.mixins;
 
 import me.jameesyy.slant.Main;
-import me.jameesyy.slant.Targeter;
 import me.jameesyy.slant.movement.AutoJumpReset;
-import me.jameesyy.slant.util.AntiBot;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.network.Packet;
-import net.minecraft.network.play.client.C02PacketUseEntity;
 import net.minecraft.network.play.server.S12PacketEntityVelocity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -27,16 +20,17 @@ public class MixinNetHandlerPlayClient {
     public MixinNetHandlerPlayClient() {
     }
 
-    // region auto jump reset
     @Inject(method = "handleEntityVelocity", at = {@At("HEAD")})
     public void handleEntityVelocity(S12PacketEntityVelocity velocityPacket, CallbackInfo ci) {
-
         if (!AutoJumpReset.isEnabled()) return;
         Minecraft mc = Main.getMc();
         if (velocityPacket.getEntityID() == mc.thePlayer.getEntityId()) {
             if (mc.thePlayer == null || !mc.thePlayer.isEntityAlive()) return;
             if (mc.currentScreen != null) return;
             if (!AutoJumpReset.shouldActivate()) return;
+
+            // prevent jumping after taking fall damage
+            if (velocityPacket.getMotionY() <= 0) return;
 
             boolean isheld = Minecraft.getMinecraft().gameSettings.keyBindJump.isKeyDown();
             AutoJumpReset.legitJump();
@@ -49,6 +43,4 @@ public class MixinNetHandlerPlayClient {
             timer.start();
         }
     }
-
-    // endregion
 }

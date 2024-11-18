@@ -19,11 +19,12 @@ public class SharkEsp {
     private static float lowHealthThreshold = 0.7f;
     private static float activationRadiusSqr = 50 * 50;
     private static boolean enabled;
+    private static boolean render3dHitboxes;
 
     public static void setActivationRadius(float radius) {
         activationRadiusSqr = radius * radius;
         ModConfig.sharkEspActivationRadius = radius;
-        Reporter.reportSet("Shark ESP", "Activation Radius", radius);
+        Reporter.queueSetMsg("Shark ESP", "Activation Radius", radius);
     }
 
     public static float getLowHealthThreshold() {
@@ -33,7 +34,7 @@ public class SharkEsp {
     public static void setLowHealthThreshold(float ratio) {
         lowHealthThreshold = ratio;
         ModConfig.sharkEspLowHealthThreshold = ratio;
-        Reporter.reportSet("Shark ESP", "Low Health Threshold", ratio);
+        Reporter.queueSetMsg("Shark ESP", "Low Health Threshold", ratio);
     }
 
     public static float getActivationRadiusSqr() {
@@ -47,7 +48,17 @@ public class SharkEsp {
     public static void setEnabled(boolean b) {
         enabled = b;
         ModConfig.sharkEspEnabled = b;
-        Reporter.reportToggled("Shark ESP", b);
+        Reporter.queueReportMsg("Shark ESP", b);
+    }
+
+    public static boolean isRender3dHitboxes() {
+        return render3dHitboxes;
+    }
+
+    public static void setRender3dHitboxes(boolean b) {
+        render3dHitboxes = b;
+        ModConfig.sharkEspRender3dHitboxes = b;
+        Reporter.queueReportMsg("Shark ESP 3D Hitboxes", b);
     }
 
     @SubscribeEvent
@@ -70,8 +81,6 @@ public class SharkEsp {
 
         if (nearbyPlayers.isEmpty()) return;
 
-        Renderer.setupRendering();
-
         for (EntityPlayer player : nearbyPlayers) {
             if (!player.isEntityAlive()) continue;
 
@@ -80,10 +89,13 @@ public class SharkEsp {
 
             float[] color = calculateColor(healthRatio);
             float opacity = calculateOpacity(healthRatio);
-            Renderer.drawEntityESP(player, partialTicks, color[0], color[1], color[2], opacity);
-        }
 
-        Renderer.resetRendering();
+            if (render3dHitboxes) {
+                Renderer.draw3dEntityESP(player, partialTicks, color[0], color[1], color[2], opacity);
+            } else {
+//                Renderer.draw2dEntityEsp(player, partialTicks, color[0], color[1], color[2], opacity);
+            }
+        }
     }
 
     private float[] calculateColor(float healthRatio) {

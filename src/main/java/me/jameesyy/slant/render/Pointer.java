@@ -29,7 +29,7 @@ public class Pointer {
     public static void setActivationRadius(float radius) {
         activationRadiusSqr = radius * radius;
         ModConfig.pointerActivationRadius = radius;
-        Reporter.reportSet("Pointer", "Activation Radius", radius);
+        Reporter.queueSetMsg("Pointer", "Activation Radius", radius);
     }
 
     public static boolean isEnabled() {
@@ -39,7 +39,7 @@ public class Pointer {
     public static void setEnabled(boolean b) {
         enabled = b;
         ModConfig.pointerEnabled = b;
-        Reporter.reportToggled("Pointer", b);
+        Reporter.queueReportMsg("Pointer", b);
     }
 
     public static float getActivationRadiusSqr() {

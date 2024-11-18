@@ -15,6 +15,6 @@ public class NoMiningDelay {
     public static void setEnabled(boolean b) {
         enabled = b;
         ModConfig.noMiningDelayEnabled = b;
-        Reporter.reportToggled("No Mining Delay", b);
+        Reporter.queueReportMsg("No Mining Delay", b);
     }
 }

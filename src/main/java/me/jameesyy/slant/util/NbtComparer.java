@@ -14,7 +14,7 @@ import java.util.Set;
 public class NbtComparer {
 
     private static final Set<HealingItem> itemCooldowns = new HashSet<>();
-    private static final String FIRST_AID_EGG_JSON_PARTIAL = "First-Aid Egg";
+    private static final String FIRST_AID_EGG_JSON_PARTIAL = "§cFirst-Aid Egg";
     private static final String FRACTURED_SOUL_JSON_PARTIAL = "Fractured Soul";
     private static final String RAGE_POTATO_JSON_PARTIAL = "Rage Potato";
     private static final String GOLDEN_HEAD_JSON_PARTIAL = "eyJ0aW1lc3RhbXAiOjE0ODUwMjM0NDEyNzAsInByb2ZpbGVJZCI6ImRhNDk4YWM0ZTkzNzRlNWNiNjEyN2IzODA4NTU3OTgzIiwicHJvZmlsZU5hbWUiOiJOaXRyb2hvbGljXzIiLCJzaWduYXR1cmVSZXF1aXJlZCI6dHJ1ZSwidGV4dHVyZXMiOnsiU0tJTiI6eyJ1cmwiOiJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2Y5MzdlMWM0NWJiOGRhMjliMmM1NjRkZDlhN2RhNzgwZGQyZmU1NDQ2OGE1ZGZiNDExM2I0ZmY2NThmMDQzZTEifX19";

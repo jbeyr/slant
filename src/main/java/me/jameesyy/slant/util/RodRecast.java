@@ -35,8 +35,7 @@ public class RodRecast {
     public static void setEnabled(boolean b) {
         enabled = b;
         ModConfig.rodRecastEnabled = b;
-        Reporter.reportToggled("Rod Recast", b);
-        System.out.println("RodRecast: Enabled set to " + b);
+        Reporter.queueReportMsg("Rod Recast", b);
     }
 
     @SubscribeEvent
@@ -51,13 +50,12 @@ public class RodRecast {
         boolean isHoldingRod = player.getHeldItem() != null && player.getHeldItem().getItem() instanceof ItemFishingRod;
 
         if (isRightClickDown && !wasRightClickDown && isHoldingRod) {
-            // Right-click just pressed while holding a fishing rod
             if (!rodWasCast) {
-                // Rod wasn't cast before, so this is the initial cast
+                // wasn't cast before, so this is the initial cast
                 rodWasCast = true;
                 System.out.println("RodRecast: Rod cast");
             } else {
-                // Rod was already cast, so this is reeling in
+                // already cast, so reel in
                 shouldRecast = true;
                 ticksToWait = 5; // Wait for 2 ticks before recasting
                 System.out.println("RodRecast: Rod reeled in, will recast in 2 ticks");

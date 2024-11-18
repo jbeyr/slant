@@ -1,6 +1,5 @@
 package me.jameesyy.slant.movement;
 
-import gg.essential.universal.ChatColor;
 import me.jameesyy.slant.ActionConflictResolver;
 import me.jameesyy.slant.Main;
 import me.jameesyy.slant.ModConfig;
@@ -22,7 +21,7 @@ public class Safewalk {
     /**
      * Players bridge at a pitch above this value.
      */
-    private static final float BRIDGING_PITCH = 73f;
+    private static final float BRIDGING_PITCH = 68f;
     private static final Minecraft mc = Minecraft.getMinecraft();
     private static boolean enabled;
     private static float edgeDistance;
@@ -36,7 +35,11 @@ public class Safewalk {
     public static void setEnabled(boolean b) {
         Safewalk.enabled = b;
         ModConfig.safewalkEnabled = b;
-        Reporter.reportToggled("Safewalk", b);
+        Reporter.queueReportMsg("Safewalk", b);
+
+        if(b) return;
+        KeyBinding sneakKey = mc.gameSettings.keyBindSneak;
+        KeyBinding.setKeyBindState(sneakKey.getKeyCode(), false);
     }
 
     public static float getEdgeDistance() {
@@ -46,7 +49,7 @@ public class Safewalk {
     public static void setEdgeDistance(float f) {
         Safewalk.edgeDistance = f;
         ModConfig.safewalkEdgeDistance = f;
-        Reporter.reportSet("Safewalk", "Edge Distance", f);
+        Reporter.queueSetMsg("Safewalk", "Edge Distance", f);
     }
 
     public static void setLastMovementInput(MovementInput lastMovementInput) {
@@ -56,21 +59,7 @@ public class Safewalk {
     public static void setDisableIfNotBridgingPitch(boolean b) {
         Safewalk.disableIfNotBridgingPitch = b;
         ModConfig.safewalkDisableIfNotBridgingPitch = b;
-        Reporter.reportSet("Safewalk", "Disable If Not Bridging Pitch", b);
-    }
-
-    @SubscribeEvent
-    public void onClientTick(ClientTickEvent event) {
-        if (event.phase != TickEvent.Phase.START) return;
-        if (mc.thePlayer == null || mc.theWorld == null) return;
-
-        if (Main.getSafewalkKey().isPressed()) {
-            setEnabled(!enabled);
-            if(!enabled) {
-                KeyBinding sneakKey = mc.gameSettings.keyBindSneak;
-                KeyBinding.setKeyBindState(sneakKey.getKeyCode(), false);
-            }
-        }
+        Reporter.queueSetMsg("Safewalk", "Disable If Not Bridging Pitch", b);
     }
 
     @SubscribeEvent
@@ -142,20 +131,11 @@ public class Safewalk {
                     Math.abs(zOffset + xOffset - 1) <= laneWidth;
         }
 
-        m.appendSibling(new ChatComponentText(ChatColor.WHITE + "orient: " + (isXOriented ? ChatColor.AQUA + "X " : ChatColor.BLUE + "Z ")));
-        m.appendSibling(new ChatComponentText((isInCenterLane ? ChatColor.GREEN : ChatColor.RED) + "isInCenterLane "));
-
-        BlockPos currentPos = new BlockPos(playerX, playerY - 1, playerZ);
-        boolean currentIsSolid = !player.worldObj.isAirBlock(currentPos);
-
         // check if position behind the player is still a solid block
         double behindX = playerX - xMovement * edgeDistance;
         double behindZ = playerZ - zMovement * edgeDistance;
         BlockPos behindPos = new BlockPos(behindX, playerY - 1, behindZ);
         boolean behindIsSolid = !player.worldObj.isAirBlock(behindPos);
-        m.appendSibling(new ChatComponentText((currentIsSolid ? ChatColor.GREEN : ChatColor.RED) + "currentIsSolid "));
-        m.appendSibling(new ChatComponentText((behindIsSolid ? ChatColor.GREEN : ChatColor.RED) + "behindIsSolid "));
-        m.appendSibling(new ChatComponentText((isAirLayingInWait ? ChatColor.GREEN : ChatColor.RED) + "isAirLayingInWait "));
 
         if (isStrictlyBackwards && isDiagonalYaw) { // diagonal bridging
 
@@ -171,5 +151,20 @@ public class Safewalk {
         }
 
         Minecraft.getMinecraft().ingameGUI.setRecordPlaying(m, true);
+    }
+
+    @SubscribeEvent
+    public void onClientTick(ClientTickEvent event) {
+
+        if (event.phase != TickEvent.Phase.START) return;
+        if (mc.thePlayer == null || mc.theWorld == null) return;
+
+        if (Main.getSafewalkKey().isPressed()) {
+            setEnabled(!enabled);
+        }
+
+        if (enabled && mc.gameSettings.keyBindForward.isKeyDown()) {
+            setEnabled(false);
+        }
     }
 }

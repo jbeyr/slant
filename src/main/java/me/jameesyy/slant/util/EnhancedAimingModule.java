@@ -11,8 +11,7 @@ public class EnhancedAimingModule {
 
     public static void setAimStrength(float strength) {
         AIM_STRENGTH = MathHelper.clamp_float(strength, 0.0f, 10.0f);
-        ModConfig.aimStrength = strength;
-        Reporter.reportSet("Aimlock", "Aim Strength", strength);
+        Reporter.queueSetMsg("Aimlock", "Aim Strength", strength);
     }
 
     public static float[] mapRotation(float rawYawDelta, float rawPitchDelta, Entity player, Entity target) {
@@ -91,12 +90,12 @@ public class EnhancedAimingModule {
     public static void setBlendFactor(float f) {
         BLEND_STRENGTH = f;
         ModConfig.blendFactor = f;
-        Reporter.reportSet("Aimlock", "Blend Strength", f);
+        Reporter.queueSetMsg("Aimlock", "Blend Strength", f);
     }
 
     public static void setMinTargetAngularSize(float f) {
         MIN_TARGET_ANGULAR_SIZE = f;
         ModConfig.minTargetAngularSize = f;
-        Reporter.reportSet("Aimlock", "Min Target Angular Size", f);
+        Reporter.queueSetMsg("Aimlock", "Min Target Angular Size", f);
     }
 }

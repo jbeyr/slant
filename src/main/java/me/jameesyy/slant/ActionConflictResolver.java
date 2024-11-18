@@ -2,6 +2,7 @@ package me.jameesyy.slant;
 
 import me.jameesyy.slant.util.AutoGhead;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.MovingObjectPosition;
 
 public class ActionConflictResolver {
 
@@ -24,7 +25,8 @@ public class ActionConflictResolver {
     }
 
     public static boolean isHotbarSelectedSlotChangeAllowed() {
-        return isActingOnPlayerBehalfAllowed() && !AutoGhead.isInProgress();
+        MovingObjectPosition mop = Minecraft.getMinecraft().objectMouseOver;
+        return isActingOnPlayerBehalfAllowed() && !AutoGhead.isInProgress() && mop.typeOfHit != MovingObjectPosition.MovingObjectType.BLOCK;
     }
 
     public static boolean isRotatingAllowed() {

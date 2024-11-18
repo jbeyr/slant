@@ -104,13 +104,18 @@ public class Reporter {
         }
     }
 
-    public static void reportToggled(String moduleName, boolean to) {
+    public static void queueReportMsg(String moduleName, boolean to) {
         IChatComponent cc = new ChatComponentText(ChatColor.ITALIC + "" + ChatColor.DARK_GRAY + "slant" + ChatColor.DARK_GRAY + " ⁄  " + ChatColor.RESET + moduleName + " " + (to ? ChatColor.GREEN + "ON" : ChatColor.RED + "OFF") + ChatColor.RESET);
         sendMessage(moduleName, "toggle", cc);
     }
 
-    public static void reportSet(String moduleName, String settingName, Object to) {
+    public static void queueSetMsg(String moduleName, String settingName, Object to) {
         IChatComponent cc = new ChatComponentText(ChatColor.ITALIC + "" + ChatColor.DARK_GRAY + "slant" + ChatColor.DARK_GRAY + " ⁄  " + ChatColor.RESET + moduleName + " " + ChatColor.DARK_AQUA + settingName + " " + ChatColor.AQUA + to.toString() + ChatColor.RESET);
         sendMessage(moduleName, settingName, cc);
+    }
+
+    public static void msg(String msg) {
+        IChatComponent cc = new ChatComponentText(ChatColor.ITALIC + "" + ChatColor.DARK_GRAY + "slant" + ChatColor.DARK_GRAY + " ⁄  " + ChatColor.RESET + msg);
+        Minecraft.getMinecraft().thePlayer.addChatMessage(cc);
     }
 }

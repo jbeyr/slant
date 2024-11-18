@@ -48,7 +48,7 @@ public class AutoTool {
     public static void setEnabled(boolean b) {
         enabled = b;
         ModConfig.autoToolEnabled = b;
-        Reporter.reportToggled("Auto Tool", b);
+        Reporter.queueReportMsg("Auto Tool", b);
     }
 
     public static int getBestToolSlot(net.minecraft.block.Block block) {
@@ -78,12 +78,12 @@ public class AutoTool {
     public static void setOnSneakOnly(boolean b) {
         AutoTool.onSneakOnly = b;
         ModConfig.autoToolOnSneakOnly = b;
-        Reporter.reportSet("Auto Tool", "Sneak Only", b);
+        Reporter.queueSetMsg("Auto Tool", "Sneak Only", b);
     }
 
     public static void setNearBedOnly(boolean b) {
         AutoTool.nearBedOnly = b;
         ModConfig.autoToolNearBedOnly = b;
-        Reporter.reportSet("Auto Tool", "Near Bed Only", b);
+        Reporter.queueSetMsg("Auto Tool", "Near Bed Only", b);
     }
 }

@@ -3,6 +3,7 @@ package me.jameesyy.slant.combat;
 import me.jameesyy.slant.ActionConflictResolver;
 import me.jameesyy.slant.Main;
 import me.jameesyy.slant.ModConfig;
+import me.jameesyy.slant.Targeter;
 import me.jameesyy.slant.render.Pointer;
 import me.jameesyy.slant.util.AntiBot;
 import me.jameesyy.slant.util.Reporter;
@@ -21,6 +22,8 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import org.lwjgl.input.Mouse;
 
+import java.util.Optional;
+
 public class LeftAutoclicker {
     private static final Minecraft mc = Minecraft.getMinecraft();
     private static long lastClickTime = 0;
@@ -31,10 +34,23 @@ public class LeftAutoclicker {
     private static int maxCPS;
 
     private static boolean enabled;
+    private static boolean respectHurtTicks;
+    private static boolean triggerIfNearFov;
+    private static boolean triggerIfMouseDown;
+
+    public static boolean isRespectHurtTicks() {
+        return respectHurtTicks;
+    }
+
+    public static void setRespectHurtTicks(boolean b) {
+        respectHurtTicks = b;
+        ModConfig.leftAutoclickerRespectHurtTicks = b;
+        Reporter.queueSetMsg("Left Autoclicker", "Respect Hurt Ticks", b);
+    }
 
     public static void setActivationRadius(float range) {
         LeftAutoclicker.rangeSqr = range * range;
-        Reporter.reportSet("LMB Autoclicker", "Activation Radius", range);
+        Reporter.queueSetMsg("LMB Autoclicker", "Activation Radius", range);
     }
 
     public static boolean isEnabled() {
@@ -44,7 +60,7 @@ public class LeftAutoclicker {
     public static void setEnabled(boolean b) {
         enabled = b;
         ModConfig.leftAutoclickerEnabled = b;
-        Reporter.reportToggled("LMB Autoclicker", b);
+        Reporter.queueReportMsg("LMB Autoclicker", b);
     }
 
     public static float getActivationRangeSqr() {
@@ -58,7 +74,7 @@ public class LeftAutoclicker {
     public static void setMaxCPS(int cps) {
         LeftAutoclicker.maxCPS = cps;
         ModConfig.leftAutoClickerMaxCps = cps;
-        Reporter.reportSet("LMB Autoclicker", "Max CPS", cps);
+        Reporter.queueSetMsg("LMB Autoclicker", "Max CPS", cps);
     }
 
     public static int getMinCPS() {
@@ -68,55 +84,56 @@ public class LeftAutoclicker {
     public static void setMinCPS(int cps) {
         LeftAutoclicker.minCPS = cps;
         ModConfig.leftAutoClickerMinCps = cps;
-        Reporter.reportSet("LMB Autoclicker", "Min CPS", cps);
+        Reporter.queueSetMsg("LMB Autoclicker", "Min CPS", cps);
     }
 
-    public static boolean isValidEntityInCrosshair() {
+    public static Optional<Entity> getValidEntityNearCrosshair() {
         EntityPlayer me = mc.thePlayer;
-        if (me == null) return false;
+        if (me == null) return Optional.empty();
 
         Vec3 lookVec = me.getLookVec();
         Vec3 eyePos = me.getPositionEyes(1.0F);
 
         double fov = Math.cos(Math.toRadians(45));
 
-        boolean foundValidTarget = false;
-        double closestDistanceSqr = rangeSqr;
 
-        for (Entity entity : mc.theWorld.loadedEntityList) {
-            if (!(entity instanceof EntityLivingBase) || entity == me) continue;
-            EntityLivingBase leb = (EntityLivingBase) entity;
-
-            Vec3 toEntity = leb.getPositionVector().addVector(0, leb.getEyeHeight() / 2, 0).subtract(eyePos);
-            double distance = toEntity.lengthVector();
-            double distSqr = distance * distance;
-
-            if (distSqr > rangeSqr) continue;
-
-            Vec3 toEntityNormalized = toEntity.normalize();
-            double dotProduct = lookVec.dotProduct(toEntityNormalized);
-            if (dotProduct <= fov) continue;
-
-            if (Pointer.getVisiblePart(me, leb) == null) continue;
-
-            foundValidTarget = true;
-            if (distSqr < closestDistanceSqr) {
-                closestDistanceSqr = distSqr;
+        MovingObjectPosition objectMouseOver = mc.objectMouseOver;
+        if (objectMouseOver != null && objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY) {
+            Entity entity = objectMouseOver.entityHit;
+            if ((entity instanceof EntityPlayer && AntiBot.isRecommendedTarget((EntityPlayer) entity, rangeSqr))
+                    || (entity instanceof EntityLiving && entity.isEntityAlive() && (!respectHurtTicks || !Targeter.hasHurtTicks(entity.getUniqueID())))
+                    || entity instanceof EntityFireball) {
+                return Optional.of(entity);
             }
         }
 
-        if (!foundValidTarget) {
-            MovingObjectPosition objectMouseOver = mc.objectMouseOver;
-            if (objectMouseOver != null && objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY) {
-                Entity entity = objectMouseOver.entityHit;
-                if (entity instanceof EntityPlayer && AntiBot.isRecommendedTarget((EntityPlayer) entity, rangeSqr) || entity instanceof EntityFireball || (entity instanceof EntityLiving && entity.isEntityAlive())) {
-                    foundValidTarget = true;
-                    closestDistanceSqr = me.getDistanceSqToEntity(entity);
+        Optional<Entity> nearestTarget = Optional.empty();
+        double closestDistanceSqr = rangeSqr;
+        if (triggerIfNearFov) {
+            for (Entity entity : mc.theWorld.loadedEntityList) {
+                if (!(entity instanceof EntityLivingBase) || entity == me) continue;
+                EntityLivingBase leb = (EntityLivingBase) entity;
+
+                Vec3 toEntity = leb.getPositionVector().addVector(0, leb.getEyeHeight() / 2, 0).subtract(eyePos);
+                double distance = toEntity.lengthVector();
+                double distSqr = distance * distance;
+
+                if (distSqr > rangeSqr) continue;
+
+                Vec3 toEntityNormalized = toEntity.normalize();
+                double dotProduct = lookVec.dotProduct(toEntityNormalized);
+                if (dotProduct <= fov) continue;
+
+                if (Pointer.getVisiblePart(me, leb) == null) continue;
+                if (respectHurtTicks && Targeter.hasHurtTicks(entity.getUniqueID())) continue;
+                if (distSqr < closestDistanceSqr) {
+                    closestDistanceSqr = distSqr;
+                    nearestTarget = Optional.of(leb);
                 }
             }
         }
 
-        return foundValidTarget;
+        return nearestTarget;
     }
 
     public static void legitLeftClick() {
@@ -128,11 +145,13 @@ public class LeftAutoclicker {
     }
 
     public static boolean shouldClick() {
+        Optional<Entity> enInCrosshair = getValidEntityNearCrosshair();
+
         return enabled
                 && ActionConflictResolver.isClickAllowed()
-                && Mouse.isButtonDown(0)
+                && (Mouse.isButtonDown(0) || !triggerIfMouseDown)
                 && hasCooldownExpired()
-                && isValidEntityInCrosshair();
+                && (enInCrosshair.isPresent() && (!(enInCrosshair.get() instanceof EntityLivingBase) || AntiBot.isRecommendedTarget((EntityLivingBase) enInCrosshair.get())));
     }
 
     public static void resetClickDelay() {
@@ -151,6 +170,18 @@ public class LeftAutoclicker {
         return minDelay + (long) (Math.random() * (maxDelay - minDelay + 1));
     }
 
+    public static void setTriggerIfNearFov(boolean b) {
+        triggerIfNearFov = b;
+        ModConfig.leftAutoclickerTriggerIfNearFov = b;
+        Reporter.queueSetMsg("Autoclicker", "Trigger If Near FOV", b);
+    }
+
+    public static void setTriggerIfMouseDown(boolean b) {
+        triggerIfMouseDown = b;
+        ModConfig.leftAutoclickerTriggerIfMouseDown = b;
+        Reporter.queueSetMsg("Autoclicker", "Trigger If Mouse Down", b);
+    }
+
     @SubscribeEvent
     public void onMouseEvent(MouseEvent event) {
         if (event.button == 0 && event.buttonstate) {  // 0 is the left mouse button; buttonstate is true if pressed
@@ -162,9 +193,11 @@ public class LeftAutoclicker {
     public void onClientTick(ClientTickEvent event) {
         if (event.phase != TickEvent.Phase.START) return;
         if (Main.getLeftAutoclickKey().isPressed()) setEnabled(!enabled);
+        if (Main.getTriggerBotKey().isPressed()) setTriggerIfMouseDown(!triggerIfMouseDown);
 
         if (shouldClick()) {
-            if (AutoWeapon.isEnabled() && AutoWeapon.shouldSwapOnSwing() && ActionConflictResolver.isHotbarSelectedSlotChangeAllowed()) AutoWeapon.swap();
+            if (AutoWeapon.isEnabled() && AutoWeapon.shouldSwapOnSwing() && ActionConflictResolver.isHotbarSelectedSlotChangeAllowed())
+                AutoWeapon.swap();
             legitLeftClick();
         }
     }

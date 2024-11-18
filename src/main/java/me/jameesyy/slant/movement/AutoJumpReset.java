@@ -23,7 +23,7 @@ public class AutoJumpReset {
     public static void setEnabled(boolean b) {
         enabled = b;
         ModConfig.autoJumpResetEnabled = b;
-        Reporter.reportToggled("Auto Jump Reset", b);
+        Reporter.queueReportMsg("Auto Jump Reset", b);
     }
 
     public static float getChance() {
@@ -33,7 +33,7 @@ public class AutoJumpReset {
     public static void setChance(float f) {
         chance = Math.max(0, Math.min(1, f));
         ModConfig.autoJumpResetChance = f;
-        Reporter.reportSet("Auto Jump Reset", "Chance", f);
+        Reporter.queueSetMsg("Auto Jump Reset", "Chance", f);
 
     }
 

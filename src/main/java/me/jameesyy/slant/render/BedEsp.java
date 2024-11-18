@@ -24,13 +24,13 @@ public class BedEsp {
     public static void setActivationRadiusBlocks(int radius) {
         activationRadiusBlocks = radius;
         ModConfig.bedEspActivationRadiusBlocks = radius;
-        Reporter.reportSet("Bed ESP", "Activation Radius", radius);
+        Reporter.queueSetMsg("Bed ESP", "Activation Radius", radius);
     }
 
     public static void setEnabled(boolean b) {
         enabled = b;
         ModConfig.bedEspEnabled = b;
-        Reporter.reportToggled("Bed ESP", b);
+        Reporter.queueReportMsg("Bed ESP", b);
     }
 
     public static boolean isEnabled() {

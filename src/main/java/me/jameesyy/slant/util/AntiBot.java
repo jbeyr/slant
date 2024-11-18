@@ -12,7 +12,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
@@ -44,7 +43,7 @@ public class AntiBot {
     public static void setRespectTeams(boolean b) {
         respectTeams = b;
         ModConfig.antiBotRespectTeams = b;
-        Reporter.reportSet("Anti Bot", "Respect Teams", b);
+        Reporter.queueSetMsg("Anti Bot", "Respect Teams", b);
     }
 
     public static boolean isEnabled() {
@@ -54,19 +53,22 @@ public class AntiBot {
     public static void setEnabled(boolean b) {
         enabled = b;
         ModConfig.antiBotEnabled = b;
-        Reporter.reportToggled("Anti Bot", b);
+        Reporter.queueReportMsg("Anti Bot", b);
     }
 
-    public static boolean isRecommendedTarget(EntityLivingBase other, double rangeSqr) {
+    public static boolean isRecommendedTarget(EntityLivingBase other) {
         EntityPlayer me = Minecraft.getMinecraft().thePlayer;
         if (other == null || me == other) return false;
         if (other instanceof EntityArmorStand) return false;
         if (respectTeams && hasSameHelmetColor(me, other)) return false;
 
         return other.isEntityAlive()
-                && me.getDistanceSqToEntity(other) < rangeSqr
                 && (!enabled || !AntiBot.isBotUuid(other.getUniqueID())) // if disabled, allow blacklisted entities
                 && Pointer.getVisiblePart(me, other) != null;
+    }
+
+    public static boolean isRecommendedTarget(EntityLivingBase other, double rangeSqr) {
+        return isRecommendedTarget(other) && Minecraft.getMinecraft().thePlayer.getDistanceSqToEntity(other) < rangeSqr;
     }
 
     public static boolean isBotUuid(UUID uuid) {
@@ -99,9 +101,9 @@ public class AntiBot {
         if (!(e.entity instanceof EntityPlayer)) return;
         EntityPlayer player = (EntityPlayer) e.entity;
 
-        if (amIInCombat() && player.getDistanceSqToEntity(me) <= COMBAT_RADIUS * COMBAT_RADIUS) {
+        if (amInCombat() && player.getDistanceSqToEntity(me) <= COMBAT_RADIUS * COMBAT_RADIUS) {
             blacklist.add(player.getUniqueID());
-            me.addChatMessage(new ChatComponentText(player.getName() + " spawned on you in combat!"));
+            Reporter.msg(player.getName() + " spawned on you in combat!");
         }
     }
 
@@ -115,7 +117,7 @@ public class AntiBot {
 
         Minecraft mc = Minecraft.getMinecraft();
         if (mc.thePlayer == null || mc.theWorld == null) return;
-        if (amIInCombat()) lastCombatTick = currentTick;
+        if (amInCombat()) lastCombatTick = currentTick;
 
         for (NetworkPlayerInfo playerInfo : mc.getNetHandler().getPlayerInfoMap()) {
             UUID uuid = playerInfo.getGameProfile().getId();
@@ -123,11 +125,11 @@ public class AntiBot {
             if (!playerFirstSeenTick.containsKey(uuid)) {
                 playerFirstSeenTick.put(uuid, currentTick);
                 if (!isValidMinecraftName(playerInfo.getGameProfile().getName())) blacklist.add(uuid);
-                if (amIInCombat()) { // ac bots tend to spawn on the player mid combat, so check that
+                if (amInCombat()) { // ac bots tend to spawn on the player mid-combat, so check that
                     EntityPlayer player = mc.theWorld.getPlayerEntityByUUID(uuid);
                     if (player != null && !whitelist.contains(uuid) && mc.thePlayer.getDistanceSqToEntity(player) <= COMBAT_RADIUS * COMBAT_RADIUS) {
                         blacklist.add(uuid);
-                        Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText(player.getName() + " spawned on you in combat!"));
+                        Reporter.msg(player.getName() + " spawned on you in combat!");
                     }
                 }
             } else if (!blacklist.contains(uuid) && currentTick - playerFirstSeenTick.get(uuid) >= PLAYER_EXISTENCE_TICKS_THRESHOLD) {
@@ -204,7 +206,7 @@ public class AntiBot {
         GlStateManager.popMatrix();
     }
 
-    private boolean amIInCombat() {
+    private boolean amInCombat() {
         return currentTick - lastCombatTick < COMBAT_COOLDOWN_TICKS;
     }
 

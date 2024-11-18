@@ -45,33 +45,24 @@ public class FireballPointer {
         double distance = playerPos.distanceTo(fireballPos);
         String distanceText = String.format("%.1f", distance);
 
-        // transform direction vector based on player's rotation
         Vec3 transformedDir = transformDirection(direction, player);
 
-        // screen position
         int centerX = screenWidth / 2;
         int centerY = screenHeight / 2;
 
-        double screenX = transformedDir.xCoord / transformedDir.zCoord * mc.gameSettings.fovSetting;
-        double screenY = transformedDir.yCoord / transformedDir.zCoord * mc.gameSettings.fovSetting;
+        double screenX = transformedDir.xCoord / -transformedDir.zCoord * mc.gameSettings.fovSetting;
+        double screenY = transformedDir.yCoord / -transformedDir.zCoord * mc.gameSettings.fovSetting;
 
-        int pointerX, pointerY;
-
-        if (Math.abs(screenX) < 0.1 && Math.abs(screenY) < 0.1) { // fireball near crosshair; render pointer at fireball pos
-            pointerX = centerX + (int)(screenX * centerX);
-            pointerY = centerY - (int)(screenY * centerY);
-        } else { // render pointer position around the crosshair; FIXME direction relative to player
-            double angle = Math.atan2(screenY, screenX);
-            pointerX = centerX + (int)(Math.cos(angle) * POINTER_DISTANCE);
-            pointerY = centerY - (int)(Math.sin(angle) * POINTER_DISTANCE);
-        }
+        double angle = Math.atan2(screenY, screenX);
+        int pointerX = centerX + (int)(Math.cos(angle) * POINTER_DISTANCE);
+        int pointerY = centerY - (int)(Math.sin(angle) * POINTER_DISTANCE);
 
         GlStateManager.pushMatrix();
         GlStateManager.translate(pointerX, pointerY, 0);
-        GlStateManager.rotate((float) Math.toDegrees(Math.atan2(centerY - pointerY, pointerX - centerX)), 0, 0, 1);
+        GlStateManager.rotate((float) Math.toDegrees(angle), 0, 0, 1);
         GlStateManager.scale(1, 1, 1);
 
-        int color = distance <= DANGER_DISTANCE ? 0xFFFF0000 : 0xFFFFFFFF; // red if close; white otherwise
+        int color = distance <= DANGER_DISTANCE ? 0xFFFF0000 : 0xFFFFFFFF;
         drawArrowhead(color);
 
         GlStateManager.popMatrix();

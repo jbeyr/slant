@@ -30,13 +30,13 @@ public class Aimlock {
     public static void setFov(float f) {
         Aimlock.fov = f;
         ModConfig.aimlockFov = f;
-        Reporter.reportSet("Aimlock", "FOV", f);
+        Reporter.queueSetMsg("Aimlock", "FOV", f);
     }
 
     public static void setTargetPriority(TargetPriority tp) {
         Aimlock.targetPriority = tp;
         ModConfig.aimlockTargetPriority = tp.ordinal();
-        Reporter.reportSet("Aimlock", "Target Priority", tp);
+        Reporter.queueSetMsg("Aimlock", "Target Priority", tp);
     }
 
     public static float getActivationRadius() {
@@ -47,7 +47,7 @@ public class Aimlock {
         rangeSqr = range * range;
         Aimlock.range = range;
         ModConfig.aimlockActivationRadius = range;
-        Reporter.reportSet("Aimlock", "Activation Radius", range);
+        Reporter.queueSetMsg("Aimlock", "Activation Radius", range);
     }
 
     public static Optional<EntityLivingBase> getTargetEntity() {
@@ -61,7 +61,7 @@ public class Aimlock {
     public static void setEnabled(boolean b) {
         enabled = b;
         ModConfig.aimlockEnabled = b;
-        Reporter.reportToggled("Aimlock", b);
+        Reporter.queueReportMsg("Aimlock", b);
     }
 
     public static boolean doesVerticalRotations() {
@@ -71,7 +71,7 @@ public class Aimlock {
     public static void setVerticalRotations(boolean b) {
         Aimlock.doVerticalRotations = b;
         ModConfig.aimlockVerticalRotations = b;
-        Reporter.reportSet("Aimlock", "Vertical Rotations", b);
+        Reporter.queueSetMsg("Aimlock", "Vertical Rotations", b);
     }
 
     private static Optional<EntityLivingBase> findTarget() {
@@ -212,15 +212,11 @@ public class Aimlock {
     public void onRenderTick(RenderWorldLastEvent event) {
         if(!Aimlock.isEnabled()) return;
         targetEntity.ifPresent(en -> {
-            Renderer.setupRendering();
-
             float red = targetHitboxColor.getRed() / 255f;
             float green = targetHitboxColor.getGreen() / 255f;
             float blue = targetHitboxColor.getBlue() / 255f;
             float alpha = targetHitboxColor.getRed() / 255f;
-
-            Renderer.drawEntityESP(en, event.partialTicks, red, green, blue, alpha, 0.6f);
-            Renderer.resetRendering();
+            Renderer.draw3dEntityESP(en, event.partialTicks, red, green, blue, alpha);
         });
 
     }
@@ -228,7 +224,7 @@ public class Aimlock {
     public static void setTargetHitboxColor(Color color) {
         targetHitboxColor = color;
         ModConfig.aimlockTargetHitboxColor = color;
-        Reporter.reportSet("Aimlock", "Target Hitbox Color", color.toString());
+        Reporter.queueSetMsg("Aimlock", "Target Hitbox Color", color.toString());
     }
 
     public enum TargetPriority {

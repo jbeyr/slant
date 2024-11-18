@@ -36,7 +36,7 @@ public class RightAutoclicker {
     public static void setMinCPS(int cps) {
         RightAutoclicker.minCPS = cps;
         ModConfig.rightAutoClickerMinCps = cps;
-        Reporter.reportSet("RMB Autoclicker", "Min CPS", cps);
+        Reporter.queueSetMsg("RMB Autoclicker", "Min CPS", cps);
     }
 
     public static int getMaxCPS() {
@@ -46,7 +46,7 @@ public class RightAutoclicker {
     public static void setMaxCPS(int cps) {
         RightAutoclicker.maxCPS = cps;
         ModConfig.rightAutoClickerMaxCps = cps;
-        Reporter.reportSet("RMB Autoclicker", "Max CPS", cps);
+        Reporter.queueSetMsg("RMB Autoclicker", "Max CPS", cps);
     }
 
     public static boolean isEnabled() {
@@ -56,7 +56,7 @@ public class RightAutoclicker {
     public static void setEnabled(boolean b) {
         enabled = b;
         ModConfig.rightAutoclickerEnabled = b;
-        Reporter.reportToggled("RMB Autoclicker", b);
+        Reporter.queueReportMsg("RMB Autoclicker", b);
     }
 
     public static void legitRightClick() {
@@ -116,7 +116,7 @@ public class RightAutoclicker {
     public static void setPlacingBlocksOnly(boolean b) {
         RightAutoclicker.placingBlocksOnly = b;
         ModConfig.rightAutoClickerPlacingBlocksOnly = b;
-        Reporter.reportSet("RMB Autoclicker", "Placing Blocks Only", b);
+        Reporter.queueSetMsg("RMB Autoclicker", "Placing Blocks Only", b);
     }
 
     @SubscribeEvent

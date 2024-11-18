@@ -20,13 +20,13 @@ public class InvisEsp {
     public static void setActivationRadius(float radius) {
         activationRadiusSqr = radius * radius;
         ModConfig.invisEspActivationRadius = radius;
-        Reporter.reportSet("Invis ESP", "Activation Radius", radius);
+        Reporter.queueSetMsg("Invis ESP", "Activation Radius", radius);
     }
 
     public static void setEnabled(boolean b) {
         enabled = b;
         ModConfig.invisEspEnabled = b;
-        Reporter.reportToggled("Invis ESP", b);
+        Reporter.queueReportMsg("Invis ESP", b);
     }
 
     public static boolean isEnabled() {
@@ -59,12 +59,9 @@ public class InvisEsp {
 
         if (invisiblePlayers.isEmpty()) return;
 
-        Renderer.setupRendering();
-
         for (EntityPlayer player : invisiblePlayers) {
-            Renderer.drawEntityESP(player, partialTicks, 1.0f, 1.0f, 1.0f, OPACITY);
+            Renderer.draw3dEntityESP(player, partialTicks, 1.0f, 1.0f, 1.0f, OPACITY);
         }
 
-        Renderer.resetRendering();
     }
 }

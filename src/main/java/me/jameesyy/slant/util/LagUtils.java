@@ -2,10 +2,6 @@ package me.jameesyy.slant.util;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
@@ -30,29 +26,12 @@ public class LagUtils {
     /**
      * Draws the real position of the hitbox where the other entity is.
      */
-    public static void drawTrueBacktrackHitbox(AxisAlignedBB lastPos, AxisAlignedBB nowPos, float partialTicks, float red, float green, float blue, float opacity) {
+    public static void drawTrueBacktrackHitbox(Vec3 lastPos, Vec3 nowPos, float partialTicksForTargetPos, float partialTicksForPlayerPos, float red, float green, float blue, float opacity) {
+        // TODO use kb physics simulation
         EntityPlayer me = Minecraft.getMinecraft().thePlayer;
-
-        // Calculate the center coordinates of both bounding boxes
-        double lastCenterX = (lastPos.minX + lastPos.maxX) / 2;
-        double lastCenterZ = (lastPos.minZ + lastPos.maxZ) / 2;
-        Vec3 lastTargetPos = new Vec3(lastCenterX, lastPos.minY, lastCenterZ);
-
-        Vec3 myLerpPos = Renderer.interpolatedPos(me, partialTicks);
-        Vec3 dv = lastTargetPos.subtract(myLerpPos);
-
-        GlStateManager.pushMatrix();
-        GlStateManager.translate(dv.xCoord, dv.yCoord, dv.zCoord);
-
-        double halfWidth = .4;
-        double height = 1.9;
-
-        GlStateManager.color(red, green, blue, opacity * 0.25f);
-        drawFilledBox(-halfWidth, 0, -halfWidth, halfWidth, height, halfWidth);
-
-        GlStateManager.color(red, green, blue, opacity);
-        drawOutlineBox(-halfWidth, 0, -halfWidth, halfWidth, height, halfWidth);
-
-        GlStateManager.popMatrix();
+        Vec3 targetLerpPos = Renderer.interpolatedPos(nowPos, lastPos, partialTicksForTargetPos);
+        Vec3 myLerpPos = Renderer.interpolatedPos(me, partialTicksForPlayerPos);
+        Vec3 dv = targetLerpPos.subtract(myLerpPos);
+        drawBbox3d(dv, red, green, blue, opacity, .5f, true);
     }
 }

@@ -6,6 +6,8 @@ import me.jameesyy.slant.util.Reporter;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
 
+import java.util.Optional;
+
 public class Backtrack {
     public static boolean shouldSpoof = false;
     private static boolean enabled;
@@ -14,12 +16,12 @@ public class Backtrack {
 
     public static void tickCheck() {
         EntityPlayer target = PacketManager.getTarget();
-        AxisAlignedBB targetpos = PacketManager.getTargetPos();
+        Optional<AxisAlignedBB> targetBox = PacketManager.getTargetBox();
 
         if (target != null) {
-            if (targetpos != null) {
-                if (LagUtils.getDistanceToAxis(targetpos) + (double) (sensitivity - 100) / 100 < LagUtils.getDistanceToAxis(target.getEntityBoundingBox())) {
-                    PacketManager.clearInboundQueue();
+            if (targetBox.isPresent()) {
+                if (LagUtils.getDistanceToAxis(targetBox.get()) + (double) (sensitivity - 100) / 100 < LagUtils.getDistanceToAxis(target.getEntityBoundingBox())) {
+                    PacketManager.processWholePacketQueue();
                 } else {
                     shouldSpoof = true;
                 }
@@ -39,7 +41,7 @@ public class Backtrack {
         if(!b) shouldSpoof = false;
         Backtrack.enabled = b;
         ModConfig.backtrackEnabled = b;
-        Reporter.reportToggled("Backtrack", b);
+        Reporter.queueReportMsg("Backtrack", b);
     }
 
     public static int getDelay() {
@@ -49,7 +51,7 @@ public class Backtrack {
     public static void setDelay(int delay) {
         Backtrack.delay = delay;
         ModConfig.backtrackDelayMs = delay;
-        Reporter.reportSet("Backtrack", "Delay", delay);
+        Reporter.queueSetMsg("Backtrack", "Delay", delay);
     }
 
     public static int getSensitivity() {
@@ -59,6 +61,6 @@ public class Backtrack {
     public static void setSensitivity(int sensitivity) {
         Backtrack.sensitivity = sensitivity;
         ModConfig.backtrackSensitivity = sensitivity;
-        Reporter.reportSet("Backtrack", "Sensitivity", sensitivity);
+        Reporter.queueSetMsg("Backtrack", "Sensitivity", sensitivity);
     }
 }

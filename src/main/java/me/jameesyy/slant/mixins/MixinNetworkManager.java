@@ -45,8 +45,8 @@ public abstract class MixinNetworkManager {
     @Inject(method = "channelRead0*", at = @At("HEAD"), cancellable = true)
     protected void channelRead0(final ChannelHandlerContext context, final Packet<?> packet, final CallbackInfo ci) {
         if (packet != null && isChannelOpen()) {
-            if (PacketManager.InboundSpoofCheck(packet)) {
-                PacketManager.spoofInboundPacket(packet);
+            if (PacketManager.shouldSpoofInboundPackets(packet)) {
+                PacketManager.enqueueSpoofedInboundPacket(packet);
                 ci.cancel();
             }
         }

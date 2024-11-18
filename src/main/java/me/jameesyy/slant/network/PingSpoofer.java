@@ -54,7 +54,7 @@ public class PingSpoofer {
     public static void setDelay(int delay) {
         PingSpoofer.delay = delay;
         ModConfig.pingSpooferDelayMs = delay;
-        Reporter.reportSet("Ping Spoofer", "Delay", delay);
+        Reporter.queueSetMsg("Ping Spoofer", "Delay", delay);
     }
 
     public static boolean isEnabled() {
@@ -64,6 +64,6 @@ public class PingSpoofer {
     public static void setEnabled(boolean b) {
         PingSpoofer.enabled = b;
         ModConfig.pingSpooferEnabled = b;
-        Reporter.reportToggled("Ping Spoofer", b);
+        Reporter.queueReportMsg("Ping Spoofer", b);
     }
 }

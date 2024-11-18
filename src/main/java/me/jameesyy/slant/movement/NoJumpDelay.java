@@ -9,7 +9,7 @@ public class NoJumpDelay {
     public static void setEnabled(boolean b) {
         enabled = b;
         ModConfig.noJumpDelayEnabled = b;
-        Reporter.reportToggled("No Jump Delay", b);
+        Reporter.queueReportMsg("No Jump Delay", b);
     }
 
     public static boolean isEnabled() {
