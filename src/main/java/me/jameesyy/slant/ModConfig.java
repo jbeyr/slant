@@ -70,29 +70,51 @@ public class ModConfig extends Vigilant {
     @Property(type = PropertyType.SWITCH, name = "Swap On Swing", category = "Auto Weapon", description = "If true, swaps when a target entity triggers LMB Autoclicker.")
         public static boolean autoWeaponSwapOnSwing = false;
 
-    @Property(type = PropertyType.SWITCH, name = "Aimlock", category = "Modules", description = "Helps track the target hitbox when your crosshair enters it.")
-    public static boolean aimlockEnabled = false;
+    @Property(type = PropertyType.SWITCH, name = "Aim Assist", category = "Modules", description = "Helps track the target hitbox when your crosshair enters it.")
+    public static boolean aimAssistEnabled = false;
 
-    @Property(type = PropertyType.SELECTOR, name = "Target Priority", category = "Aimlock", description = "Focus aimlock on the initially hitscanned player, the closest player within the FOV range, or the lowest health player within the FOV range.", options = {"Initial Hitscan", "Closest FOV", "Lowest Health"})
-        public static int aimlockTargetPriority = Aimlock.TargetPriority.INITIAL_HITSCAN.ordinal();
+        @Property(type = PropertyType.SELECTOR, name = "Target Priority", category = "Aim Assist", description = "Focus betterAim on the initially hitscanned player, the closest player within the FOV range, or the lowest health player within the FOV range.", options = {"Initial Hitscan", "Closest FOV", "Lowest Health"})
+        public static int aimAssistTargetPriority = BetterAim.TargetPriority.INITIAL_HITSCAN.ordinal();
 
-    @Property(type = PropertyType.SWITCH, name = "Vertical Rotations", category = "Aimlock")
-        public static boolean aimlockVerticalRotations = false;
+        @Property(type = PropertyType.SWITCH, name = "Vertical Rotations", category = "Aim Assist")
+        public static boolean aimAssistVerticalRotations = false;
 
-    @Property(type = PropertyType.DECIMAL_SLIDER, name = "Activation FOV", category = "Aimlock", minF = 0, maxF = 360, decimalPlaces = 0)
-        public static float aimlockFov = 360f;
+        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Activation FOV", category = "Aim Assist", minF = 0, maxF = 360, decimalPlaces = 0)
+        public static float aimAssistFov = 360f;
 
-    @Property(type = PropertyType.DECIMAL_SLIDER, name = "Activation Radius", category = "Aimlock", minF = 1f, maxF = 8f, decimalPlaces = 2)
-        public static float aimlockActivationRadius = 4.15f;
+        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Activation Radius", category = "Aim Assist", minF = 1f, maxF = 8f, decimalPlaces = 2)
+        public static float aimAssistActivationRadius = 4.15f;
 
-    @Property(type = PropertyType.DECIMAL_SLIDER, name = "Minimum Target Angular Size (Degrees)", category="Aimlock", minF = 0.1f, maxF = 45f, decimalPlaces = 1)
-    public static float minTargetAngularSize = 1f;
+        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Rotation Speed", category = "Aim Assist", minF = .05f, maxF = .5f, decimalPlaces = 2)
+        public static float aimAssistRotationSpeed = 0.15f;
 
-    @Property(type = PropertyType.DECIMAL_SLIDER, name = "Blend Strength", category="Aimlock", minF=0f, maxF=5f, decimalPlaces = 1)
-    public static float blendFactor = 0.5f;
+        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Max Yaw Tick Rotation", category = "Aim Assist", minF = 1f, maxF = 50f)
+        public static float aimAssistMaxYawTickRotation = 40f;
 
-    @Property(type = PropertyType.COLOR, name = "Target Hitbox Color", category="Aimlock")
-    public static Color aimlockTargetHitboxColor = new Color(255, 255, 255, 255);
+
+    @Property(type = PropertyType.SWITCH, name = "Better Aim", category = "Modules", description = "Helps track the target hitbox when your crosshair enters it.")
+    public static boolean betterAimEnabled = false;
+
+        @Property(type = PropertyType.SELECTOR, name = "Target Priority", category = "Better Aim", description = "Focus betterAim on the initially hitscanned player, the closest player within the FOV range, or the lowest health player within the FOV range.", options = {"Initial Hitscan", "Closest FOV", "Lowest Health"})
+            public static int betterAimTargetPriority = BetterAim.TargetPriority.INITIAL_HITSCAN.ordinal();
+
+        @Property(type = PropertyType.SWITCH, name = "Vertical Rotations", category = "Better Aim")
+            public static boolean betterAimVerticalRotations = false;
+
+        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Activation FOV", category = "Better Aim", minF = 0, maxF = 360, decimalPlaces = 0)
+            public static float betterAimFov = 360f;
+
+        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Activation Radius", category = "Better Aim", minF = 1f, maxF = 8f, decimalPlaces = 2)
+            public static float betterAimActivationRadius = 4.15f;
+
+        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Minimum Target Angular Size (Degrees)", category="Better Aim", minF = 0.1f, maxF = 45f, decimalPlaces = 1)
+        public static float minTargetAngularSize = 1f;
+
+        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Blend Strength", category="Better Aim", minF=0f, maxF=5f, decimalPlaces = 1)
+        public static float blendFactor = 0.5f;
+
+        @Property(type = PropertyType.COLOR, name = "Target Hitbox Color", category="Better Aim")
+        public static Color betterAimTargetHitboxColor = new Color(255, 255, 255, 255);
 
     @Property(type = PropertyType.SWITCH, name = "Right Autoclicker", category = "Modules", subcategory = "Right", description = "Places held blocks when you're pressing the 'use item' key.")
     public static boolean rightAutoclickerEnabled = false;
@@ -232,12 +254,21 @@ public class ModConfig extends Vigilant {
         AutoTool.setOnSneakOnly(autoToolOnSneakOnly);
         AutoTool.setNearBedOnly(autoToolNearBedOnly);
 
-        Aimlock.setEnabled(aimlockEnabled);
-        Aimlock.setFov(aimlockFov);
-        Aimlock.setTargetPriority(Aimlock.TargetPriority.values()[aimlockTargetPriority]);
-        Aimlock.setTargetHitboxColor(aimlockTargetHitboxColor);
-        Aimlock.setVerticalRotations(aimlockVerticalRotations);
-        Aimlock.setActivationRadius(aimlockActivationRadius);
+
+        AimAssist.setEnabled(betterAimEnabled);
+        AimAssist.setFov(betterAimFov);
+        AimAssist.setTargetPriority(AimAssist.TargetPriority.values()[aimAssistTargetPriority]);
+        AimAssist.setVerticalRotations(betterAimVerticalRotations);
+        AimAssist.setActivationRadius(betterAimActivationRadius);
+        AimAssist.setMaxYawTickRotation(aimAssistMaxYawTickRotation);
+        AimAssist.setRotationSpeed(aimAssistRotationSpeed);
+
+        BetterAim.setEnabled(betterAimEnabled);
+        BetterAim.setFov(betterAimFov);
+        BetterAim.setTargetPriority(BetterAim.TargetPriority.values()[betterAimTargetPriority]);
+        BetterAim.setTargetHitboxColor(betterAimTargetHitboxColor);
+        BetterAim.setVerticalRotations(betterAimVerticalRotations);
+        BetterAim.setActivationRadius(betterAimActivationRadius);
         EnhancedAimingModule.setMinTargetAngularSize(minTargetAngularSize);
         EnhancedAimingModule.setBlendFactor(blendFactor);
         EnhancedAimingModule.setAimStrength(10f);
@@ -313,7 +344,7 @@ public class ModConfig extends Vigilant {
         registerListener("autoGheadEnabled", AutoGhead::setEnabled);
         registerListener("autoWeaponEnabled", AutoWeapon::setEnabled);
         registerListener("autoToolEnabled", AutoTool::setEnabled);
-        registerListener("aimlockEnabled", Aimlock::setEnabled);
+        registerListener("betterAimEnabled", BetterAim::setEnabled);
         registerListener("rightAutoclickerEnabled", RightAutoclicker::setEnabled);
         registerListener("rightAutoClickerPlacingBlocksOnly", RightAutoclicker::setPlacingBlocksOnly);
 
@@ -347,12 +378,18 @@ public class ModConfig extends Vigilant {
         registerListener("rightAutoClickerMinCps", RightAutoclicker::setMinCPS);
         registerListener("rightAutoClickerMaxCps", RightAutoclicker::setMaxCPS);
 
+        registerListener("aimAssistTargetPriority", (Integer i) -> AimAssist.setTargetPriority(AimAssist.TargetPriority.values()[i]));
+        registerListener("aimAssistVerticalRotations", AimAssist::setVerticalRotations);
+        registerListener("aimAssistFov", AimAssist::setFov);
+        registerListener("aimAssistActivationRadius", AimAssist::setActivationRadius);
+        registerListener("aimAssistRotationSpeed", AimAssist::setRotationSpeed);
+        registerListener("aimAssistMaxYawTickRotation", AimAssist::setMaxYawTickRotation);
 
-        registerListener("aimlockTargetHitboxColor", Aimlock::setTargetHitboxColor);
-        registerListener("aimlockTargetPriority", (Integer i) -> Aimlock.setTargetPriority(Aimlock.TargetPriority.values()[i]));
-        registerListener("aimlockVerticalRotations", Aimlock::setVerticalRotations);
-        registerListener("aimlockFov", Aimlock::setFov);
-        registerListener("aimlockActivationRadius", Aimlock::setActivationRadius);
+        registerListener("betterAimTargetHitboxColor", BetterAim::setTargetHitboxColor);
+        registerListener("betterAimTargetPriority", (Integer i) -> BetterAim.setTargetPriority(BetterAim.TargetPriority.values()[i]));
+        registerListener("betterAimVerticalRotations", BetterAim::setVerticalRotations);
+        registerListener("betterAimFov", BetterAim::setFov);
+        registerListener("betterAimActivationRadius", BetterAim::setActivationRadius);
 
         registerListener("pingSpooferDelayMs", PingSpoofer::setDelay);
         registerListener("backtrackDelayMs", Backtrack::setDelay);

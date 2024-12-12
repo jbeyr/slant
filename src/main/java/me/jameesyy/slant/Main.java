@@ -1,6 +1,7 @@
 package me.jameesyy.slant;
 
-import me.jameesyy.slant.combat.Aimlock;
+import me.jameesyy.slant.combat.AimAssist;
+import me.jameesyy.slant.combat.BetterAim;
 import me.jameesyy.slant.combat.LeftAutoclicker;
 import me.jameesyy.slant.combat.RightAutoclicker;
 import me.jameesyy.slant.movement.Safewalk;
@@ -24,7 +25,8 @@ public class Main {
     private static final Minecraft mc = Minecraft.getMinecraft();
     private static KeyBinding lmbAutoclickKey;
     private static KeyBinding rmbAutoclickKey;
-    private static KeyBinding aimlockKey;
+    private static KeyBinding betterAimKey;
+    private static KeyBinding aimAssistKey;
     private static KeyBinding autoJumpResetKey;
     private static KeyBinding safewalkKey;
     private static KeyBinding openConfigKey;
@@ -43,8 +45,12 @@ public class Main {
         return rmbAutoclickKey;
     }
 
-    public static KeyBinding getAimlockKey() {
-        return aimlockKey;
+    public static KeyBinding getBetterAimKey() {
+        return betterAimKey;
+    }
+
+    public static KeyBinding getAimAssistKey() {
+        return aimAssistKey;
     }
 
     public static KeyBinding getOpenConfigKey() {
@@ -71,7 +77,8 @@ public class Main {
     @EventHandler
     public void init(FMLInitializationEvent event) {
 
-        aimlockKey = new KeyBinding("Aimlock", Keyboard.KEY_NONE, "key.categories.gameplay");
+        betterAimKey = new KeyBinding("Better Aim", Keyboard.KEY_NONE, "key.categories.gameplay");
+        aimAssistKey = new KeyBinding("Aim Assist", Keyboard.KEY_NONE, "key.categories.gameplay");
         lmbAutoclickKey = new KeyBinding("LMB Autoclicker", Keyboard.KEY_NONE, "key.categories.gameplay");
         rmbAutoclickKey = new KeyBinding("RMB Autoclicker", Keyboard.KEY_NONE, "key.categories.gameplay");
         triggerbotKey = new KeyBinding("Trigger Bot", Keyboard.KEY_NONE, "key.categories.gameplay");
@@ -80,7 +87,8 @@ public class Main {
         openConfigKey = new KeyBinding("Open Slant Config", Keyboard.KEY_NONE, "key.categories.gameplay");
         printNbtKey = new KeyBinding("Print NBT of Held Item", Keyboard.KEY_NONE, "key.categories.gameplay");
 
-        ClientRegistry.registerKeyBinding(aimlockKey);
+        ClientRegistry.registerKeyBinding(betterAimKey);
+        ClientRegistry.registerKeyBinding(aimAssistKey);
         ClientRegistry.registerKeyBinding(lmbAutoclickKey);
         ClientRegistry.registerKeyBinding(rmbAutoclickKey);
         ClientRegistry.registerKeyBinding(triggerbotKey);
@@ -106,7 +114,8 @@ public class Main {
         MinecraftForge.EVENT_BUS.register(new InvisEsp());
         MinecraftForge.EVENT_BUS.register(new BedEsp());
         MinecraftForge.EVENT_BUS.register(new Pointer());
-        MinecraftForge.EVENT_BUS.register(new Aimlock());
+        MinecraftForge.EVENT_BUS.register(new BetterAim());
+        MinecraftForge.EVENT_BUS.register(new AimAssist());
         MinecraftForge.EVENT_BUS.register(new NbtPrinter());
         MinecraftForge.EVENT_BUS.register(new AutoGhead());
         MinecraftForge.EVENT_BUS.register(new Safewalk());

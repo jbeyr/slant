@@ -17,7 +17,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import java.awt.*;
 import java.util.Optional;
 
-public class Aimlock {
+public class BetterAim {
     private static Optional<EntityLivingBase> targetEntity = Optional.empty();
     private static boolean enabled;
     private static boolean doVerticalRotations;
@@ -28,15 +28,15 @@ public class Aimlock {
     private static Color targetHitboxColor;
 
     public static void setFov(float f) {
-        Aimlock.fov = f;
-        ModConfig.aimlockFov = f;
-        Reporter.queueSetMsg("Aimlock", "FOV", f);
+        BetterAim.fov = f;
+        ModConfig.betterAimFov = f;
+        Reporter.queueSetMsg("Better Aim", "FOV", f);
     }
 
     public static void setTargetPriority(TargetPriority tp) {
-        Aimlock.targetPriority = tp;
-        ModConfig.aimlockTargetPriority = tp.ordinal();
-        Reporter.queueSetMsg("Aimlock", "Target Priority", tp);
+        BetterAim.targetPriority = tp;
+        ModConfig.betterAimTargetPriority = tp.ordinal();
+        Reporter.queueSetMsg("Better Aim", "Target Priority", tp);
     }
 
     public static float getActivationRadius() {
@@ -45,9 +45,9 @@ public class Aimlock {
 
     public static void setActivationRadius(float range) {
         rangeSqr = range * range;
-        Aimlock.range = range;
-        ModConfig.aimlockActivationRadius = range;
-        Reporter.queueSetMsg("Aimlock", "Activation Radius", range);
+        BetterAim.range = range;
+        ModConfig.betterAimActivationRadius = range;
+        Reporter.queueSetMsg("Better Aim", "Activation Radius", range);
     }
 
     public static Optional<EntityLivingBase> getTargetEntity() {
@@ -60,8 +60,8 @@ public class Aimlock {
 
     public static void setEnabled(boolean b) {
         enabled = b;
-        ModConfig.aimlockEnabled = b;
-        Reporter.queueReportMsg("Aimlock", b);
+        ModConfig.betterAimEnabled = b;
+        Reporter.queueReportMsg("Better Aim", b);
     }
 
     public static boolean doesVerticalRotations() {
@@ -69,9 +69,9 @@ public class Aimlock {
     }
 
     public static void setVerticalRotations(boolean b) {
-        Aimlock.doVerticalRotations = b;
-        ModConfig.aimlockVerticalRotations = b;
-        Reporter.queueSetMsg("Aimlock", "Vertical Rotations", b);
+        BetterAim.doVerticalRotations = b;
+        ModConfig.betterAimVerticalRotations = b;
+        Reporter.queueSetMsg("Better Aim", "Vertical Rotations", b);
     }
 
     private static Optional<EntityLivingBase> findTarget() {
@@ -194,7 +194,7 @@ public class Aimlock {
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent event) {
 
-        if (Main.getAimlockKey().isPressed()) {
+        if (Main.getBetterAimKey().isPressed()) {
             targetEntity = Optional.empty();
             setEnabled(!enabled);
         }
@@ -210,7 +210,7 @@ public class Aimlock {
 
     @SubscribeEvent
     public void onRenderTick(RenderWorldLastEvent event) {
-        if(!Aimlock.isEnabled()) return;
+        if(!BetterAim.isEnabled()) return;
         targetEntity.ifPresent(en -> {
             float red = targetHitboxColor.getRed() / 255f;
             float green = targetHitboxColor.getGreen() / 255f;
@@ -223,8 +223,8 @@ public class Aimlock {
 
     public static void setTargetHitboxColor(Color color) {
         targetHitboxColor = color;
-        ModConfig.aimlockTargetHitboxColor = color;
-        Reporter.queueSetMsg("Aimlock", "Target Hitbox Color", color.toString());
+        ModConfig.betterAimTargetHitboxColor = color;
+        Reporter.queueSetMsg("Better Aim", "Target Hitbox Color", color.toString());
     }
 
     public enum TargetPriority {
