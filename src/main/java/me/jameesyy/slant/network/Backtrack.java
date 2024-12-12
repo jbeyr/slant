@@ -41,7 +41,7 @@ public class Backtrack {
         if(!b) shouldSpoof = false;
         Backtrack.enabled = b;
         ModConfig.backtrackEnabled = b;
-        Reporter.queueReportMsg("Backtrack", b);
+        Reporter.queueEnableMsg("Backtrack", b);
     }
 
     public static int getDelay() {

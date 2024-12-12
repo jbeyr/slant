@@ -48,7 +48,7 @@ public class AutoTool {
     public static void setEnabled(boolean b) {
         enabled = b;
         ModConfig.autoToolEnabled = b;
-        Reporter.queueReportMsg("Auto Tool", b);
+        Reporter.queueEnableMsg("Auto Tool", b);
     }
 
     public static int getBestToolSlot(net.minecraft.block.Block block) {

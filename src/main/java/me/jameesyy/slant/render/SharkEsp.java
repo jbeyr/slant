@@ -48,7 +48,7 @@ public class SharkEsp {
     public static void setEnabled(boolean b) {
         enabled = b;
         ModConfig.sharkEspEnabled = b;
-        Reporter.queueReportMsg("Shark ESP", b);
+        Reporter.queueEnableMsg("Shark ESP", b);
     }
 
     public static boolean isRender3dHitboxes() {
@@ -58,7 +58,7 @@ public class SharkEsp {
     public static void setRender3dHitboxes(boolean b) {
         render3dHitboxes = b;
         ModConfig.sharkEspRender3dHitboxes = b;
-        Reporter.queueReportMsg("Shark ESP 3D Hitboxes", b);
+        Reporter.queueEnableMsg("Shark ESP 3D Hitboxes", b);
     }
 
     @SubscribeEvent

@@ -38,7 +38,7 @@ public class QuickMathsSolver {
     public static void setEnabled(boolean b) {
         QuickMathsSolver.enabled = b;
         ModConfig.quickMathsSolverEnabled = b;
-        Reporter.queueReportMsg("Quick Maths Solver", b);
+        Reporter.queueEnableMsg("Quick Maths Solver", b);
     }
 
     public static void setReplyAfterXSolvers(int x) {

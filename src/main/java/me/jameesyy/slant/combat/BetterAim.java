@@ -61,7 +61,7 @@ public class BetterAim {
     public static void setEnabled(boolean b) {
         enabled = b;
         ModConfig.betterAimEnabled = b;
-        Reporter.queueReportMsg("Better Aim", b);
+        Reporter.queueEnableMsg("Better Aim", b);
     }
 
     public static boolean doesVerticalRotations() {

@@ -22,7 +22,7 @@ public class ChestEsp {
     public static void setEnabled(boolean b) {
         ChestEsp.enabled = b;
         ModConfig.chestEspEnabled = b;
-        Reporter.queueReportMsg("Chest ESP", b);
+        Reporter.queueEnableMsg("Chest ESP", b);
     }
 
     public static void setBboxColor(Color color) {

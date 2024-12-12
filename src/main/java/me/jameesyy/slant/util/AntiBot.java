@@ -53,7 +53,7 @@ public class AntiBot {
     public static void setEnabled(boolean b) {
         enabled = b;
         ModConfig.antiBotEnabled = b;
-        Reporter.queueReportMsg("Anti Bot", b);
+        Reporter.queueEnableMsg("Anti Bot", b);
     }
 
     public static boolean isRecommendedTarget(EntityLivingBase other) {

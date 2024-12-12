@@ -60,7 +60,7 @@ public class LeftAutoclicker {
     public static void setEnabled(boolean b) {
         enabled = b;
         ModConfig.leftAutoclickerEnabled = b;
-        Reporter.queueReportMsg("LMB Autoclicker", b);
+        Reporter.queueEnableMsg("LMB Autoclicker", b);
     }
 
     public static float getActivationRangeSqr() {

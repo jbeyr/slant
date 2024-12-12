@@ -35,7 +35,7 @@ public class RodRecast {
     public static void setEnabled(boolean b) {
         enabled = b;
         ModConfig.rodRecastEnabled = b;
-        Reporter.queueReportMsg("Rod Recast", b);
+        Reporter.queueEnableMsg("Rod Recast", b);
     }
 
     @SubscribeEvent

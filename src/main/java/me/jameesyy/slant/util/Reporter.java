@@ -104,7 +104,7 @@ public class Reporter {
         }
     }
 
-    public static void queueReportMsg(String moduleName, boolean to) {
+    public static void queueEnableMsg(String moduleName, boolean to) {
         IChatComponent cc = new ChatComponentText(ChatColor.ITALIC + "" + ChatColor.DARK_GRAY + "slant" + ChatColor.DARK_GRAY + " ⁄  " + ChatColor.RESET + moduleName + " " + (to ? ChatColor.GREEN + "ON" : ChatColor.RED + "OFF") + ChatColor.RESET);
         sendMessage(moduleName, "toggle", cc);
     }

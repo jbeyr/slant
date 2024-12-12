@@ -30,7 +30,7 @@ public class BedEsp {
     public static void setEnabled(boolean b) {
         enabled = b;
         ModConfig.bedEspEnabled = b;
-        Reporter.queueReportMsg("Bed ESP", b);
+        Reporter.queueEnableMsg("Bed ESP", b);
     }
 
     public static boolean isEnabled() {

@@ -90,7 +90,7 @@ public class AimAssist {
     public static void setEnabled(boolean b) {
         enabled = b;
         ModConfig.aimAssistEnabled = b;
-        Reporter.queueReportMsg("Aim Assist", b);
+        Reporter.queueEnableMsg("Aim Assist", b);
     }
 
     public static float getMaxYawTickRotation() {

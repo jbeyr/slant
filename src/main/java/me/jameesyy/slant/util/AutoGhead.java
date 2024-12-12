@@ -32,7 +32,7 @@ public class AutoGhead {
     public static void setEnabled(boolean b) {
         AutoGhead.enabled = b;
         ModConfig.autoGheadEnabled = b;
-        Reporter.queueReportMsg("Auto Ghead", b);
+        Reporter.queueEnableMsg("Auto Ghead", b);
     }
 
     public static boolean isInProgress() {

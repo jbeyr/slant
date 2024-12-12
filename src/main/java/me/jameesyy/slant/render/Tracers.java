@@ -58,7 +58,7 @@ public class Tracers {
     public static void setEnabled(boolean b) {
         Tracers.enabled = b;
         ModConfig.tracersEnabled = b;
-        Reporter.queueReportMsg("Tracers", b);
+        Reporter.queueEnableMsg("Tracers", b);
     }
 
     private static boolean enabled;

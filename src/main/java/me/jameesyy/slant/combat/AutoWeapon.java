@@ -33,7 +33,7 @@ public class AutoWeapon {
     public static void setEnabled(boolean b) {
         enabled = b;
         ModConfig.autoWeaponEnabled = b;
-        Reporter.queueReportMsg("Auto Weapon", b);
+        Reporter.queueEnableMsg("Auto Weapon", b);
     }
 
     public static boolean shouldSwapOnSwing() {

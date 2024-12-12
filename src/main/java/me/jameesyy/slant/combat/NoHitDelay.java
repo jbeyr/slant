@@ -9,7 +9,7 @@ public class NoHitDelay {
     public static void setEnabled(boolean b) {
         enabled = b;
         ModConfig.noHitDelayEnabled = b;
-        Reporter.queueReportMsg("No Hit Delay", b);
+        Reporter.queueEnableMsg("No Hit Delay", b);
     }
 
     public static boolean isEnabled() {

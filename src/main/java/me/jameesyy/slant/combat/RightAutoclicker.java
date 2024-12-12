@@ -56,7 +56,7 @@ public class RightAutoclicker {
     public static void setEnabled(boolean b) {
         enabled = b;
         ModConfig.rightAutoclickerEnabled = b;
-        Reporter.queueReportMsg("RMB Autoclicker", b);
+        Reporter.queueEnableMsg("RMB Autoclicker", b);
     }
 
     public static void legitRightClick() {

@@ -23,7 +23,7 @@ public class AutoJumpReset {
     public static void setEnabled(boolean b) {
         enabled = b;
         ModConfig.autoJumpResetEnabled = b;
-        Reporter.queueReportMsg("Auto Jump Reset", b);
+        Reporter.queueEnableMsg("Auto Jump Reset", b);
     }
 
     public static float getChance() {

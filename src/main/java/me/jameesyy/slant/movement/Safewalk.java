@@ -35,7 +35,7 @@ public class Safewalk {
     public static void setEnabled(boolean b) {
         Safewalk.enabled = b;
         ModConfig.safewalkEnabled = b;
-        Reporter.queueReportMsg("Safewalk", b);
+        Reporter.queueEnableMsg("Safewalk", b);
 
         if(b) return;
         KeyBinding sneakKey = mc.gameSettings.keyBindSneak;

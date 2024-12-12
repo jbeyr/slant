@@ -26,7 +26,7 @@ public class InvisEsp {
     public static void setEnabled(boolean b) {
         enabled = b;
         ModConfig.invisEspEnabled = b;
-        Reporter.queueReportMsg("Invis ESP", b);
+        Reporter.queueEnableMsg("Invis ESP", b);
     }
 
     public static boolean isEnabled() {

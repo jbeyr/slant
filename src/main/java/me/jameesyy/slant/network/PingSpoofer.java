@@ -64,6 +64,6 @@ public class PingSpoofer {
     public static void setEnabled(boolean b) {
         PingSpoofer.enabled = b;
         ModConfig.pingSpooferEnabled = b;
-        Reporter.queueReportMsg("Ping Spoofer", b);
+        Reporter.queueEnableMsg("Ping Spoofer", b);
     }
 }
