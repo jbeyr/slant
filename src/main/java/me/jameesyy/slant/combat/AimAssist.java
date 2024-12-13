@@ -1,7 +1,9 @@
 package me.jameesyy.slant.combat;
 
+import me.jameesyy.slant.ActionConflictResolver;
 import me.jameesyy.slant.Main;
 import me.jameesyy.slant.ModConfig;
+import me.jameesyy.slant.Targeter;
 import me.jameesyy.slant.util.AntiBot;
 import me.jameesyy.slant.util.Reporter;
 import net.minecraft.client.Minecraft;
@@ -11,11 +13,11 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import org.lwjgl.input.Mouse;
 
 import java.util.Optional;
 
 public class AimAssist {
-    private static Optional<EntityLivingBase> targetEntity;
     private static float range;
     private static float rangeSqr;
     private static float maxYawTickRotation;
@@ -24,6 +26,9 @@ public class AimAssist {
     private static boolean enabled;
     private static TargetPriority targetPriority;
     private static boolean isHittingBlock;
+    private static float closenessThreshold;
+    private static boolean whenLeftMouseButtonHeldDown;
+    private static boolean whenMovingForward;
 
     public static float getFov() {
         return fov;
@@ -43,6 +48,27 @@ public class AimAssist {
 
     public static void setIsHittingBlock(boolean b) {
         AimAssist.isHittingBlock = b;
+    }
+
+    public static void setClosenessThreshold(float f) {
+        AimAssist.closenessThreshold = f;
+        ModConfig.aimAssistClosenessThreshold = f;
+        Reporter.queueSetMsg("Aim Assist", "Closeness FOV", f);
+    }
+
+    public static float getClosenessThreshold() {
+        return closenessThreshold;
+    }
+
+    public static void setWhenLeftMouseButtonHeldDown(boolean b) {
+        ModConfig.aimAssistWhenLeftMouseButtonHeldDown = b;
+        AimAssist.whenLeftMouseButtonHeldDown = b;
+        Reporter.queueSetMsg("Aim Assist", "When Left Mouse Button Held Down", b);
+
+    }
+
+    public static void setWhenMovingForward(boolean whenMovingForward) {
+        AimAssist.whenMovingForward = whenMovingForward;
     }
 
     public enum TargetPriority {
@@ -68,19 +94,11 @@ public class AimAssist {
         Reporter.queueSetMsg("Aim Assist", "Target Priority", tp);
     }
 
-    public static float getActivationRadius() {
-        return range;
-    }
-
     public static void setActivationRadius(float range) {
         rangeSqr = range * range;
         AimAssist.range = range;
         ModConfig.aimAssistActivationRadius = range;
         Reporter.queueSetMsg("Aim Assist", "Activation Radius", range);
-    }
-
-    public static Optional<EntityLivingBase> getTargetEntity() {
-        return targetEntity;
     }
 
     public static boolean isEnabled() {
@@ -176,7 +194,10 @@ public class AimAssist {
         return bestTarget;
     }
 
-    // Helper method to calculate rotations to a target
+    /**
+     * @param entity the target
+     * @return a 2-element array (yaw, pitch) needed to rotate to a target
+     */
     private static double[] getRotationsNeeded(Entity entity) {
         double diffX = entity.posX - Minecraft.getMinecraft().thePlayer.posX;
         double diffZ = entity.posZ - Minecraft.getMinecraft().thePlayer.posZ;
@@ -186,14 +207,19 @@ public class AimAssist {
         float yaw = (float) Math.toDegrees(Math.atan2(diffZ, diffX)) - 90.0F;
         float pitch = (float) -Math.toDegrees(Math.atan2(diffY, dist));
 
-        return new double[] { yaw, pitch };
+        return new double[]{yaw, pitch};
     }
 
-    public static boolean isInAValidStateToAim() {
+    public static boolean isAimAssistingAllowed() {
         Minecraft mc = Minecraft.getMinecraft();
-        if (mc.thePlayer == null || !mc.thePlayer.isEntityAlive()) return false;
-        if (mc.currentScreen != null) return false;
-        return enabled;
+        return ActionConflictResolver.isRotatingAllowed()
+                && enabled
+                && !isHittingBlock()
+                && Targeter.getTarget().isPresent()
+                && !mc.thePlayer.isUsingItem()
+                && mc.gameSettings.thirdPersonView != 2
+                && (Mouse.isButtonDown(0) || !whenLeftMouseButtonHeldDown)
+                && (mc.gameSettings.keyBindForward.isKeyDown() || !whenMovingForward);
     }
 
     public static double[] calculateHitboxBounds(EntityPlayerSP player, Entity target) {
@@ -227,19 +253,7 @@ public class AimAssist {
 
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent event) {
-
-        if (Main.getAimAssistKey().isPressed()) {
-            targetEntity = Optional.empty();
-            setEnabled(!enabled);
-        }
-
-        if (!enabled) return;
-        if (event.phase != TickEvent.Phase.END) return;
-
-        Minecraft mc = Minecraft.getMinecraft();
-        if (mc.thePlayer == null) return;
-
-        targetEntity = findTarget();
+        if (Main.getAimAssistKey().isPressed()) setEnabled(!enabled);
     }
 
     private static double normalizeAngle(double angle) {

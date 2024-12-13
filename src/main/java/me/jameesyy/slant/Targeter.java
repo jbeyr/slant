@@ -70,7 +70,7 @@ public class Targeter {
         if (!target.isPresent()) return;
 
         EntityPlayer me = Minecraft.getMinecraft().thePlayer;
-        if (target.get().getDistanceSqToEntity(me) > 36f && timeSet >= System.currentTimeMillis() + (10 * 1000)) {
+        if (target.get().getDistanceSqToEntity(me) > 36f || timeSet >= System.currentTimeMillis() + (10 * 1000)) {
             clearTarget();
         }
     }

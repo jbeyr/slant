@@ -79,8 +79,17 @@ public class ModConfig extends Vigilant {
         @Property(type = PropertyType.SWITCH, name = "Vertical Rotations", category = "Aim Assist")
         public static boolean aimAssistVerticalRotations = false;
 
+        @Property(type = PropertyType.SWITCH, name = "When Left Mouse Button Is Held Down", category = "Aim Assist")
+        public static boolean aimAssistWhenLeftMouseButtonHeldDown = false;
+
+        @Property(type = PropertyType.SWITCH, name = "When Moving Forward", category = "Aim Assist")
+        public static boolean aimAssistWhenMovingForward = false;
+
         @Property(type = PropertyType.DECIMAL_SLIDER, name = "Activation FOV", category = "Aim Assist", minF = 0, maxF = 360, decimalPlaces = 0)
         public static float aimAssistFov = 360f;
+
+        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Closeness Threshold", category = "Aim Assist", minF = 0, maxF = 90, decimalPlaces = 0, description = "Stop aim assistance within this cursor-hitbox distance threshold.")
+        public static float aimAssistClosenessThreshold = .5f;
 
         @Property(type = PropertyType.DECIMAL_SLIDER, name = "Activation Radius", category = "Aim Assist", minF = 1f, maxF = 8f, decimalPlaces = 2)
         public static float aimAssistActivationRadius = 4.15f;
@@ -255,11 +264,14 @@ public class ModConfig extends Vigilant {
         AutoTool.setNearBedOnly(autoToolNearBedOnly);
 
 
-        AimAssist.setEnabled(betterAimEnabled);
-        AimAssist.setFov(betterAimFov);
+        AimAssist.setEnabled(aimAssistEnabled);
+        AimAssist.setFov(aimAssistFov);
+        AimAssist.setWhenLeftMouseButtonHeldDown(aimAssistWhenLeftMouseButtonHeldDown);
+        AimAssist.setWhenMovingForward(aimAssistWhenMovingForward);
+        AimAssist.setClosenessThreshold(aimAssistClosenessThreshold);
         AimAssist.setTargetPriority(AimAssist.TargetPriority.values()[aimAssistTargetPriority]);
-        AimAssist.setVerticalRotations(betterAimVerticalRotations);
-        AimAssist.setActivationRadius(betterAimActivationRadius);
+        AimAssist.setVerticalRotations(aimAssistVerticalRotations);
+        AimAssist.setActivationRadius(aimAssistActivationRadius);
         AimAssist.setMaxYawTickRotation(aimAssistMaxYawTickRotation);
         AimAssist.setRotationSpeed(aimAssistRotationSpeed);
 
@@ -380,6 +392,9 @@ public class ModConfig extends Vigilant {
 
         registerListener("aimAssistTargetPriority", (Integer i) -> AimAssist.setTargetPriority(AimAssist.TargetPriority.values()[i]));
         registerListener("aimAssistVerticalRotations", AimAssist::setVerticalRotations);
+        registerListener("aimAssistWhenLeftMouseButtonHeldDown", AimAssist::setWhenLeftMouseButtonHeldDown);
+        registerListener("aimAssistWhenMovingForward", AimAssist::setWhenMovingForward);
+        registerListener("aimAssistClosenessThreshold", AimAssist::setClosenessThreshold);
         registerListener("aimAssistFov", AimAssist::setFov);
         registerListener("aimAssistActivationRadius", AimAssist::setActivationRadius);
         registerListener("aimAssistRotationSpeed", AimAssist::setRotationSpeed);
