@@ -36,6 +36,7 @@ public class MixinEntityPlayerSP {
         float currentYaw = player.rotationYaw;
         float centerYaw = (minYaw + maxYaw) / 2;
 
+        // normalize yaw
         float yawDiff = (centerYaw - currentYaw) % 360;
         if (yawDiff > 180) yawDiff -= 360;
         if (yawDiff < -180) yawDiff += 360;
@@ -46,7 +47,7 @@ public class MixinEntityPlayerSP {
         float targetPitch = (float) AimAssist.clamp((minPitch + maxPitch) / 2, -90, 90);
         float pitchDiff = targetPitch - player.rotationPitch;
 
-        // dont aim if within "acceptable" fov
+        // don't aim if within "acceptable" fov
         double angleDifference = Math.sqrt(yawDiff * yawDiff + pitchDiff * pitchDiff);
         if (angleDifference <= AimAssist.getClosenessThreshold()) return;
 
@@ -60,7 +61,7 @@ public class MixinEntityPlayerSP {
     private void onLivingUpdate(CallbackInfo ci) {
         EntityPlayerSP player = (EntityPlayerSP) (Object) this;
 
-        // use adjusted aimassist yaw/pitch and then let physics engine handle the rest
+        // use adjusted/corrected aimassist yaw/pitch and then let physics engine handle the rest
         if (AimAssist.isAimAssistingAllowed()) slant$handleAimAssist(player);
     }
 }

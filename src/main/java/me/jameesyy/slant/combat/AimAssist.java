@@ -4,18 +4,13 @@ import me.jameesyy.slant.ActionConflictResolver;
 import me.jameesyy.slant.Main;
 import me.jameesyy.slant.ModConfig;
 import me.jameesyy.slant.Targeter;
-import me.jameesyy.slant.util.AntiBot;
 import me.jameesyy.slant.util.Reporter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.MovingObjectPosition;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.lwjgl.input.Mouse;
-
-import java.util.Optional;
 
 public class AimAssist {
     private static float range;
@@ -141,75 +136,6 @@ public class AimAssist {
         Reporter.queueSetMsg("Aim Assist", "Vertical Rotations", b);
     }
 
-    private static Optional<EntityLivingBase> findTarget() {
-        Minecraft mc = Minecraft.getMinecraft();
-
-        Optional<EntityLivingBase> bestTarget = Optional.empty();
-        if (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY) {
-            if (mc.objectMouseOver.entityHit instanceof EntityLivingBase) {
-                bestTarget = Optional.of((EntityLivingBase) mc.objectMouseOver.entityHit);
-                if (AntiBot.isRecommendedTarget(bestTarget.get(), rangeSqr)) {
-                    return bestTarget;
-                }
-            }
-        }
-        if (!bestTarget.isPresent() && targetPriority == TargetPriority.INITIAL_HITSCAN) return Optional.empty();
-
-        // If no target found with initial hitscan or if using a different priority mode
-        float lowestHealth = Float.MAX_VALUE;
-        double closestAngle = Double.MAX_VALUE;
-
-        for (Entity entity : mc.theWorld.loadedEntityList) {
-            if (!(entity instanceof EntityLivingBase) || entity == mc.thePlayer) continue;
-            EntityLivingBase livingEntity = (EntityLivingBase) entity;
-
-            if (!AntiBot.isRecommendedTarget(livingEntity, rangeSqr)) continue;
-
-            // FOV check
-            double[] rotations = getRotationsNeeded(livingEntity);
-            double yawDifference = normalizeAngle(rotations[0] - mc.thePlayer.rotationYaw);
-            double pitchDifference = normalizeAngle(rotations[1] - mc.thePlayer.rotationPitch);
-            double angleDifference = Math.sqrt(yawDifference * yawDifference + pitchDifference * pitchDifference);
-
-            if (angleDifference > fov) continue; // Assuming 'fov' is a defined constant or variable
-
-            switch (targetPriority) {
-                case LOWEST_HEALTH:
-                    float health = livingEntity.getHealth();
-                    if (health < lowestHealth) {
-                        lowestHealth = health;
-                        bestTarget = Optional.of(livingEntity);
-                    }
-                    break;
-                case CLOSEST_FOV:
-                default:
-                    if (angleDifference < closestAngle) {
-                        closestAngle = angleDifference;
-                        bestTarget = Optional.of(livingEntity);
-                    }
-                    break;
-            }
-        }
-
-        return bestTarget;
-    }
-
-    /**
-     * @param entity the target
-     * @return a 2-element array (yaw, pitch) needed to rotate to a target
-     */
-    private static double[] getRotationsNeeded(Entity entity) {
-        double diffX = entity.posX - Minecraft.getMinecraft().thePlayer.posX;
-        double diffZ = entity.posZ - Minecraft.getMinecraft().thePlayer.posZ;
-        double diffY = entity.posY + entity.getEyeHeight() - (Minecraft.getMinecraft().thePlayer.posY + Minecraft.getMinecraft().thePlayer.getEyeHeight());
-
-        double dist = Math.sqrt(diffX * diffX + diffZ * diffZ);
-        float yaw = (float) Math.toDegrees(Math.atan2(diffZ, diffX)) - 90.0F;
-        float pitch = (float) -Math.toDegrees(Math.atan2(diffY, dist));
-
-        return new double[]{yaw, pitch};
-    }
-
     public static boolean isAimAssistingAllowed() {
         Minecraft mc = Minecraft.getMinecraft();
         return ActionConflictResolver.isRotatingAllowed()
@@ -254,16 +180,5 @@ public class AimAssist {
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent event) {
         if (Main.getAimAssistKey().isPressed()) setEnabled(!enabled);
-    }
-
-    private static double normalizeAngle(double angle) {
-        angle = angle % 360.0;
-        if (angle >= 180.0) {
-            angle -= 360.0;
-        }
-        if (angle < -180.0) {
-            angle += 360.0;
-        }
-        return Math.abs(angle);
     }
 }

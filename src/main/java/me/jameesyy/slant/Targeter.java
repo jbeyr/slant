@@ -11,7 +11,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.*;
 
-import static net.minecraftforge.fml.common.gameevent.TickEvent.*;
+import static net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
+import static net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 
 public class Targeter {
 

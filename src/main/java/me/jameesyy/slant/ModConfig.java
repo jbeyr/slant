@@ -7,6 +7,7 @@ import me.jameesyy.slant.combat.*;
 import me.jameesyy.slant.movement.AutoJumpReset;
 import me.jameesyy.slant.movement.NoJumpDelay;
 import me.jameesyy.slant.movement.Safewalk;
+import me.jameesyy.slant.movement.Sprint;
 import me.jameesyy.slant.network.Backtrack;
 import me.jameesyy.slant.network.PingSpoofer;
 import me.jameesyy.slant.render.*;
@@ -21,6 +22,9 @@ import java.io.File;
 public class ModConfig extends Vigilant {
 
     private static ModConfig INSTANCE;
+
+    // TODO use the reflections + lombok libs to recursively map to these fields in their package
+    // less explicit but I'd rather not deal with this much boilerplate
 
     @Property(type = PropertyType.SWITCH, name = "Safewalk", category = "Modules", description = "Sneak near the edge of blocks.")
     public static boolean safewalkEnabled = false;
@@ -246,6 +250,9 @@ public class ModConfig extends Vigilant {
         @Property(type = PropertyType.SLIDER, name = "Max Lines", category = "Tracers", min=1, max=100)
         public static int tracersMaxLines = 10;
 
+    @Property(type = PropertyType.SWITCH, name = "Sprint", category = "Modules", description = "Automatically holds sprint for you.")
+    public static boolean sprintEnabled = false;
+
     private ModConfig() {
         super(new File("./config/" + Main.MODID + ".toml"), "Slant Config");
         initialize();
@@ -283,7 +290,7 @@ public class ModConfig extends Vigilant {
         BetterAim.setActivationRadius(betterAimActivationRadius);
         EnhancedAimingModule.setMinTargetAngularSize(minTargetAngularSize);
         EnhancedAimingModule.setBlendFactor(blendFactor);
-        EnhancedAimingModule.setAimStrength(10f);
+        EnhancedAimingModule.setAimStrength(10f); // hardcoding this since it has no real effect past 1f
 
         Backtrack.setEnabled(backtrackEnabled);
         Backtrack.setDelay(backtrackDelayMs);
@@ -348,6 +355,7 @@ public class ModConfig extends Vigilant {
         Tracers.setCameraDistance(tracersCameraDistance);
         Tracers.setRespectLineOfSight(tracersRespectLineOfSight);
         Tracers.setMaxVerticalDistance(tracersMaxVerticalDistance);
+        Sprint.setEnabled(sprintEnabled);
     }
 
     public void setupConfigCallbacks() {
@@ -372,6 +380,8 @@ public class ModConfig extends Vigilant {
         registerListener("safewalkEnabled", Safewalk::setEnabled);
         registerListener("backtrackEnabled", Backtrack::setEnabled);
         registerListener("pingSpooferEnabled", PingSpoofer::setEnabled);
+        registerListener("aimAssistEnabled", AimAssist::setEnabled);
+
 
         registerListener("autoWeaponSwapOnSwing", AutoWeapon::setSwapOnSwing);
         registerListener("autoToolOnSneakOnly", AutoTool::setOnSneakOnly);
@@ -437,6 +447,8 @@ public class ModConfig extends Vigilant {
         registerListener("tracersCameraDistance", Tracers::setCameraDistance);
         registerListener("tracersRespectLineOfSight", Tracers::setRespectLineOfSight);
         registerListener("tracersMaxVerticalDistance", Tracers::setMaxVerticalDistance);
+
+        registerListener("sprintEnabled", Sprint::setEnabled);
     }
 
     private static void openConfigGui() {

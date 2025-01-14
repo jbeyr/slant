@@ -6,7 +6,7 @@ import net.minecraft.util.MovingObjectPosition;
 
 public class ActionConflictResolver {
 
-    private static boolean isActingOnPlayerBehalfAllowed() {
+    public static boolean isActingOnPlayerBehalfAllowed() {
         Minecraft mc = Minecraft.getMinecraft();
         return mc.thePlayer != null && mc.thePlayer.isEntityAlive() && mc.currentScreen == null && mc.inGameHasFocus;
     }
@@ -19,6 +19,11 @@ public class ActionConflictResolver {
         Minecraft mc = Minecraft.getMinecraft();
         return isActingOnPlayerBehalfAllowed() && !AutoGhead.isInProgress() && !mc.thePlayer.isUsingItem();
     }
+
+    public static boolean isSprintingAllowed() {
+        return isActingOnPlayerBehalfAllowed();
+    }
+
 
     public static boolean isSneakingAllowed() {
         return isActingOnPlayerBehalfAllowed();

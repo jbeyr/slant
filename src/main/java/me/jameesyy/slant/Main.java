@@ -1,10 +1,8 @@
 package me.jameesyy.slant;
 
-import me.jameesyy.slant.combat.AimAssist;
-import me.jameesyy.slant.combat.BetterAim;
-import me.jameesyy.slant.combat.LeftAutoclicker;
-import me.jameesyy.slant.combat.RightAutoclicker;
+import me.jameesyy.slant.combat.*;
 import me.jameesyy.slant.movement.Safewalk;
+import me.jameesyy.slant.movement.Sprint;
 import me.jameesyy.slant.network.PacketManager;
 import me.jameesyy.slant.render.*;
 import me.jameesyy.slant.util.*;
@@ -124,6 +122,8 @@ public class Main {
         MinecraftForge.EVENT_BUS.register(new QuickMathsSolver());
         MinecraftForge.EVENT_BUS.register(new ChestEsp());
         MinecraftForge.EVENT_BUS.register(new Tracers());
+        MinecraftForge.EVENT_BUS.register(new Sprint());
+        MinecraftForge.EVENT_BUS.register(new BlockHit());
         ModConfig.getInstance().setModulesToConfig();
     }
 }

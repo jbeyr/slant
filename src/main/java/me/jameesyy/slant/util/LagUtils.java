@@ -1,14 +1,13 @@
 package me.jameesyy.slant.util;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 
 import static me.jameesyy.slant.network.PacketManager.mc;
-import static me.jameesyy.slant.util.Renderer.*;
+import static me.jameesyy.slant.util.Renderer.drawBbox3d;
 
 public class LagUtils {
 
@@ -27,7 +26,7 @@ public class LagUtils {
      * Draws the real position of the hitbox where the other entity is.
      */
     public static void drawTrueBacktrackHitbox(Vec3 lastPos, Vec3 nowPos, float partialTicksForTargetPos, float partialTicksForPlayerPos, float red, float green, float blue, float opacity) {
-        // TODO use kb physics simulation
+        // TODO use a kb physics simulation, or better yet, just process inbound packets on a fake entity and throttle them for the real entity
         EntityPlayer me = Minecraft.getMinecraft().thePlayer;
         Vec3 targetLerpPos = Renderer.interpolatedPos(nowPos, lastPos, partialTicksForTargetPos);
         Vec3 myLerpPos = Renderer.interpolatedPos(me, partialTicksForPlayerPos);
