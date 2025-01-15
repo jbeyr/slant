@@ -22,6 +22,7 @@ Slant is standalone with dependents baked in and distributed as a `.jar` file. J
 - **Auto Jump Reset**: jumps the moment you take damage and knockback from other players, substantially reducing received knockback.
 - **Auto Tool**: swaps to the tool that mines the block you're trying to break the fastest.
 - **Auto Weapon**: swaps to the leftmost slot with a weapon in your hotbar.
+- **Backtrack**: lag-based reach module that delays the velocity of other players so they don't go out of range
 - **No Hit Delay**: removes the vanilla attack cooldown that occurs when you miss a certain threshold of left clicks in a short period of time.
 - **No Jump Delay**: removes the vanilla jump cooldown that occurs when holding the jump key.
 - **No Mining Delay**: removes the vanilla block-breaking cooldown that occurs between block break or damage ticks when holding down the left mouse button.
