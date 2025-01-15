@@ -28,6 +28,7 @@ Slant is standalone with dependents baked in and distributed as a `.jar` file. J
 - **No Mining Delay**: removes the vanilla block-breaking cooldown that occurs between block break or damage ticks when holding down the left mouse button.
 - **ESP**: renders hitboxes on players; particularly useful for invisibles and certain blocks.
   - **Shark ESP**: renders hitboxes for players below a certain health threshold.
+- **Ping Spoofer**: a lag switch that throttles inbound and outbound packets for an extended latency offset
 - **Pointer**: renders a cursor at the aim position that provides the most reach on a target.
 - **Safewalk**: dynamically toggles the sneak button for the player as they're bridging so they don't fall off a ledge or into the void.
 
