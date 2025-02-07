@@ -16,18 +16,21 @@ Slant is standalone with dependents baked in and distributed as a `.jar` file. J
 
 # Features
 - **Anti Bot**: detects and ignores spoofed players that are fabricated by anticheats.
-- **Aimlock**: frame-by-frame aim correction by mapping normal camera rotations to alternate ones skewed toward the hitbox of the target entity.
+- **Aim Assist**: aims your camera towards target entities.
+- **Better Aim**: frame-by-frame aim correction by mapping normal camera rotations to alternate ones skewed toward the hitbox of the target entity.
 - **Autoclicker**: Clicks the mouse for you when holding down the respective button.
 - **Auto Ghead**: swaps your hotbar slot to a healing item and consumes it, when below a certain health threshold.
 - **Auto Jump Reset**: jumps the moment you take damage and knockback from other players, substantially reducing received knockback.
 - **Auto Tool**: swaps to the tool that mines the block you're trying to break the fastest.
 - **Auto Weapon**: swaps to the leftmost slot with a weapon in your hotbar.
 - **Backtrack**: lag-based reach module that delays the velocity of other players so they don't go out of range
+- **Blockhit**: automatically blockhits when you attack with your sword.
 - **No Hit Delay**: removes the vanilla attack cooldown that occurs when you miss a certain threshold of left clicks in a short period of time.
 - **No Jump Delay**: removes the vanilla jump cooldown that occurs when holding the jump key.
 - **No Mining Delay**: removes the vanilla block-breaking cooldown that occurs between block break or damage ticks when holding down the left mouse button.
 - **ESP**: renders hitboxes on players; particularly useful for invisibles and certain blocks.
   - **Shark ESP**: renders hitboxes for players below a certain health threshold.
+  - **Bed ESP**: renders beds through walls.
 - **Ping Spoofer**: a lag switch that throttles inbound and outbound packets for an extended latency offset
 - **Pointer**: renders a cursor at the aim position that provides the most reach on a target.
 - **Safewalk**: dynamically toggles the sneak button for the player as they're bridging so they don't fall off a ledge or into the void.

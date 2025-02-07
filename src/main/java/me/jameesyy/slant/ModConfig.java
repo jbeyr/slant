@@ -23,6 +23,67 @@ public class ModConfig extends Vigilant {
 
     private static ModConfig INSTANCE;
 
+    // region block hit
+    @Property(type = PropertyType.SWITCH, name = "Block Hit", category = "Modules", description = "Blocks your sword between attacks to reduce damage.")
+    public static boolean blockHitEnabled = false;
+
+    // endregion
+
+
+    @Property(type = PropertyType.SWITCH, name = "Aim Assist", category = "Modules", description = "Aim towards players for you.")
+    public static boolean enabled = false;
+
+        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Lock-on FOV", category = "Aim Assist", minF = 0, maxF = 360f, decimalPlaces = 1)
+        public static float lockFov = 15f;
+
+        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Lock-on Aim Speed Multiplier", category = "Aim Assist", minF = 0f, maxF = 5f, decimalPlaces = 1)
+        public static float lockAimSpeedMultiplier = 1f;
+
+        @Property(type = PropertyType.SWITCH, name = "Only Players", category = "Aim Assist", description = "Only aims on players")
+        public static boolean onlyPlayers = true;
+    
+        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Horizontal speed", category = "Aim Assist", minF = 0, maxF = 1000f, decimalPlaces = 1)
+        public static float horizontalSpeed = 5f;
+    
+        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Vertical speed", category = "Aim Assist", minF = 0, maxF = 10f, decimalPlaces = 1)
+        public static float verticalSpeed = 2f;
+    
+        @Property(type = PropertyType.PERCENT_SLIDER, name = "Horizontal Multipoint", category = "Aim Assist", decimalPlaces = 2)
+        public static float horizontalMultipoint = 0.5f;
+    
+        @Property(type = PropertyType.PERCENT_SLIDER, name = "Vertical Multipoint", category = "Aim Assist", decimalPlaces = 2)
+        public static float verticalMultipoint = 0.5f;
+    
+        @Property(type = PropertyType.PERCENT_SLIDER, name = "Predict", category = "Aim Assist", decimalPlaces = 2)
+        public static float predict = 0.5f;
+    
+        @Property(type = PropertyType.PERCENT_SLIDER, name = "Randomization", category = "Aim Assist", decimalPlaces = 2)
+        public static float randomization = 0.5f;
+    
+        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Min Range", category = "Aim Assist", minF = 0, maxF = 10f, decimalPlaces = 2)
+        public static float minRange = 1f;
+    
+        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Max Range", category = "Aim Assist", minF = 0, maxF = 10f, decimalPlaces = 2)
+        public static float maxRange = 4f;
+    
+        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Min FOV", category = "Aim Assist", minF = 0, maxF = 360, decimalPlaces = 0)
+        public static float minFOV = 0f;
+    
+        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Max FOV", category = "Aim Assist", minF = 0, maxF = 360, decimalPlaces = 0)
+        public static float maxFOV = 100f;
+    
+        @Property(type = PropertyType.SWITCH, name = "Increase fov while locked", category = "Aim Assist")
+        public static boolean increasedFOVWhileLocked = true;
+    
+        @Property(type = PropertyType.SWITCH, name = "Consider better manual aim", category = "Aim Assist")
+        private boolean considerBetterManualAim = true;
+
+    // endregion
+
+
+
+
+
     // TODO use the reflections + lombok libs to recursively map to these fields in their package
     // less explicit but I'd rather not deal with this much boilerplate
 
@@ -53,7 +114,10 @@ public class ModConfig extends Vigilant {
     @Property(type = PropertyType.SWITCH, name = "Anti Bot", category = "Modules", description = "Tells combat modules to ignore bots.")
     public static boolean antiBotEnabled = true;
 
-    @Property(type = PropertyType.SWITCH, name = "Respect Teams", category = "Anti Bot", description = "Ignore teammates.")
+        @Property(type = PropertyType.SWITCH, name = "Only Players", category = "Anti Bot", description = "Tells combat modules to only target players.")
+        public static boolean antiBotOnlyPlayers = true;
+
+        @Property(type = PropertyType.SWITCH, name = "Respect Teams", category = "Anti Bot", description = "Ignore teammates.")
         public static boolean antiBotRespectTeams = true;
 
     @Property(type = PropertyType.SWITCH, name = "Auto Ghead", category = "Modules", description = "Consumes golden heads when you're low on health.")
@@ -73,36 +137,6 @@ public class ModConfig extends Vigilant {
 
     @Property(type = PropertyType.SWITCH, name = "Swap On Swing", category = "Auto Weapon", description = "If true, swaps when a target entity triggers LMB Autoclicker.")
         public static boolean autoWeaponSwapOnSwing = false;
-
-    @Property(type = PropertyType.SWITCH, name = "Aim Assist", category = "Modules", description = "Helps track the target hitbox when your crosshair enters it.")
-    public static boolean aimAssistEnabled = false;
-
-        @Property(type = PropertyType.SELECTOR, name = "Target Priority", category = "Aim Assist", description = "Focus betterAim on the initially hitscanned player, the closest player within the FOV range, or the lowest health player within the FOV range.", options = {"Initial Hitscan", "Closest FOV", "Lowest Health"})
-        public static int aimAssistTargetPriority = BetterAim.TargetPriority.INITIAL_HITSCAN.ordinal();
-
-        @Property(type = PropertyType.SWITCH, name = "Vertical Rotations", category = "Aim Assist")
-        public static boolean aimAssistVerticalRotations = false;
-
-        @Property(type = PropertyType.SWITCH, name = "When Left Mouse Button Is Held Down", category = "Aim Assist")
-        public static boolean aimAssistWhenLeftMouseButtonHeldDown = false;
-
-        @Property(type = PropertyType.SWITCH, name = "When Moving Forward", category = "Aim Assist")
-        public static boolean aimAssistWhenMovingForward = false;
-
-        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Activation FOV", category = "Aim Assist", minF = 0, maxF = 360, decimalPlaces = 0)
-        public static float aimAssistFov = 360f;
-
-        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Closeness Threshold", category = "Aim Assist", minF = 0, maxF = 90, decimalPlaces = 0, description = "Stop aim assistance within this cursor-hitbox distance threshold.")
-        public static float aimAssistClosenessThreshold = .5f;
-
-        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Activation Radius", category = "Aim Assist", minF = 1f, maxF = 8f, decimalPlaces = 2)
-        public static float aimAssistActivationRadius = 4.15f;
-
-        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Rotation Speed", category = "Aim Assist", minF = .05f, maxF = .5f, decimalPlaces = 2)
-        public static float aimAssistRotationSpeed = 0.15f;
-
-        @Property(type = PropertyType.DECIMAL_SLIDER, name = "Max Yaw Tick Rotation", category = "Aim Assist", minF = 1f, maxF = 50f)
-        public static float aimAssistMaxYawTickRotation = 40f;
 
 
     @Property(type = PropertyType.SWITCH, name = "Better Aim", category = "Modules", description = "Helps track the target hitbox when your crosshair enters it.")
@@ -260,6 +294,7 @@ public class ModConfig extends Vigilant {
 
     public void setModulesToConfig() {
         AntiBot.setEnabled(antiBotEnabled);
+        AntiBot.setOnlyPlayers(antiBotOnlyPlayers);
         AntiBot.setRespectTeams(antiBotRespectTeams);
 
         AutoGhead.setEnabled(autoGheadEnabled);
@@ -270,17 +305,7 @@ public class ModConfig extends Vigilant {
         AutoTool.setOnSneakOnly(autoToolOnSneakOnly);
         AutoTool.setNearBedOnly(autoToolNearBedOnly);
 
-
-        AimAssist.setEnabled(aimAssistEnabled);
-        AimAssist.setFov(aimAssistFov);
-        AimAssist.setWhenLeftMouseButtonHeldDown(aimAssistWhenLeftMouseButtonHeldDown);
-        AimAssist.setWhenMovingForward(aimAssistWhenMovingForward);
-        AimAssist.setClosenessThreshold(aimAssistClosenessThreshold);
-        AimAssist.setTargetPriority(AimAssist.TargetPriority.values()[aimAssistTargetPriority]);
-        AimAssist.setVerticalRotations(aimAssistVerticalRotations);
-        AimAssist.setActivationRadius(aimAssistActivationRadius);
-        AimAssist.setMaxYawTickRotation(aimAssistMaxYawTickRotation);
-        AimAssist.setRotationSpeed(aimAssistRotationSpeed);
+        BlockHit.setEnabled(blockHitEnabled);
 
         BetterAim.setEnabled(betterAimEnabled);
         BetterAim.setFov(betterAimFov);
@@ -356,11 +381,47 @@ public class ModConfig extends Vigilant {
         Tracers.setRespectLineOfSight(tracersRespectLineOfSight);
         Tracers.setMaxVerticalDistance(tracersMaxVerticalDistance);
         Sprint.setEnabled(sprintEnabled);
+
+        AimAssist.setEnabled(enabled);
+        AimAssist.setLockAimSpeedMultiplier(lockAimSpeedMultiplier);
+        AimAssist.setLockFov(lockFov);
+        AimAssist.setOnlyPlayers(onlyPlayers);
+        AimAssist.setHorizontalSpeed(horizontalSpeed);
+        AimAssist.setVerticalSpeed(verticalSpeed);
+        AimAssist.setHorizontalMultipoint(horizontalMultipoint);
+        AimAssist.setVerticalMultipoint(verticalMultipoint);
+        AimAssist.setPredict(predict);
+        AimAssist.setRandomization(randomization);
+        AimAssist.setMinRange(minRange);
+        AimAssist.setMaxRange(maxRange);
+        AimAssist.setMinFOV(minFOV);
+        AimAssist.setMaxFOV(maxFOV);
+        AimAssist.setIncreasedFOVWhileLocked(increasedFOVWhileLocked);
+        AimAssist.setConsiderBetterManualAim(considerBetterManualAim);
     }
 
     public void setupConfigCallbacks() {
+        registerListener("enabled", AimAssist::setEnabled);
+        registerListener("lockFov", AimAssist::setLockFov);
+        registerListener("lockAimSpeedMultiplier", AimAssist::setLockAimSpeedMultiplier);
+        registerListener("onlyPlayers", AimAssist::setOnlyPlayers);
+        registerListener("horizontalSpeed", AimAssist::setHorizontalSpeed);
+        registerListener("verticalSpeed", AimAssist::setVerticalSpeed);
+        registerListener("horizontalMultipoint", AimAssist::setHorizontalMultipoint);
+        registerListener("verticalMultipoint", AimAssist::setVerticalMultipoint);
+        registerListener("predict", AimAssist::setPredict);
+        registerListener("randomization", AimAssist::setRandomization);
+        registerListener("minRange", AimAssist::setMinRange);
+        registerListener("maxRange", AimAssist::setMaxRange);
+        registerListener("minFOV", AimAssist::setMinFOV);
+        registerListener("maxFOV", AimAssist::setMaxFOV);
+        registerListener("increasedFOVWhileLocked", AimAssist::setIncreasedFOVWhileLocked);
+        registerListener("considerBetterManualAim", AimAssist::setConsiderBetterManualAim);
 
         registerListener("antiBotEnabled", AntiBot::setEnabled);
+        registerListener("antiBotOnlyPlayers", AntiBot::setOnlyPlayers);
+        registerListener("antiBotRespectTeams", AntiBot::setRespectTeams);
+
         registerListener("autoGheadEnabled", AutoGhead::setEnabled);
         registerListener("autoWeaponEnabled", AutoWeapon::setEnabled);
         registerListener("autoToolEnabled", AutoTool::setEnabled);
@@ -368,6 +429,7 @@ public class ModConfig extends Vigilant {
         registerListener("rightAutoclickerEnabled", RightAutoclicker::setEnabled);
         registerListener("rightAutoClickerPlacingBlocksOnly", RightAutoclicker::setPlacingBlocksOnly);
 
+        registerListener("blockHitEnabled", BlockHit::setEnabled);
         registerListener("leftAutoclickerEnabled", LeftAutoclicker::setEnabled);
         registerListener("autoJumpResetEnabled", AutoJumpReset::setEnabled);
         registerListener("noJumpDelayEnabled", NoJumpDelay::setEnabled);
@@ -380,16 +442,12 @@ public class ModConfig extends Vigilant {
         registerListener("safewalkEnabled", Safewalk::setEnabled);
         registerListener("backtrackEnabled", Backtrack::setEnabled);
         registerListener("pingSpooferEnabled", PingSpoofer::setEnabled);
-        registerListener("aimAssistEnabled", AimAssist::setEnabled);
 
 
         registerListener("autoWeaponSwapOnSwing", AutoWeapon::setSwapOnSwing);
         registerListener("autoToolOnSneakOnly", AutoTool::setOnSneakOnly);
         registerListener("autoToolNearBedOnly", AutoTool::setNearBedOnly);
         registerListener("safewalkDisableIfNotBridgingPitch", Safewalk::setDisableIfNotBridgingPitch);
-        registerListener("antiBotRespectTeams", AntiBot::setRespectTeams);
-
-
 
         registerListener("leftAutoclickerRespectHurtTicks", LeftAutoclicker::setRespectHurtTicks);
         registerListener("leftAutoclickerTriggerIfMouseDown", LeftAutoclicker::setTriggerIfMouseDown);
@@ -399,16 +457,6 @@ public class ModConfig extends Vigilant {
         registerListener("leftAutoclickerActivationRadius", LeftAutoclicker::setActivationRadius);
         registerListener("rightAutoClickerMinCps", RightAutoclicker::setMinCPS);
         registerListener("rightAutoClickerMaxCps", RightAutoclicker::setMaxCPS);
-
-        registerListener("aimAssistTargetPriority", (Integer i) -> AimAssist.setTargetPriority(AimAssist.TargetPriority.values()[i]));
-        registerListener("aimAssistVerticalRotations", AimAssist::setVerticalRotations);
-        registerListener("aimAssistWhenLeftMouseButtonHeldDown", AimAssist::setWhenLeftMouseButtonHeldDown);
-        registerListener("aimAssistWhenMovingForward", AimAssist::setWhenMovingForward);
-        registerListener("aimAssistClosenessThreshold", AimAssist::setClosenessThreshold);
-        registerListener("aimAssistFov", AimAssist::setFov);
-        registerListener("aimAssistActivationRadius", AimAssist::setActivationRadius);
-        registerListener("aimAssistRotationSpeed", AimAssist::setRotationSpeed);
-        registerListener("aimAssistMaxYawTickRotation", AimAssist::setMaxYawTickRotation);
 
         registerListener("betterAimTargetHitboxColor", BetterAim::setTargetHitboxColor);
         registerListener("betterAimTargetPriority", (Integer i) -> BetterAim.setTargetPriority(BetterAim.TargetPriority.values()[i]));

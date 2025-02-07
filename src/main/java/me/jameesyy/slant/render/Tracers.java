@@ -21,6 +21,7 @@ import java.util.List;
 
 public class Tracers {
 
+    // TODO add only players setting
     public static void setMaxLines(int i) {
         Tracers.maxLines = i;
         ModConfig.tracersMaxLines = i;

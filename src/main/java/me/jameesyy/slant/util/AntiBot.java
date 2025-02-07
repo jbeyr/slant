@@ -8,10 +8,17 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityArmorStand;
+import net.minecraft.entity.monster.EntityGolem;
+import net.minecraft.entity.monster.EntityIronGolem;
+import net.minecraft.entity.monster.EntityMob;
+import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.Vec3;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
@@ -19,10 +26,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.lwjgl.opengl.GL11;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static me.jameesyy.slant.util.NbtComparer.hasSameHelmetColor;
 
@@ -39,6 +43,7 @@ public class AntiBot {
     private static long lastCombatTick = 0;
     private static boolean enabled;
     private static boolean respectTeams;
+    private static boolean onlyPlayers;
 
     public static void setRespectTeams(boolean b) {
         respectTeams = b;
@@ -56,15 +61,31 @@ public class AntiBot {
         Reporter.queueEnableMsg("Anti Bot", b);
     }
 
+    public static Optional<Vec3> ifRecommendedGetRotationsOf(Entity en) {
+        if(!(en instanceof EntityLivingBase)) return Optional.empty(); // covers null check
+        EntityLivingBase other = (EntityLivingBase)en;
+
+        EntityPlayer me = Minecraft.getMinecraft().thePlayer;
+        boolean isplayer = other instanceof EntityPlayer;
+
+        if (me == other || !other.isEntityAlive()) return Optional.empty();
+        if (other instanceof EntityArmorStand || ((!(other instanceof EntityMob) && other instanceof EntityCreature && !(other instanceof EntityGolem)))) return Optional.empty();
+        if (enabled && respectTeams && isplayer && hasSameHelmetColor(me, other)) return Optional.empty();
+        if (enabled && isplayer && AntiBot.isBotUuid(other.getUniqueID())) return Optional.empty(); // if disabled, allow blacklisted entities
+        return Optional.ofNullable(Pointer.getVisiblePart(me, other));
+    }
+
     public static boolean isRecommendedTarget(EntityLivingBase other) {
         EntityPlayer me = Minecraft.getMinecraft().thePlayer;
-        if (other == null || me == other) return false;
-        if (other instanceof EntityArmorStand) return false;
-        if (respectTeams && hasSameHelmetColor(me, other)) return false;
+        boolean isPlayer = other instanceof EntityPlayer;
 
-        return other.isEntityAlive()
-                && (!enabled || !AntiBot.isBotUuid(other.getUniqueID())) // if disabled, allow blacklisted entities
-                && Pointer.getVisiblePart(me, other) != null;
+        if (other == null || me == other) return false;
+        if (!isPlayer && onlyPlayers) return false;
+        if (other instanceof EntityArmorStand || ((!(other instanceof EntityMob) && other instanceof EntityCreature && !(other instanceof EntityGolem)))) return false;
+        if (enabled && respectTeams && isPlayer && hasSameHelmetColor(me, other)) return false;
+        if (enabled && isPlayer && AntiBot.isBotUuid(other.getUniqueID())) return false; // if disabled, allow blacklisted entities
+
+        return other.isEntityAlive() && Pointer.getVisiblePart(me, other) != null;
     }
 
     public static boolean isRecommendedTarget(EntityLivingBase other, double rangeSqr) {
@@ -90,6 +111,16 @@ public class AntiBot {
         if (name.length() < 3 || name.length() > 16) ret = false;
         for (char c : name.toCharArray()) if (!Character.isLetterOrDigit(c) && c != '_') ret = false;
         return ret;
+    }
+
+    public static boolean isOnlyPlayers() {
+        return onlyPlayers;
+    }
+
+    public static void setOnlyPlayers(boolean b) {
+        onlyPlayers = b;
+        ModConfig.antiBotEnabled = b;
+        Reporter.queueSetMsg("Anti Bot", "Only Players", b);
     }
 
     @SubscribeEvent

@@ -1,15 +1,19 @@
 package me.jameesyy.slant.mixins;
 
-import me.jameesyy.slant.Targeter;
+import me.jameesyy.slant.ActionConflictResolver;
 import me.jameesyy.slant.combat.AimAssist;
 import me.jameesyy.slant.movement.Safewalk;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.util.Vec3;
+import net.minecraft.util.MathHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import static me.jameesyy.slant.combat.AimAssist.*;
 
 @Mixin(EntityPlayerSP.class)
 public class MixinEntityPlayerSP {
@@ -22,46 +26,102 @@ public class MixinEntityPlayerSP {
 
     @Unique
     private void slant$handleAimAssist(EntityPlayerSP player) {
-        if (!AimAssist.isAimAssistingAllowed()) return;
+        float originalYaw = player.rotationYaw;
+        float originalPitch = player.rotationPitch;
 
-        // invariant: target exists if the check above passes
-        EntityLivingBase target = Targeter.getTarget().get();
+        float effectiveFOV = AimAssist.getCurrentTarget() != null && AimAssist.isIncreasedFOVWhileLocked()
+                ? AimAssist.getMaxFOV() * 1.5f
+                : AimAssist.getMaxFOV();
 
-        double[] hitboxBounds = AimAssist.calculateHitboxBounds(player, target);
-        float minYaw = (float) hitboxBounds[0];
-        float maxYaw = (float) hitboxBounds[1];
-        float minPitch = (float) hitboxBounds[2];
-        float maxPitch = (float) hitboxBounds[3];
+        EntityLivingBase target = AimAssist.findBestTarget(effectiveFOV);
 
-        float currentYaw = player.rotationYaw;
-        float centerYaw = (minYaw + maxYaw) / 2;
+        AimAssist.setCurrentTarget(target);
+        if (target == null) return;
 
-        // normalize yaw
-        float yawDiff = (centerYaw - currentYaw) % 360;
-        if (yawDiff > 180) yawDiff -= 360;
-        if (yawDiff < -180) yawDiff += 360;
+        // Calculate predicted position with speed-based prediction scaling
+        Vec3 targetPos = AimAssist.getTargetPosition(target, 1.0f);
 
-        float maxYawTickRotation = AimAssist.getMaxYawTickRotation();
-        yawDiff = (float) AimAssist.clamp(yawDiff, -maxYawTickRotation, maxYawTickRotation);
+        // Get current rotations to target before prediction
+        float[] baseRotations = AimAssist.calculateRotations(targetPos);
 
-        float targetPitch = (float) AimAssist.clamp((minPitch + maxPitch) / 2, -90, 90);
-        float pitchDiff = targetPitch - player.rotationPitch;
+        // Apply prediction
+        targetPos = AimAssist.applyMultipoint(targetPos, target);
+        targetPos = AimAssist.addRandomization(targetPos);
 
-        // don't aim if within "acceptable" fov
-        double angleDifference = Math.sqrt(yawDiff * yawDiff + pitchDiff * pitchDiff);
-        if (angleDifference <= AimAssist.getClosenessThreshold()) return;
+        float[] rotations = AimAssist.calculateRotations(targetPos);
+
+        // prevent excessive rotation changes from prediction
+        float maxPredictionDelta = 45.0f; // Maximum allowed change from prediction
+        float yawDiff = MathHelper.wrapAngleTo180_float(rotations[0] - baseRotations[0]);
+        float pitchDiff = MathHelper.wrapAngleTo180_float(rotations[1] - baseRotations[1]);
+
+        if (Math.abs(yawDiff) > maxPredictionDelta) {
+            rotations[0] = baseRotations[0] + (maxPredictionDelta * Math.signum(yawDiff));
+        }
+        if (Math.abs(pitchDiff) > maxPredictionDelta) {
+            rotations[1] = baseRotations[1] + (maxPredictionDelta * Math.signum(pitchDiff));
+        }
 
 
-        float rotationSpeed = AimAssist.getRotationSpeed();
-        player.rotationYaw += yawDiff * rotationSpeed;
-        if(AimAssist.shouldDoVerticalRotations()) player.rotationPitch += pitchDiff * rotationSpeed;
+        if (AimAssist.isConsiderBetterManualAim()) {
+            // calculate yaw differences considering wraparound
+            float manualYawDiff = player.rotationYaw - AimAssist.getLastPlayerYaw();
+            float targetYawDiff = rotations[0] - (AimAssist.getLastPlayerYaw() % 360.0f);
+
+            // normalize differences for comparison
+            if (targetYawDiff > 180.0f) targetYawDiff -= 360.0f;
+            else if (targetYawDiff < -180.0f) targetYawDiff += 360.0f;
+
+            if (manualYawDiff > 180.0f) manualYawDiff -= 360.0f;
+            else if (manualYawDiff < -180.0f) manualYawDiff += 360.0f;
+
+            float manualPitchDiff = player.rotationPitch - AimAssist.getLastPlayerPitch();
+            float targetPitchDiff = MathHelper.wrapAngleTo180_float(rotations[1] - AimAssist.getLastPlayerPitch());
+
+            // when player's manual aim is moving faster towards target than our calculated aim
+            if (Math.abs(manualYawDiff) > Math.abs(targetYawDiff) && Math.abs(manualPitchDiff) > Math.abs(targetPitchDiff)) {
+                return;
+            }
+        }
+
+        float[] smoothedRotations = AimAssist.smoothRotationsAndLockOnTarget(rotations);
+
+        float maxRotationSpeed = 90f; // maximum degree rotation per tick
+
+        float finalYawDiff = MathHelper.wrapAngleTo180_float(smoothedRotations[0] - originalYaw);
+        float finalPitchDiff = MathHelper.wrapAngleTo180_float(smoothedRotations[1] - originalPitch);
+
+        if (Math.abs(finalYawDiff) > maxRotationSpeed) {
+            finalYawDiff = maxRotationSpeed * Math.signum(finalYawDiff);
+        }
+        if (Math.abs(finalPitchDiff) > maxRotationSpeed) {
+            finalPitchDiff = maxRotationSpeed * Math.signum(finalPitchDiff);
+        }
+
+        // apply rotations
+        player.rotationYaw = originalYaw + finalYawDiff;
+        player.rotationPitch = MathHelper.clamp_float(originalPitch + finalPitchDiff, -90.0f, 90.0f);
+
+        // set arm angles to match the rotation -- this is purely on client side and is miscellaneous
+        player.renderArmYaw = player.rotationYaw;
+        player.renderArmPitch = player.rotationPitch;
+
+        // log these rotations
+        AimAssist.setLastPlayerYaw(player.rotationYaw);
+        AimAssist.setLastPlayerPitch(player.rotationPitch);
     }
 
-    @Inject(method = "onLivingUpdate", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "onLivingUpdate", at = @At("HEAD"))
     private void onLivingUpdate(CallbackInfo ci) {
-        EntityPlayerSP player = (EntityPlayerSP) (Object) this;
+        EntityPlayerSP me = (EntityPlayerSP) (Object) this;
 
         // use adjusted/corrected aimassist yaw/pitch and then let physics engine handle the rest
-        if (AimAssist.isAimAssistingAllowed()) slant$handleAimAssist(player);
+        if (ActionConflictResolver.isRotatingAllowed() && enabled) {
+            slant$handleAimAssist(me);
+
+            // Directly set arm angles to match rotation without interpolation
+
+            // Previous values will be handled by updateEntityActionState
+        }
     }
 }

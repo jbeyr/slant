@@ -1,6 +1,7 @@
 package me.jameesyy.slant.combat;
 
 import me.jameesyy.slant.ActionConflictResolver;
+import me.jameesyy.slant.ModConfig;
 import me.jameesyy.slant.util.CoolDown;
 import me.jameesyy.slant.util.Reporter;
 import me.jameesyy.slant.util.Robo;
@@ -18,13 +19,12 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class BlockHit {
 
-    // FIXME not triggering blockhits if enabled (it had one job but I don't have time to deal w/ this atm)
     private static boolean enabled = false;
 
     private static float range = 3f;
     private static float chance = 1f;
-    private static boolean onlyPlayers = true;
-    private static boolean onlyForward = true;
+    private static boolean onlyPlayers = false;
+    private static boolean onlyForward = false;
     private static float waitMsMin = 37f, waitMsMax = 59f;
     private static float actionMsMin = 12f, actionMsMax = 41f;
     private static float hitPerMin = 1, hitPerMax = 1;
@@ -37,7 +37,7 @@ public class BlockHit {
 
     public static void setEnabled(boolean b) {
         BlockHit.enabled = b;
-//        ModConfig.blockhitEnabled = b;
+        ModConfig.blockHitEnabled = b;
         Reporter.queueEnableMsg("Blockhit", b);
     }
 
@@ -51,7 +51,9 @@ public class BlockHit {
             startCombo();
         }
 
-        if (actionTimer.hasFinished() && executingAction) finishCombo();
+        if (actionTimer.hasFinished() && executingAction) {
+            finishCombo();
+        }
     }
 
     @SubscribeEvent
@@ -73,7 +75,7 @@ public class BlockHit {
         ItemStack heldItem = me.getCurrentEquippedItem();
 
         if (    (!(fe.target instanceof EntityPlayer) && onlyPlayers)
-                || !(Math.random() <= chance / 100)
+                || !(Math.random() <= chance)
                 || !(heldItem != null && heldItem.getItem() instanceof ItemSword)
                 || mc.thePlayer.getDistanceToEntity(fe.target) > range
                 || !(rHit == hits))

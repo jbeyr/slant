@@ -166,16 +166,16 @@ public class PacketManager implements Targeter.TargetChangeListener {
 
     @SubscribeEvent
     public void r1(RenderWorldLastEvent e) {
-        if (LagUtils.isIngame()) {
-            if (Backtrack.isEnabled() && target != null && currTickTargetPos != null && prevTickTargetPos != null) {
-                long currentTime = System.currentTimeMillis();
-                long timeSinceLastUpdate = currentTime - currTickTargetTime;
-                long updateInterval = currTickTargetTime - prevTickTargetTime;
-
-                float targetPartialTicks = (float) timeSinceLastUpdate / updateInterval;
-                LagUtils.drawTrueBacktrackHitbox(prevTickTargetPos, currTickTargetPos, targetPartialTicks, e.partialTicks, .3f, .7f, .3f, 1f);
-            }
-        }
+//        if (LagUtils.isIngame()) {
+//            if (Backtrack.isEnabled() && target != null && currTickTargetPos != null && prevTickTargetPos != null) {
+//                long currentTime = System.currentTimeMillis();
+//                long timeSinceLastUpdate = currentTime - currTickTargetTime;
+//                long updateInterval = currTickTargetTime - prevTickTargetTime;
+//
+//                float targetPartialTicks = (float) timeSinceLastUpdate / updateInterval;
+//                LagUtils.drawTrueBacktrackHitbox(prevTickTargetPos, currTickTargetPos, targetPartialTicks, e.partialTicks, .3f, .7f, .3f, 1f);
+//            }
+//        }
     }
 
     @Override

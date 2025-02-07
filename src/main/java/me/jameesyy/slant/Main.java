@@ -25,6 +25,7 @@ public class Main {
     private static KeyBinding rmbAutoclickKey;
     private static KeyBinding betterAimKey;
     private static KeyBinding aimAssistKey;
+
     private static KeyBinding autoJumpResetKey;
     private static KeyBinding safewalkKey;
     private static KeyBinding openConfigKey;

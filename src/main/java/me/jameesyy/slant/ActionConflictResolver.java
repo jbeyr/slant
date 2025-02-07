@@ -35,6 +35,10 @@ public class ActionConflictResolver {
     }
 
     public static boolean isRotatingAllowed() {
-        return isActingOnPlayerBehalfAllowed();
+        Minecraft mc = Minecraft.getMinecraft();
+        return isActingOnPlayerBehalfAllowed()
+                && !mc.playerController.getIsHittingBlock()
+                && !mc.thePlayer.isUsingItem()
+                && mc.gameSettings.thirdPersonView != 2;
     }
 }
