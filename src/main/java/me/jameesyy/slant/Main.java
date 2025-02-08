@@ -31,6 +31,7 @@ public class Main {
     private static KeyBinding openConfigKey;
     private static KeyBinding printNbtKey;
     private static KeyBinding triggerbotKey;
+    private static KeyBinding autoBlockinKey;
 
     public static Minecraft getMc() {
         return mc;
@@ -72,6 +73,10 @@ public class Main {
         return triggerbotKey;
     }
 
+    public static KeyBinding getAutoBlockinKey() {
+        return autoBlockinKey;
+    }
+
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
@@ -85,6 +90,7 @@ public class Main {
         safewalkKey = new KeyBinding("Safewalk", Keyboard.KEY_NONE, "key.categories.gameplay");
         openConfigKey = new KeyBinding("Open Slant Config", Keyboard.KEY_NONE, "key.categories.gameplay");
         printNbtKey = new KeyBinding("Print NBT of Held Item", Keyboard.KEY_NONE, "key.categories.gameplay");
+        autoBlockinKey = new KeyBinding("Auto Block-in", Keyboard.KEY_NONE, "key.categories.gameplay");
 
         ClientRegistry.registerKeyBinding(betterAimKey);
         ClientRegistry.registerKeyBinding(aimAssistKey);
@@ -95,6 +101,7 @@ public class Main {
         ClientRegistry.registerKeyBinding(safewalkKey);
         ClientRegistry.registerKeyBinding(openConfigKey);
         ClientRegistry.registerKeyBinding(printNbtKey);
+        ClientRegistry.registerKeyBinding(autoBlockinKey);
 
         ModConfig.getInstance().preload();
         ModConfig.getInstance().setupConfigCallbacks();
@@ -125,6 +132,7 @@ public class Main {
         MinecraftForge.EVENT_BUS.register(new Tracers());
         MinecraftForge.EVENT_BUS.register(new Sprint());
         MinecraftForge.EVENT_BUS.register(new BlockHit());
+        MinecraftForge.EVENT_BUS.register(new AutoBlockin());
         ModConfig.getInstance().setModulesToConfig();
     }
 }
