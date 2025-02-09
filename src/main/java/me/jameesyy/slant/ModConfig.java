@@ -6,7 +6,7 @@ import gg.essential.vigilance.data.PropertyType;
 import me.jameesyy.slant.combat.*;
 import me.jameesyy.slant.movement.AutoJumpReset;
 import me.jameesyy.slant.movement.NoJumpDelay;
-import me.jameesyy.slant.movement.Safewalk;
+import me.jameesyy.slant.movement.BridgeAssist;
 import me.jameesyy.slant.movement.Sprint;
 import me.jameesyy.slant.network.Backtrack;
 import me.jameesyy.slant.network.PingSpoofer;
@@ -87,14 +87,14 @@ public class ModConfig extends Vigilant {
     // TODO use the reflections + lombok libs to recursively map to these fields in their package
     // less explicit but I'd rather not deal with this much boilerplate
 
-    @Property(type = PropertyType.SWITCH, name = "Safewalk", category = "Modules", description = "Sneak near the edge of blocks.")
-    public static boolean safewalkEnabled = false;
+    @Property(type = PropertyType.SWITCH, name = "Bridge Assist", category = "Modules", description = "Sneak near the edge of blocks.")
+    public static boolean bridgeAssistEnabled = false;
 
-    @Property(type = PropertyType.SWITCH, name = "Disable If Not Bridging Pitch", category = "Safewalk", description = "Toggles off the module after lifting your head back up.")
-        public static boolean safewalkDisableIfNotBridgingPitch = false;
+    @Property(type = PropertyType.SWITCH, name = "Disable If Not Bridging Pitch", category = "Bridge Assist", description = "Toggles off the module after lifting your head back up.")
+        public static boolean bridgeAssistDisableIfNotBridgingPitch = false;
 
-    @Property(type = PropertyType.DECIMAL_SLIDER, name = "Edge Distance", category = "Safewalk", description = "The distance from the edge at which sneaking occurs.", maxF = 0.5f, decimalPlaces = 2)
-        public static float safewalkEdgeDistance = 0.15f;
+    @Property(type = PropertyType.DECIMAL_SLIDER, name = "Edge Distance", category = "Bridge Assist", description = "The distance from the edge at which sneaking occurs.", maxF = 0.5f, decimalPlaces = 2)
+        public static float bridgeAssistEdgeDistance = 0.15f;
 
     @Property(type = PropertyType.SWITCH, name = "Backtrack", category = "Modules", description = "When fighting, uses a delayed hitbox of a target player to provide extra reach.")
     public static boolean backtrackEnabled = false;
@@ -340,9 +340,9 @@ public class ModConfig extends Vigilant {
         AutoJumpReset.setEnabled(autoJumpResetEnabled);
         AutoJumpReset.setChance(autoJumpResetChance);
         NoJumpDelay.setEnabled(noJumpDelayEnabled);
-        Safewalk.setDisableIfNotBridgingPitch(safewalkDisableIfNotBridgingPitch);
-        Safewalk.setEnabled(safewalkEnabled);
-        Safewalk.setEdgeDistance(safewalkEdgeDistance);
+        BridgeAssist.setDisableIfNotBridgingPitch(bridgeAssistDisableIfNotBridgingPitch);
+        BridgeAssist.setEnabled(bridgeAssistEnabled);
+        BridgeAssist.setEdgeDistance(bridgeAssistEdgeDistance);
 
         // Render
         Pointer.setEnabled(pointerEnabled);
@@ -439,7 +439,7 @@ public class ModConfig extends Vigilant {
         registerListener("invisEspEnabled", InvisEsp::setEnabled);
         registerListener("sharkEspEnabled", SharkEsp::setEnabled);
         registerListener("pointerEnabled", Pointer::setEnabled);
-        registerListener("safewalkEnabled", Safewalk::setEnabled);
+        registerListener("bridgeAssistEnabled", BridgeAssist::setEnabled);
         registerListener("backtrackEnabled", Backtrack::setEnabled);
         registerListener("pingSpooferEnabled", PingSpoofer::setEnabled);
 
@@ -447,7 +447,7 @@ public class ModConfig extends Vigilant {
         registerListener("autoWeaponSwapOnSwing", AutoWeapon::setSwapOnSwing);
         registerListener("autoToolOnSneakOnly", AutoTool::setOnSneakOnly);
         registerListener("autoToolNearBedOnly", AutoTool::setNearBedOnly);
-        registerListener("safewalkDisableIfNotBridgingPitch", Safewalk::setDisableIfNotBridgingPitch);
+        registerListener("bridgeAssistDisableIfNotBridgingPitch", BridgeAssist::setDisableIfNotBridgingPitch);
 
         registerListener("leftAutoclickerRespectHurtTicks", LeftAutoclicker::setRespectHurtTicks);
         registerListener("leftAutoclickerTriggerIfMouseDown", LeftAutoclicker::setTriggerIfMouseDown);
@@ -478,7 +478,7 @@ public class ModConfig extends Vigilant {
         registerListener("invisEspActivationRadius", InvisEsp::setActivationRadius);
         registerListener("bedEspActivationRadiusBlocks", BedEsp::setActivationRadiusBlocks);
         registerListener("sharkEspLowHealthThreshold", SharkEsp::setLowHealthThreshold);
-        registerListener("safewalkEdgeDistance", Safewalk::setEdgeDistance);
+        registerListener("bridgeAssistEdgeDistance", BridgeAssist::setEdgeDistance);
         registerListener("rodRecastEnabled", RodRecast::setEnabled);
         registerListener("quickMathsSolverEnabled", QuickMathsSolver::setEnabled);
         registerListener("quickMathsSolverReplyAfterXSolvers", QuickMathsSolver::setReplyAfterXSolvers);

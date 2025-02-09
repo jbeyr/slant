@@ -1,7 +1,7 @@
 package me.jameesyy.slant;
 
 import me.jameesyy.slant.combat.*;
-import me.jameesyy.slant.movement.Safewalk;
+import me.jameesyy.slant.movement.BridgeAssist;
 import me.jameesyy.slant.movement.Sprint;
 import me.jameesyy.slant.network.PacketManager;
 import me.jameesyy.slant.render.*;
@@ -27,7 +27,7 @@ public class Main {
     private static KeyBinding aimAssistKey;
 
     private static KeyBinding autoJumpResetKey;
-    private static KeyBinding safewalkKey;
+    private static KeyBinding bridgeAssistKey;
     private static KeyBinding openConfigKey;
     private static KeyBinding printNbtKey;
     private static KeyBinding triggerbotKey;
@@ -60,8 +60,8 @@ public class Main {
         return autoJumpResetKey;
     }
 
-    public static KeyBinding getSafewalkKey() {
-        return safewalkKey;
+    public static KeyBinding getBridgeAssistKey() {
+        return bridgeAssistKey;
     }
 
     public static KeyBinding getPrintNbtKey() {
@@ -82,7 +82,7 @@ public class Main {
         rmbAutoclickKey = new KeyBinding("RMB Autoclicker", Keyboard.KEY_NONE, "key.categories.gameplay");
         triggerbotKey = new KeyBinding("Trigger Bot", Keyboard.KEY_NONE, "key.categories.gameplay");
         autoJumpResetKey = new KeyBinding("Auto Jump Reset", Keyboard.KEY_NONE, "key.categories.gameplay");
-        safewalkKey = new KeyBinding("Safewalk", Keyboard.KEY_NONE, "key.categories.gameplay");
+        bridgeAssistKey = new KeyBinding("Bridge Assist", Keyboard.KEY_NONE, "key.categories.gameplay");
         openConfigKey = new KeyBinding("Open Slant Config", Keyboard.KEY_NONE, "key.categories.gameplay");
         printNbtKey = new KeyBinding("Print NBT of Held Item", Keyboard.KEY_NONE, "key.categories.gameplay");
 
@@ -92,7 +92,7 @@ public class Main {
         ClientRegistry.registerKeyBinding(rmbAutoclickKey);
         ClientRegistry.registerKeyBinding(triggerbotKey);
         ClientRegistry.registerKeyBinding(autoJumpResetKey);
-        ClientRegistry.registerKeyBinding(safewalkKey);
+        ClientRegistry.registerKeyBinding(bridgeAssistKey);
         ClientRegistry.registerKeyBinding(openConfigKey);
         ClientRegistry.registerKeyBinding(printNbtKey);
 
@@ -117,7 +117,7 @@ public class Main {
         MinecraftForge.EVENT_BUS.register(new AimAssist());
         MinecraftForge.EVENT_BUS.register(new NbtPrinter());
         MinecraftForge.EVENT_BUS.register(new AutoGhead());
-        MinecraftForge.EVENT_BUS.register(new Safewalk());
+        MinecraftForge.EVENT_BUS.register(new BridgeAssist());
         MinecraftForge.EVENT_BUS.register(new RodRecast());
         MinecraftForge.EVENT_BUS.register(new FireballPointer());
         MinecraftForge.EVENT_BUS.register(new QuickMathsSolver());

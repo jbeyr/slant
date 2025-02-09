@@ -25,6 +25,7 @@ Slant is standalone with dependents baked in and distributed as a `.jar` file. J
 - **Auto Weapon**: swaps to the leftmost slot with a weapon in your hotbar.
 - **Backtrack**: lag-based reach module that delays the velocity of other players so they don't go out of range
 - **Blockhit**: automatically blockhits when you attack with your sword.
+- **Bridge Assist**: dynamically toggles the sneak button for the player as they're bridging so they don't fall off a ledge or into the void.
 - **No Hit Delay**: removes the vanilla attack cooldown that occurs when you miss a certain threshold of left clicks in a short period of time.
 - **No Jump Delay**: removes the vanilla jump cooldown that occurs when holding the jump key.
 - **No Mining Delay**: removes the vanilla block-breaking cooldown that occurs between block break or damage ticks when holding down the left mouse button.
@@ -33,7 +34,7 @@ Slant is standalone with dependents baked in and distributed as a `.jar` file. J
   - **Bed ESP**: renders beds through walls.
 - **Ping Spoofer**: a lag switch that throttles inbound and outbound packets for an extended latency offset
 - **Pointer**: renders a cursor at the aim position that provides the most reach on a target.
-- **Safewalk**: dynamically toggles the sneak button for the player as they're bridging so they don't fall off a ledge or into the void.
+
 
 All of the modules above are configurable to provide substantial advantages or subtle ones, whichever that best suits your use case.
 

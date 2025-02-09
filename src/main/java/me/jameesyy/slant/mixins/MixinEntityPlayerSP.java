@@ -2,7 +2,7 @@ package me.jameesyy.slant.mixins;
 
 import me.jameesyy.slant.ActionConflictResolver;
 import me.jameesyy.slant.combat.AimAssist;
-import me.jameesyy.slant.movement.Safewalk;
+import me.jameesyy.slant.movement.BridgeAssist;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.Vec3;
@@ -21,7 +21,7 @@ public class MixinEntityPlayerSP {
     @Inject(method = "onUpdateWalkingPlayer", at = @At("HEAD"))
     private void onUpdateWalkingPlayer(CallbackInfo ci) {
         EntityPlayerSP player = (EntityPlayerSP) (Object) this;
-        Safewalk.setLastMovementInput(player.movementInput);
+        BridgeAssist.setLastMovementInput(player.movementInput);
     }
 
     @Unique

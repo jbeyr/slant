@@ -4,20 +4,21 @@ import me.jameesyy.slant.ActionConflictResolver;
 import me.jameesyy.slant.Main;
 import me.jameesyy.slant.ModConfig;
 import me.jameesyy.slant.util.Reporter;
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.IChatComponent;
 import net.minecraft.util.MovementInput;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 
-public class Safewalk {
+public class BridgeAssist {
     /**
      * Players bridge at a pitch above this value.
      */
@@ -33,9 +34,9 @@ public class Safewalk {
     }
 
     public static void setEnabled(boolean b) {
-        Safewalk.enabled = b;
-        ModConfig.safewalkEnabled = b;
-        Reporter.queueEnableMsg("Safewalk", b);
+        BridgeAssist.enabled = b;
+        ModConfig.bridgeAssistEnabled = b;
+        Reporter.queueEnableMsg("Bridge Assist", b);
 
         if(b) return;
         KeyBinding sneakKey = mc.gameSettings.keyBindSneak;
@@ -47,29 +48,48 @@ public class Safewalk {
     }
 
     public static void setEdgeDistance(float f) {
-        Safewalk.edgeDistance = f;
-        ModConfig.safewalkEdgeDistance = f;
-        Reporter.queueSetMsg("Safewalk", "Edge Distance", f);
+        BridgeAssist.edgeDistance = f;
+        ModConfig.bridgeAssistEdgeDistance = f;
+        Reporter.queueSetMsg("Bridge Assist", "Edge Distance", f);
     }
 
     public static void setLastMovementInput(MovementInput lastMovementInput) {
-        Safewalk.lastMovementInput = lastMovementInput;
+        BridgeAssist.lastMovementInput = lastMovementInput;
     }
 
     public static void setDisableIfNotBridgingPitch(boolean b) {
-        Safewalk.disableIfNotBridgingPitch = b;
-        ModConfig.safewalkDisableIfNotBridgingPitch = b;
-        Reporter.queueSetMsg("Safewalk", "Disable If Not Bridging Pitch", b);
+        BridgeAssist.disableIfNotBridgingPitch = b;
+        ModConfig.bridgeAssistDisableIfNotBridgingPitch = b;
+        Reporter.queueSetMsg("Bridge Assist", "Disable If Not Bridging Pitch", b);
     }
 
     @SubscribeEvent
-    public void onRenderWorldLast(net.minecraftforge.client.event.RenderWorldLastEvent event) {
+    public void onRenderWorldLast(RenderWorldLastEvent event) {
         if (isEnabled()) {
-            handleSafewalk(event.partialTicks);
+            if (shouldSwitchBlocksNextFrame) {
+                switchToMostBlocks();
+                shouldSwitchBlocksNextFrame = false;
+            }
+            handleBridgeAssist(event.partialTicks);
         }
     }
 
-    private void handleSafewalk(float partialTicks) {
+    private boolean shouldSwitchBlocksNextFrame = false;
+
+    @SubscribeEvent
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        if (!enabled) return;
+        if (event.action != PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK) return;
+
+        ItemStack heldItem = mc.thePlayer.getHeldItem();
+        if (heldItem != null && heldItem.getItem() instanceof ItemBlock) {
+            if (heldItem.stackSize <= 1) { // Will be empty after placement
+                shouldSwitchBlocksNextFrame = true;
+            }
+        }
+    }
+
+    private void handleBridgeAssist(float partialTicks) {
         if (!ActionConflictResolver.isSneakingAllowed()) return;
 
         EntityPlayer player = Minecraft.getMinecraft().thePlayer;
@@ -112,9 +132,6 @@ public class Safewalk {
 
         BlockPos futurePos = new BlockPos(futureX, playerY - 1, futureZ);
         boolean isAirLayingInWait = player.worldObj.isAirBlock(futurePos);
-
-        IChatComponent m = new ChatComponentText("");
-
         boolean isXOriented = (yaw < 45 || yaw >= 315) || (yaw >= 135 && yaw < 225);
 
 
@@ -149,8 +166,37 @@ public class Safewalk {
         } else { // side bridging
             KeyBinding.setKeyBindState(sneakKey.getKeyCode(), isAirLayingInWait);
         }
+    }
 
-        Minecraft.getMinecraft().ingameGUI.setRecordPlaying(m, true);
+    /**
+     * Swaps to the hotbar slot with the most blocks.
+     */
+    private void switchToMostBlocks() {
+        ItemStack currentStack = mc.thePlayer.getHeldItem();
+        if (currentStack != null && currentStack.stackSize > 0) return; // current slot still has blocks
+
+        int bestSlot = -1;
+        int mostBlocks = 0;
+
+        // Search hotbar for slot with most blocks
+        for (int i = 0; i < 9; i++) {
+            ItemStack stack = mc.thePlayer.inventory.getStackInSlot(i);
+            if (stack != null && stack.getItem() instanceof ItemBlock) {
+                // Check if block is solid/full
+                Block block = ((ItemBlock) stack.getItem()).getBlock();
+                if (block.isFullBlock()) {
+                    if (stack.stackSize > mostBlocks) {
+                        mostBlocks = stack.stackSize;
+                        bestSlot = i;
+                    }
+                }
+            }
+        }
+
+        // Switch to best slot if found
+        if (bestSlot != -1) {
+            mc.thePlayer.inventory.currentItem = bestSlot;
+        }
     }
 
     @SubscribeEvent
@@ -159,7 +205,7 @@ public class Safewalk {
         if (event.phase != TickEvent.Phase.START) return;
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
-        if (Main.getSafewalkKey().isPressed()) {
+        if (Main.getBridgeAssistKey().isPressed()) {
             setEnabled(!enabled);
         }
 
