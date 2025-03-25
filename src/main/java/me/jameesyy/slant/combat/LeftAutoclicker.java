@@ -3,19 +3,14 @@ package me.jameesyy.slant.combat;
 import me.jameesyy.slant.ActionConflictResolver;
 import me.jameesyy.slant.Main;
 import me.jameesyy.slant.ModConfig;
-import me.jameesyy.slant.Targeter;
-import me.jameesyy.slant.render.Pointer;
 import me.jameesyy.slant.util.AntiBot;
 import me.jameesyy.slant.util.Reporter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.projectile.EntityFireball;
 import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.Vec3;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -87,53 +82,20 @@ public class LeftAutoclicker {
         Reporter.queueSetMsg("LMB Autoclicker", "Min CPS", cps);
     }
 
-    public static Optional<Entity> getValidEntityNearCrosshair() {
+    public static Optional<Entity> getEntityOnCrosshair() {
         EntityPlayer me = mc.thePlayer;
         if (me == null) return Optional.empty();
 
-        Vec3 lookVec = me.getLookVec();
-        Vec3 eyePos = me.getPositionEyes(1.0F);
-
-        double fov = Math.cos(Math.toRadians(45));
-
-
-        MovingObjectPosition objectMouseOver = mc.objectMouseOver;
-        if (objectMouseOver != null && objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY) {
-            Entity entity = objectMouseOver.entityHit;
-            if ((entity instanceof EntityPlayer && AntiBot.isRecommendedTarget((EntityPlayer) entity, rangeSqr))
-                    || (entity instanceof EntityLiving && entity.isEntityAlive() && (!respectHurtTicks || !Targeter.hasHurtTicks(entity.getUniqueID())))
-                    || entity instanceof EntityFireball) {
-                return Optional.of(entity);
+        MovingObjectPosition omo = mc.objectMouseOver;
+        if (omo != null && omo.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY) {
+            Entity en = omo.entityHit;
+            if ((en instanceof EntityPlayer && AntiBot.isRecommendedTarget((EntityPlayer) en))
+                    || (en instanceof EntityLiving && (!respectHurtTicks || (en.hurtResistantTime == 0 || 5 < en.hurtResistantTime && en.hurtResistantTime < 20)))
+            ) {
+                return Optional.of(en);
             }
         }
-
-        Optional<Entity> nearestTarget = Optional.empty();
-        double closestDistanceSqr = rangeSqr;
-        if (triggerIfNearFov) {
-            for (Entity entity : mc.theWorld.loadedEntityList) {
-                if (!(entity instanceof EntityLivingBase) || entity == me) continue;
-                EntityLivingBase leb = (EntityLivingBase) entity;
-
-                Vec3 toEntity = leb.getPositionVector().addVector(0, leb.getEyeHeight() / 2, 0).subtract(eyePos);
-                double distance = toEntity.lengthVector();
-                double distSqr = distance * distance;
-
-                if (distSqr > rangeSqr) continue;
-
-                Vec3 toEntityNormalized = toEntity.normalize();
-                double dotProduct = lookVec.dotProduct(toEntityNormalized);
-                if (dotProduct <= fov) continue;
-
-                if (Pointer.getVisiblePart(me, leb) == null) continue;
-                if (respectHurtTicks && Targeter.hasHurtTicks(entity.getUniqueID())) continue;
-                if (distSqr < closestDistanceSqr) {
-                    closestDistanceSqr = distSqr;
-                    nearestTarget = Optional.of(leb);
-                }
-            }
-        }
-
-        return nearestTarget;
+        return Optional.empty();
     }
 
     public static void legitLeftClick() {
@@ -145,13 +107,11 @@ public class LeftAutoclicker {
     }
 
     public static boolean shouldClick() {
-        Optional<Entity> enInCrosshair = getValidEntityNearCrosshair();
-
         return enabled
+                && getEntityOnCrosshair().isPresent()
                 && ActionConflictResolver.isClickAllowed()
                 && (Mouse.isButtonDown(0) || !triggerIfMouseDown)
-                && hasCooldownExpired()
-                && (enInCrosshair.isPresent() && (!(enInCrosshair.get() instanceof EntityLivingBase) || AntiBot.isRecommendedTarget((EntityLivingBase) enInCrosshair.get())));
+                && hasCooldownExpired();
     }
 
     public static void resetClickDelay() {

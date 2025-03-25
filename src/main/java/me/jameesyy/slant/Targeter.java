@@ -85,10 +85,6 @@ public class Targeter {
         hurtTickedTargets.clear();
     }
 
-    public static boolean hasHurtTicks(UUID entityUuid) {
-        return activeTick <= hurtTickedTargets.getOrDefault(entityUuid, 0L) + 10;
-    }
-
     public interface TargetChangeListener {
         void onTargetChange(Optional<EntityPlayer> oldTarget, Optional<EntityPlayer> newTarget);
     }

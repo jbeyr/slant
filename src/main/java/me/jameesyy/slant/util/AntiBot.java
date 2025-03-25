@@ -61,31 +61,16 @@ public class AntiBot {
         Reporter.queueEnableMsg("Anti Bot", b);
     }
 
-    public static Optional<Vec3> ifRecommendedGetRotationsOf(Entity en) {
-        if(!(en instanceof EntityLivingBase)) return Optional.empty(); // covers null check
-        EntityLivingBase other = (EntityLivingBase)en;
-
+    public static boolean isRecommendedTarget(EntityLivingBase elb) {
         EntityPlayer me = Minecraft.getMinecraft().thePlayer;
-        boolean isplayer = other instanceof EntityPlayer;
+        boolean isPlayer = elb instanceof EntityPlayer;
 
-        if (me == other || !other.isEntityAlive()) return Optional.empty();
-        if (other instanceof EntityArmorStand || ((!(other instanceof EntityMob) && other instanceof EntityCreature && !(other instanceof EntityGolem)))) return Optional.empty();
-        if (enabled && respectTeams && isplayer && hasSameHelmetColor(me, other)) return Optional.empty();
-        if (enabled && isplayer && AntiBot.isBotUuid(other.getUniqueID())) return Optional.empty(); // if disabled, allow blacklisted entities
-        return Optional.ofNullable(Pointer.getVisiblePart(me, other));
-    }
-
-    public static boolean isRecommendedTarget(EntityLivingBase other) {
-        EntityPlayer me = Minecraft.getMinecraft().thePlayer;
-        boolean isPlayer = other instanceof EntityPlayer;
-
-        if (other == null || me == other) return false;
+        if (elb == null || me == elb) return false;
         if (!isPlayer && onlyPlayers) return false;
-        if (other instanceof EntityArmorStand || ((!(other instanceof EntityMob) && other instanceof EntityCreature && !(other instanceof EntityGolem)))) return false;
-        if (enabled && respectTeams && isPlayer && hasSameHelmetColor(me, other)) return false;
-        if (enabled && isPlayer && AntiBot.isBotUuid(other.getUniqueID())) return false; // if disabled, allow blacklisted entities
-
-        return other.isEntityAlive() && Pointer.getVisiblePart(me, other) != null;
+        if (elb instanceof EntityArmorStand || ((!(elb instanceof EntityMob) && elb instanceof EntityCreature && !(elb instanceof EntityGolem)))) return false;
+        if (enabled && respectTeams && isPlayer && hasSameHelmetColor(me, elb)) return false;
+        if (enabled && isPlayer && AntiBot.isBotUuid(elb.getUniqueID())) return false; // if disabled, allow blacklisted entities
+        return elb.isEntityAlive();
     }
 
     public static boolean isRecommendedTarget(EntityLivingBase other, double rangeSqr) {
@@ -192,50 +177,50 @@ public class AntiBot {
         }
     }
 
-    @SubscribeEvent
-    public void onRenderWorldLast(RenderWorldLastEvent event) {
-        if (!enabled) return;
-
-        Minecraft mc = Minecraft.getMinecraft();
-        if (mc.theWorld == null || mc.thePlayer == null) return;
-
-        EntityPlayer viewer = mc.thePlayer;
-        double viewerX = viewer.lastTickPosX + (viewer.posX - viewer.lastTickPosX) * event.partialTicks;
-        double viewerY = viewer.lastTickPosY + (viewer.posY - viewer.lastTickPosY) * event.partialTicks;
-        double viewerZ = viewer.lastTickPosZ + (viewer.posZ - viewer.lastTickPosZ) * event.partialTicks;
-
-        GlStateManager.pushMatrix();
-        GlStateManager.translate(-viewerX, -viewerY, -viewerZ);
-
-        GlStateManager.disableTexture2D();
-        GlStateManager.enableBlend();
-        GlStateManager.disableAlpha();
-        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
-        GlStateManager.shadeModel(GL11.GL_SMOOTH);
-        GlStateManager.disableDepth();
-
-        for (Object obj : mc.theWorld.loadedEntityList) {
-            if (!(obj instanceof EntityPlayer)) continue;
-            EntityPlayer player = (EntityPlayer) obj;
-            if (!(isBotUuid(player.getUniqueID()))) continue;
-            double x = player.lastTickPosX + (player.posX - player.lastTickPosX) * event.partialTicks;
-            double y = player.lastTickPosY + (player.posY - player.lastTickPosY) * event.partialTicks;
-            double z = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * event.partialTicks;
-
-            AxisAlignedBB bbox = player.getEntityBoundingBox().expand(0.1, 0.1, 0.1)
-                    .offset(x - player.posX, y - player.posY, z - player.posZ);
-
-            drawBoundingBox(bbox, 0.0F, 0.0F, 0.0F, 0.5F);
-        }
-
-        GlStateManager.enableDepth();
-        GlStateManager.shadeModel(GL11.GL_FLAT);
-        GlStateManager.disableBlend();
-        GlStateManager.enableAlpha();
-        GlStateManager.enableTexture2D();
-
-        GlStateManager.popMatrix();
-    }
+//    @SubscribeEvent
+//    public void onRenderWorldLast(RenderWorldLastEvent event) {
+//        if (!enabled) return;
+//
+//        Minecraft mc = Minecraft.getMinecraft();
+//        if (mc.theWorld == null || mc.thePlayer == null) return;
+//
+//        EntityPlayer viewer = mc.thePlayer;
+//        double viewerX = viewer.lastTickPosX + (viewer.posX - viewer.lastTickPosX) * event.partialTicks;
+//        double viewerY = viewer.lastTickPosY + (viewer.posY - viewer.lastTickPosY) * event.partialTicks;
+//        double viewerZ = viewer.lastTickPosZ + (viewer.posZ - viewer.lastTickPosZ) * event.partialTicks;
+//
+//        GlStateManager.pushMatrix();
+//        GlStateManager.translate(-viewerX, -viewerY, -viewerZ);
+//
+//        GlStateManager.disableTexture2D();
+//        GlStateManager.enableBlend();
+//        GlStateManager.disableAlpha();
+//        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+//        GlStateManager.shadeModel(GL11.GL_SMOOTH);
+//        GlStateManager.disableDepth();
+//
+//        for (Object obj : mc.theWorld.loadedEntityList) {
+//            if (!(obj instanceof EntityPlayer)) continue;
+//            EntityPlayer player = (EntityPlayer) obj;
+//            if (!(isBotUuid(player.getUniqueID()))) continue;
+//            double x = player.lastTickPosX + (player.posX - player.lastTickPosX) * event.partialTicks;
+//            double y = player.lastTickPosY + (player.posY - player.lastTickPosY) * event.partialTicks;
+//            double z = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * event.partialTicks;
+//
+//            AxisAlignedBB bbox = player.getEntityBoundingBox().expand(0.1, 0.1, 0.1)
+//                    .offset(x - player.posX, y - player.posY, z - player.posZ);
+//
+//            drawBoundingBox(bbox, 0.0F, 0.0F, 0.0F, 0.5F);
+//        }
+//
+//        GlStateManager.enableDepth();
+//        GlStateManager.shadeModel(GL11.GL_FLAT);
+//        GlStateManager.disableBlend();
+//        GlStateManager.enableAlpha();
+//        GlStateManager.enableTexture2D();
+//
+//        GlStateManager.popMatrix();
+//    }
 
     private boolean amInCombat() {
         return currentTick - lastCombatTick < COMBAT_COOLDOWN_TICKS;

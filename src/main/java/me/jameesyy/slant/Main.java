@@ -3,6 +3,7 @@ package me.jameesyy.slant;
 import me.jameesyy.slant.combat.*;
 import me.jameesyy.slant.movement.BridgeAssist;
 import me.jameesyy.slant.movement.Sprint;
+import me.jameesyy.slant.network.Backtrack;
 import me.jameesyy.slant.network.PacketManager;
 import me.jameesyy.slant.render.*;
 import me.jameesyy.slant.util.*;
@@ -31,6 +32,7 @@ public class Main {
     private static KeyBinding openConfigKey;
     private static KeyBinding printNbtKey;
     private static KeyBinding triggerbotKey;
+    private static KeyBinding backtrackKey;
 
     public static Minecraft getMc() {
         return mc;
@@ -72,6 +74,9 @@ public class Main {
         return triggerbotKey;
     }
 
+    public static KeyBinding getBacktrackKey() {
+        return backtrackKey;
+    }
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
@@ -81,6 +86,7 @@ public class Main {
         lmbAutoclickKey = new KeyBinding("LMB Autoclicker", Keyboard.KEY_NONE, "key.categories.gameplay");
         rmbAutoclickKey = new KeyBinding("RMB Autoclicker", Keyboard.KEY_NONE, "key.categories.gameplay");
         triggerbotKey = new KeyBinding("Trigger Bot", Keyboard.KEY_NONE, "key.categories.gameplay");
+        backtrackKey = new KeyBinding("Backtrack", Keyboard.KEY_NONE, "key.categories.gameplay");
         autoJumpResetKey = new KeyBinding("Auto Jump Reset", Keyboard.KEY_NONE, "key.categories.gameplay");
         bridgeAssistKey = new KeyBinding("Bridge Assist", Keyboard.KEY_NONE, "key.categories.gameplay");
         openConfigKey = new KeyBinding("Open Slant Config", Keyboard.KEY_NONE, "key.categories.gameplay");
@@ -91,6 +97,7 @@ public class Main {
         ClientRegistry.registerKeyBinding(lmbAutoclickKey);
         ClientRegistry.registerKeyBinding(rmbAutoclickKey);
         ClientRegistry.registerKeyBinding(triggerbotKey);
+        ClientRegistry.registerKeyBinding(backtrackKey);
         ClientRegistry.registerKeyBinding(autoJumpResetKey);
         ClientRegistry.registerKeyBinding(bridgeAssistKey);
         ClientRegistry.registerKeyBinding(openConfigKey);
@@ -125,6 +132,7 @@ public class Main {
         MinecraftForge.EVENT_BUS.register(new Tracers());
         MinecraftForge.EVENT_BUS.register(new Sprint());
         MinecraftForge.EVENT_BUS.register(new BlockHit());
+        MinecraftForge.EVENT_BUS.register(new Backtrack());
         ModConfig.getInstance().setModulesToConfig();
     }
 }

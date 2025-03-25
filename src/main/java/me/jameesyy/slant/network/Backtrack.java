@@ -1,10 +1,13 @@
 package me.jameesyy.slant.network;
 
+import me.jameesyy.slant.Main;
 import me.jameesyy.slant.ModConfig;
 import me.jameesyy.slant.util.LagUtils;
 import me.jameesyy.slant.util.Reporter;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.InputEvent;
 
 import java.util.Optional;
 
@@ -62,5 +65,12 @@ public class Backtrack {
         Backtrack.sensitivity = sensitivity;
         ModConfig.backtrackSensitivity = sensitivity;
         Reporter.queueSetMsg("Backtrack", "Sensitivity", sensitivity);
+    }
+
+    @SubscribeEvent
+    public void onKeyInput(InputEvent.KeyInputEvent event) {
+        if (Main.getBacktrackKey().isPressed()) {
+            setEnabled(!enabled);
+        }
     }
 }
