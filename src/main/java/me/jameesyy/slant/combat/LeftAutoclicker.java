@@ -8,7 +8,7 @@ import me.jameesyy.slant.util.Reporter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraftforge.client.event.MouseEvent;
@@ -82,15 +82,15 @@ public class LeftAutoclicker {
         Reporter.queueSetMsg("LMB Autoclicker", "Min CPS", cps);
     }
 
-    public static Optional<Entity> getEntityOnCrosshair() {
+    public static Optional<Entity> crosshair() {
         EntityPlayer me = mc.thePlayer;
         if (me == null) return Optional.empty();
 
         MovingObjectPosition omo = mc.objectMouseOver;
         if (omo != null && omo.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY) {
             Entity en = omo.entityHit;
-            if ((en instanceof EntityPlayer && AntiBot.isRecommendedTarget((EntityPlayer) en))
-                    || (en instanceof EntityLiving && (!respectHurtTicks || (en.hurtResistantTime == 0 || 5 < en.hurtResistantTime && en.hurtResistantTime < 20)))
+            if (!(en instanceof EntityLivingBase)) return Optional.empty();
+            if ((AntiBot.isRecommendedTarget((EntityLivingBase)en)) && (!respectHurtTicks || (en.hurtResistantTime == 0 || 5 < en.hurtResistantTime && en.hurtResistantTime < 20))
             ) {
                 return Optional.of(en);
             }
@@ -108,7 +108,7 @@ public class LeftAutoclicker {
 
     public static boolean shouldClick() {
         return enabled
-                && getEntityOnCrosshair().isPresent()
+                && crosshair().isPresent()
                 && ActionConflictResolver.isClickAllowed()
                 && (Mouse.isButtonDown(0) || !triggerIfMouseDown)
                 && hasCooldownExpired();
