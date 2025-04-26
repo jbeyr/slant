@@ -102,6 +102,9 @@ public class ModConfig extends Vigilant {
     @Property(type = PropertyType.SLIDER, name = "Delay", category = "Backtrack", description = "The millesecond offset to delay the target hitbox by. Rule of thumb: max +5ms for every +50ms ping. If you have 100ms ping, set to no more than 10ms.", min = 1, max = 50)
         public static int backtrackDelayMs = 1;
 
+    @Property(type = PropertyType.DECIMAL_SLIDER, name = "Range", category = "Backtrack", description = "When to start backtracking the target", minF = 0, maxF = 5, decimalPlaces = 2)
+    public static float backtrackMinRange = 3.2f;
+
     @Property(type = PropertyType.SLIDER, name = "Sensitivity", category = "Backtrack", description = "Adjusts how aggressively the backtrack feature activates. Higher values increase the range and frequency of backtrack hits, potentially making them more noticeable. Lower values result in more subtle, conservative backtracking.", min = 0, max = 100, increment = 5)
         public static int backtrackSensitivity = 100;
 
@@ -319,6 +322,7 @@ public class ModConfig extends Vigilant {
 
         Backtrack.setEnabled(backtrackEnabled);
         Backtrack.setDelay(backtrackDelayMs);
+        Backtrack.setMinRange(backtrackMinRange);
         Backtrack.setSensitivity(backtrackSensitivity);
 
         PingSpoofer.setEnabled(pingSpooferEnabled);
@@ -466,6 +470,7 @@ public class ModConfig extends Vigilant {
 
         registerListener("pingSpooferDelayMs", PingSpoofer::setDelay);
         registerListener("backtrackDelayMs", Backtrack::setDelay);
+        registerListener("backtrackMinRange", Backtrack::setMinRange);
         registerListener("backtrackSensitivity", Backtrack::setSensitivity);
 
         registerListener("minTargetAngularSize", EnhancedAimingModule::setMinTargetAngularSize);

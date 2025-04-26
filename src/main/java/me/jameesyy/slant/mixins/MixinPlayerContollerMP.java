@@ -38,20 +38,4 @@ public class MixinPlayerContollerMP {
             }
         }
     }
-
-    // TODO consider disabling aim assist when breaking blocks
-//    @Inject(method = "onPlayerDamageBlock", at = @At("TAIL"))
-//    private void afterPlayerDamageBlock(BlockPos p_onPlayerDamageBlock_1_, EnumFacing p_onPlayerDamageBlock_2_, CallbackInfoReturnable<Boolean> cir) {
-//        AimAssist.setIsHittingBlock(isHittingBlock);
-//    }
-//
-//    @Inject(method = "resetBlockRemoving", at = @At("TAIL"))
-//    private void afterResetBlockRemoving(CallbackInfo ci) {
-//        AimAssist.setIsHittingBlock(isHittingBlock);
-//    }
-//
-//    @Inject(method = "clickBlock", at = @At("TAIL"))
-//    private void afterClickBlock(BlockPos p_clickBlock_1_, EnumFacing p_clickBlock_2_, CallbackInfoReturnable<Boolean> cir) {
-//        AimAssist.setIsHittingBlock(isHittingBlock);
-//    }
 }

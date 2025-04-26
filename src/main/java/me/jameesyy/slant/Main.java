@@ -19,12 +19,13 @@ import org.lwjgl.input.Keyboard;
 @Mod(modid = Main.MODID, version = Main.VERSION)
 public class Main {
     public static final String MODID = "slant";
-    public static final String VERSION = "1.2.0";
+    public static final String VERSION = "1.3.0";
 
     private static final Minecraft mc = Minecraft.getMinecraft();
     private static KeyBinding lmbAutoclickKey;
     private static KeyBinding rmbAutoclickKey;
     private static KeyBinding betterAimKey;
+    private static KeyBinding backtrackKey;
     private static KeyBinding aimAssistKey;
 
     private static KeyBinding autoJumpResetKey;
@@ -32,7 +33,6 @@ public class Main {
     private static KeyBinding openConfigKey;
     private static KeyBinding printNbtKey;
     private static KeyBinding triggerbotKey;
-    private static KeyBinding backtrackKey;
 
     public static Minecraft getMc() {
         return mc;
@@ -82,6 +82,7 @@ public class Main {
     public void init(FMLInitializationEvent event) {
 
         betterAimKey = new KeyBinding("Better Aim", Keyboard.KEY_NONE, "key.categories.gameplay");
+        backtrackKey = new KeyBinding("Backtrack", Keyboard.KEY_NONE, "key.categories.gameplay");
         aimAssistKey = new KeyBinding("Aim Assist", Keyboard.KEY_NONE, "key.categories.gameplay");
         lmbAutoclickKey = new KeyBinding("LMB Autoclicker", Keyboard.KEY_NONE, "key.categories.gameplay");
         rmbAutoclickKey = new KeyBinding("RMB Autoclicker", Keyboard.KEY_NONE, "key.categories.gameplay");
@@ -93,6 +94,7 @@ public class Main {
         printNbtKey = new KeyBinding("Print NBT of Held Item", Keyboard.KEY_NONE, "key.categories.gameplay");
 
         ClientRegistry.registerKeyBinding(betterAimKey);
+        ClientRegistry.registerKeyBinding(backtrackKey);
         ClientRegistry.registerKeyBinding(aimAssistKey);
         ClientRegistry.registerKeyBinding(lmbAutoclickKey);
         ClientRegistry.registerKeyBinding(rmbAutoclickKey);
@@ -119,7 +121,6 @@ public class Main {
         MinecraftForge.EVENT_BUS.register(new SharkEsp());
         MinecraftForge.EVENT_BUS.register(new InvisEsp());
         MinecraftForge.EVENT_BUS.register(new BedEsp());
-        MinecraftForge.EVENT_BUS.register(new Pointer());
         MinecraftForge.EVENT_BUS.register(new BetterAim());
         MinecraftForge.EVENT_BUS.register(new AimAssist());
         MinecraftForge.EVENT_BUS.register(new NbtPrinter());
