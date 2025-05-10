@@ -6,8 +6,6 @@ public class NoMiningDelay {
 
     private static boolean enabled;
 
-
-
     public static boolean isEnabled() {
         return enabled;
     }

@@ -12,7 +12,9 @@ import net.minecraft.util.EnumFacing;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -37,5 +39,17 @@ public class MixinPlayerContollerMP {
                 mc.thePlayer.inventory.currentItem = bestSlot;
             }
         }
+    }
+
+    @Inject(method = "updateController", at = @At("TAIL"))
+    private void afterUpdateController(CallbackInfo ci) {
+        if (NoMiningDelay.isEnabled()) {
+            blockHitDelay = 0;
+        }
+    }
+
+    @ModifyConstant(method = "updateBlockRemoving", constant = @Constant(intValue = 5))
+    private int zeroOutDelay(int original) {
+        return NoMiningDelay.isEnabled() ? 0 : original;  // 0 or keep vanilla
     }
 }
